@@ -1,0 +1,20 @@
+﻿namespace Domain.Entities;
+public class Staff
+{
+    public Guid Id { get; set; }
+    public Guid? CreateBy { get; set; }
+    public DateTime CreatedOn { get; set; }
+    public Guid? DeletedBy { get; set; }
+    public DateTime DeletedOn { get; set; }
+    public bool IsDeleted { get; set; } = false;
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string HashedPassword { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty;
+    public string ImageUrl { get; set; } = "default.png";
+    public DateTime DateOfBirth { get; set; }
+
+    public virtual ICollection<Order>? Orders { get; set; }
+    public virtual ICollection<StaffRole>? StaffRoles { get; set; }
+}
