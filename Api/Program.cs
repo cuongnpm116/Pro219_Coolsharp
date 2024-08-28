@@ -1,3 +1,4 @@
+using Api.Extensions;
 using Application;
 using Infrastructure;
 
@@ -7,8 +8,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddInfrastructure()
-    .AddApplication();
+builder.Services.AddCorsPolicy();
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddInfrastructure().AddApplication();
 
 var app = builder.Build();
 
@@ -18,10 +20,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
+app.UseStaticFiles();
+app.UseCors("eShopApi");
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 await app.RunAsync();

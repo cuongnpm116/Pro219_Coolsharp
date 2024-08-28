@@ -25,7 +25,7 @@ public partial class VietNamAddressContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=VietNam_Address_Database;Trusted_Connection=True;TrustServerCertificate=true;");
-                                  
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AdministrativeRegion>(entity =>
