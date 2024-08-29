@@ -1,7 +1,7 @@
 ﻿namespace Application.ValueObjects.Pagination;
-public class PaginationRequest
+public class PaginationResponse<T>
 {
     public int PageNumber { get; set; }
-    public int PageSize { get; set; }
-    public string SearchString { get; set; } = string.Empty;
+    public bool HasNext { get; set; }
+    public IReadOnlyCollection<T>? Data { get; set; }
 }

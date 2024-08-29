@@ -1,4 +1,6 @@
-﻿namespace Domain.Entities;
+﻿using Domain.Enums;
+
+namespace Domain.Entities;
 public class Staff
 {
     public Guid Id { get; set; }
@@ -14,6 +16,7 @@ public class Staff
     public string Username { get; set; } = string.Empty;
     public string ImageUrl { get; set; } = "default.png";
     public DateTime DateOfBirth { get; set; }
+    public Status Status { get; set; } = Status.Active;
 
     public virtual ICollection<Order>? Orders { get; set; }
     public virtual ICollection<StaffRole>? StaffRoles { get; set; }

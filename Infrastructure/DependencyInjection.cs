@@ -24,6 +24,8 @@ public static class DependencyInjection
 
         services.AddScoped<IVietNamAddressRepository, VietNamAddressRepository>();
         services.AddTransient<IAddressRepository, AddressRepository>();
+        services.AddTransient<IStaffRepository, StaffRepository>();
+        services.AddTransient<IRoleRepository, RoleRepository>();
 
         return services;
     }

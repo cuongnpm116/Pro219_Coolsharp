@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietNamAddress", "VietNamAddress\VietNamAddress.csproj", "{60CF9C68-C85D-4B3E-AA51-29BDC095DC3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAppIntegrated", "WebAppIntegrated\WebAppIntegrated.csproj", "{7BC850C0-E8C7-4B9A-9EE9-40F9D72D0E08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAppIntegrated", "WebAppIntegrated\WebAppIntegrated.csproj", "{7BC850C0-E8C7-4B9A-9EE9-40F9D72D0E08}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
