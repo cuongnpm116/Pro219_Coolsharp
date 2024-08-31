@@ -1,0 +1,43 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Edit" Class="mr-3"></MudIcon>
+            @Dialog.Title
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudPaper Elevation="1" Class="d-flex flex-column">
+            <MudRadioGroup @bind-Value="_selectedAddress">
+                @foreach (var address in _addresses)
+                {
+                    <MudRadio Value="address">
+                        <MudPaper Class="my-6 pa-6 d-flex flex-row justify-space-between" Style="height:180px;">
+                            <MudPaper Elevation="0" Class="align-content-center">
+                                <MudText>@address.PhoneNumber</MudText>
+                                <MudText>@address.Detail</MudText>
+                                <MudText>@(address.Ward.Name + ", " + address.District.Name + ", " + address.Province.Name)</MudText>
+                            </MudPaper>
+                            <MudPaper Elevation="0" Class="d-flex flex-column justify-center gap-2">
+                                @if (address.IsDefault)
+                                {
+                                    <MudChip T="string" Variant="Variant.Outlined" Color="Color.Info">Mặc định</MudChip>
+                                }
+                                else
+                                {
+                                }
+                                <MudButton OnClick="async () => await EditAddress(address.Id, CustomerId, address.IsDefault)"
+                                           Variant="Variant.Filled"
+                                           Color="Color.Warning">Cập nhật địa chỉ</MudButton>
+                            </MudPaper>
+                        </MudPaper>
+                    </MudRadio>
+                }
+            </MudRadioGroup>
+        </MudPaper>
+        <MudButton OnClick="() => AddAddress(CustomerId)" Class="mt-3">Thêm địa chỉ mới</MudButton>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="() => Dialog.Cancel()" Variant="Variant.Filled" Color="Color.Error">Hủy</MudButton>
+        <MudButton OnClick="() => SelectAddress()" Variant="Variant.Filled">Xác nhận</MudButton>
+    </DialogActions>
+</MudDialog>

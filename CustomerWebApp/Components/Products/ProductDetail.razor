@@ -1,0 +1,169 @@
+﻿@page "/productdetail"
+@page "/productdetail/{ProductId:guid}"
+
+<div class="d-flex flex-row align-items-center" style="width: 100%;height: 60px;border-bottom: solid 1px #ebebeb;margin-bottom: 20px;">
+    <ul>
+        <li style="display: inline-block;margin-right: 17px;"><a style="text-decoration:none;color:#51545f" href="/">Trang chủ</a>/</li>
+        <li style="display: inline-block;margin-right: 17px;"><a style="text-decoration:none;color:#51545f" href="/products">Sản phẩm</a>/</li>
+        <li style="display: inline-block;margin-right: 17px;">@ProductName</li>
+    </ul>
+</div>
+
+@if (_productDetail != null)
+{
+    <MudContainer Style="margin-bottom:40px">
+        <MudGrid>
+            <MudItem xs="12" md="6">
+
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudImage Src="@defaultImage" Alt="Image" Height="300" Width="439" Fluid="true" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudGrid Justify="Justify.SpaceBetween">
+                            <MudItem xs="1">
+                                @if (CurrentPage > 0)
+                                {
+                                    <MudButton Variant="Variant.Outlined" OnClick="PreviousPage">
+                                        Previous
+                                    </MudButton>
+                                }
+                            </MudItem>
+                            <MudItem xs="10">
+                                <MudGrid>
+                                    @foreach (var imageUrl in GetVisibleImages())
+                                    {
+                                        var index = ImagePaths.IndexOf(imageUrl);
+                                        <MudItem xs="2">
+                                            <div class="d-flex justify-content-center align-items-center" style="height:100%">
+                                                <MudImage Src="@imageUrl"
+                                                          Alt="Image"
+                                                          Height="120"
+                                                          Width="130"
+                                                          Fluid="true"
+                                                          @onclick="() => SelectImage(index)"
+                                                          Style="cursor:pointer" />
+                                            </div>
+                                        </MudItem>
+                                    }
+                                </MudGrid>
+                            </MudItem>
+                            <MudItem xs="1">
+                                @if (CurrentPage < MaxPage)
+                                {
+                                    <MudButton Variant="Variant.Outlined" OnClick="NextPage">
+                                        Next
+                                    </MudButton>
+                                }
+                            </MudItem>
+
+                        </MudGrid>
+
+
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudText Typo="Typo.h4" Color="Color.Dark">@_productDetail.ProductName</MudText>
+                <div style="display:flex">
+                    <MudText Typo="Typo.h5" Style="margin-top:20px" Color="Color.Error"><strong>@string.Format("{0:#,##0}", _productDetail.Price) VND</strong></MudText>
+                </div>
+
+                <MudStack Spacing="3" Row="true" Style="margin-top:20px;flex-wrap: wrap;">
+                    @foreach (var (id, size) in sizesList)
+                    {
+                        <MudButton Variant="Variant.Outlined" Class="pa-3" Style="height: 40px; width: 60px; display:flex; justify-content:center; align-items:center;" @onclick="() => HandleButtonSizeClick(id, size)" Color="@(SizeId == id ? Color.Success : Color.Default)">@size</MudButton>
+                    }
+                </MudStack>
+
+                <MudStack Spacing="3" Row="true" Style="margin-top:20px">
+                    @foreach (var (id, color) in colorsList)
+                    {
+                        <MudButton Variant="Variant.Outlined" Class="pa-3" Style="height: 40px; width: 60px; display:flex; justify-content:center; align-items:center;" @onclick="() => HandleButtonColorClick(id, color)" Color="@(ColorId == id ? Color.Success : Color.Default)">@color</MudButton>
+                    }
+                </MudStack>
+                <div style="display:flex;align-items:center;margin-top:20px">
+                    <div style="display:flex;align-items:center;margin-top:10px;margin-right:20px">
+                        <MudIconButton Icon="@Icons.Material.Filled.Remove" Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" OnClick="DecreaseQuantity" />
+                        <input @bind="Quantity" style="align-content:center; max-width:50px;text-align:center !important" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" OnClick="IncreaseQuantity" />
+                    </div>
+                    <MudText style="margin-top:15px">@_productDetail.Stock Sản phẩm có sẵn</MudText>
+                </div>
+                <MudText Color="Color.Error" Typo="Typo.h6">@Error</MudText>
+                <MudButton Variant="Variant.Outlined"
+                           Class="mt-3"
+                           Style="@($"color:{Colors.Red.Default};background:{Colors.Red.Lighten4};")"
+                           OnClick="AddToCart">Thêm vào giỏ hàng</MudButton>
+
+                <MudButton Variant="Variant.Filled" Class="mt-3" Style="margin-left:15px" Color="Color.Success" OnClick="BuyNow">Mua ngay</MudButton>
+                @* <AuthorizeView>
+                    <Authorized>
+                        <MudButton Variant="Variant.Outlined"
+                                   Class="mt-3"
+                                   Style="@($"color:{Colors.Red.Default};background:{Colors.Red.Lighten4};")"
+                                   OnClick="AddToCart">Thêm vào giỏ hàng</MudButton>
+
+                        <MudButton Variant="Variant.Filled" Class="mt-3" Style="margin-left:15px" Color="Color.Success" OnClick="BuyNow">Mua ngay</MudButton>
+                    </Authorized>
+                    <NotAuthorized>
+                        <MudButton Variant="Variant.Filled"
+                                   Class="mt-3"
+                                   Style="@($"color:{Colors.Red.Default};background:{Colors.Red.Lighten4};")"
+                                   Href=@($"/login?ReturnUrl=/productdetail/{ProductId}")>
+                            Thêm vào giỏ hàng
+                        </MudButton>
+                        <MudButton Variant="Variant.Filled" Class="mt-3" Style="margin-left:15px;" Color="Color.Success" Href=@($"/login?ReturnUrl=/productdetail/{ProductId}")>
+                            Mua ngay
+                        </MudButton>
+                    </NotAuthorized>
+                </AuthorizeView> *@
+            </MudItem>
+        </MudGrid>
+        <MudText Typo="Typo.h4" Style="margin-top:30px">
+            Mô tả sản phẩm
+        </MudText>
+        <MudText Color="Color.Dark">@_productDetail.ProductName</MudText>
+    </MudContainer>
+
+    <MudContainer Class="bg-light">
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" md="7">
+                <MudText Typo="Typo.h2" Align="Align.Center" Class="pt-4">Sản phẩm mới</MudText>
+            </MudItem>
+        </MudGrid>
+        <MudGrid>
+            @foreach (var item in _lstProduct)
+            {
+                <MudItem xs="12" sm="6" md="4" lg="3">
+                    <MudCard>
+                        <MudLink OnClick="() => NavigateToProductDetail(item.ProductId)"
+                                 Underline="Underline.None">
+                            <MudCardMedia Image="@item.ImageUrl"
+                                          Height="200" />
+                        </MudLink>
+                        <MudLink OnClick="() => NavigateToProductDetail(item.ProductId)"
+                                 Underline="Underline.None">
+                            <MudCardContent>
+                                <div class="text-center">
+                                    <MudText title="@item.ProductName" Color="Color.Success" Typo="Typo.h6"
+                                             Style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap; max-height: 4em; font-size: 1.2rem; line-height: 1.5rem;">
+                                        @item.ProductName
+                                    </MudText>
+                                </div>
+                            </MudCardContent>
+                        </MudLink>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudContainer>
+}
+else
+{
+    <div class="d-flex justify-center align-center" style="height: 100vh;">
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    </div>
+}
+
+

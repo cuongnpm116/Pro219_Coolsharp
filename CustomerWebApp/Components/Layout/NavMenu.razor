@@ -1,5 +1,8 @@
-﻿<MudNavMenu>
-    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
-    <MudNavLink Href="counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink>
-    <MudNavLink Href="weather" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Weather</MudNavLink>
+﻿<MudNavMenu Class="d-flex flex-grow-1 gap-8 align-center">
+    <MudLink Href="/" Underline="Underline.None">
+        <MudText Style="@($"color:{Colors.Gray.Lighten5};")">Trang chủ</MudText>
+    </MudLink>
+    <MudLink Href="/products" Underline="Underline.None">
+        <MudText Style="@($"color:{Colors.Gray.Lighten5};")">Sản phẩm</MudText>
+    </MudLink>
 </MudNavMenu>
