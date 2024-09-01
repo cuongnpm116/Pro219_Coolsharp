@@ -17,7 +17,7 @@ internal sealed class GetListStaffQueryHandler : IRequestHandler<GetListStaffQue
     {
         try
         {
-            var result = await _staffRepo.GetListStaff(request.PageNumber, request.PageSize, request.SearchString, request.Status);
+            var result = await _staffRepo.GetListStaff(request);
             return Result<PaginationResponse<StaffVm>>.Success(result);
         }
         catch (Exception ex)

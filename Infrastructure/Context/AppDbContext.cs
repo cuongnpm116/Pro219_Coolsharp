@@ -30,7 +30,7 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<Staff> Staffs { get; set; }
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Role> Roles { get; set; }
-    public DbSet<StaffRole> UserRoles { get; set; }
+    public DbSet<StaffRole> StaffRoles { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductCategory> ProductCategories { get; set; }
     public DbSet<Cart> Carts { get; set; }

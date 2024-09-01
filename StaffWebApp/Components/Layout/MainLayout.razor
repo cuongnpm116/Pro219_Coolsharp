@@ -2,7 +2,7 @@
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
 <MudPopoverProvider />
-<MudDialogProvider />
+<MudDialogProvider FullWidth="true" CloseButton="true" CloseOnEscapeKey="true"/>
 <MudSnackbarProvider />
 <MudLayout>
     <MudAppBar Elevation="1">
@@ -29,7 +29,7 @@
 
 @code {
     private bool _drawerOpen = true;
-    private bool _isDarkMode = true;
+    private bool _isDarkMode = false;
     private MudTheme? _theme = null;
 
     protected override void OnInitialized()

@@ -9,6 +9,9 @@ builder.Services.AddMudServices();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddServerSideBlazor()
+    .AddCircuitOptions(opts => { opts.DetailedErrors = true; });
+
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient(ShopConstants.EShopClient, client =>

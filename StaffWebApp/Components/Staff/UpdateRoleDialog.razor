@@ -1,0 +1,72 @@
+﻿@using StaffWebApp.Services.Role
+@using StaffWebApp.Services.Role.Vms
+@using StaffWebApp.Services.Staff
+
+<MudDialog>
+    <TitleContent>
+        <MudIcon Icon="@Icons.Material.Filled.Edit"></MudIcon>
+        @MudDialog.Title
+    </TitleContent>
+
+    <DialogContent>
+        <MudForm @ref="_form">
+            @foreach (var item in _roles)
+            {
+                @*
+
+                 <MudCheckBox Label="@item.Name"></MudCheckBox>
+                *@
+            }
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    public MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public Guid StaffId { get; set; }
+
+    [Inject]
+    private IStaffService StaffService { get; set; } = null!;
+
+    [Inject]
+    private IRoleService RoleService { get; set; } = null!;
+
+    private MudForm _form;
+
+    private Dictionary<RoleVm, bool> _roleChecked = [];
+    private IReadOnlyList<RoleVm> _roles;
+    private List<Guid> _userRoles;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetRoles();
+        await GetUserRoles();
+        _roleChecked = LoadAndFilterRoles(_roles, _userRoles);
+    }
+
+    private Dictionary<RoleVm, bool> LoadAndFilterRoles(IReadOnlyList<RoleVm> availableRoleIds, List<Guid> selectedRoleIds)
+    {
+        HashSet<Guid> selectedRolesSet = new(selectedRoleIds);
+
+        return availableRoleIds.ToDictionary(id => id, id => selectedRolesSet.Contains(id.Id));
+    }
+
+    private async Task GetRoles()
+    {
+        var result = await RoleService.GetRoles();
+        _roles = result.Value;
+    }
+
+    private async Task GetUserRoles()
+    {
+        var result = await RoleService.GetRoleIdsByStaffId(StaffId);
+        _userRoles = result.Value;
+    }
+}

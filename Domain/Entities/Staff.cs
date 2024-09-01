@@ -5,7 +5,7 @@ public class Staff
 {
     public Guid Id { get; set; }
     public Guid? CreateBy { get; set; }
-    public DateTime CreatedOn { get; set; }
+    public DateTime CreatedOn { get; set; } = DateTime.Now;
     public Guid? DeletedBy { get; set; }
     public DateTime DeletedOn { get; set; }
     public bool IsDeleted { get; set; } = false;
@@ -20,4 +20,11 @@ public class Staff
 
     public virtual ICollection<Order>? Orders { get; set; }
     public virtual ICollection<StaffRole>? StaffRoles { get; set; }
+
+    public void UpdateInfo(string firstName, string lastName, DateTime dob)
+    {
+        FirstName = firstName;
+        LastName = lastName;
+        DateOfBirth = dob;
+    }
 }

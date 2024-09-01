@@ -1,6 +1,6 @@
 ﻿using WebAppIntegrated.Enum;
 
-namespace StaffWebApp.Components.Staff.Vms;
+namespace StaffWebApp.Services.Staff.Vms;
 public record StaffVm(
     Guid Id,
     string FullName,
