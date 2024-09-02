@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240829060928_Add_StaffStatus")]
-    partial class Add_StaffStatus
+    [Migration("20240829224635_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -158,7 +158,7 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("EmailAddress")
                         .IsRequired()
-                        .HasMaxLength(512)
+                        .HasMaxLength(324)
                         .HasColumnType("varchar");
 
                     b.Property<string>("FirstName")
@@ -191,12 +191,15 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasMaxLength(50)
+                        .HasMaxLength(30)
                         .HasColumnType("varchar");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmailAddress", "Username")
+                    b.HasIndex("EmailAddress")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
                         .IsUnique();
 
                     b.ToTable("Customers");
@@ -567,35 +570,45 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(324)
+                        .HasColumnType("varchar");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar");
 
                     b.Property<string>("HashedPassword")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varchar(max)");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(70)
+                        .HasColumnType("nvarchar");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
 
                     b.ToTable("Staffs");
 
@@ -603,12 +616,12 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d"),
-                            CreatedOn = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedOn = new DateTime(2024, 8, 30, 5, 46, 34, 892, DateTimeKind.Local).AddTicks(6354),
                             DateOfBirth = new DateTime(2003, 11, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DeletedOn = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "sohardz01@gmail.com",
                             FirstName = "Nguyễn",
-                            HashedPassword = "50AF425FA0E8C55EDABE13D16868C710B907FAC141C6152E68E097AC4991CDDA:56E187E7A00660AB0A5356585BEA2300:50000:SHA256",
+                            HashedPassword = "0C661030EF7376B1374F1740DE44C9B35F315E9C36481EE67B7AB06C299ADA06:CA75327244E713F685BA56EA033E5467:50000:SHA256",
                             ImageUrl = "default.png",
                             IsDeleted = false,
                             LastName = "Cương",
@@ -635,12 +648,12 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("StaffId");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("StaffRoles");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ae3112bb-ce59-46dc-a8c6-66daa7d3d1a6"),
+                            Id = new Guid("b3492b52-34ba-448c-a775-91465ea1e6fd"),
                             RoleId = new Guid("0fc1d27c-f6c4-4011-8d3c-4d33b2703369"),
                             StaffId = new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d")
                         });

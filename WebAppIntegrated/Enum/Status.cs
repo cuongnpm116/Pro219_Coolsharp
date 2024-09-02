@@ -5,6 +5,5 @@ public enum Status
     Active,
     InActive,
     Locked,
-    Deleted,
-    Pending
+    Deleted
 }
