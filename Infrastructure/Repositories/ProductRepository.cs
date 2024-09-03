@@ -34,26 +34,29 @@ internal sealed class ProductRepository : IProductRepository
         return Result<Dictionary<Guid, List<string>>>.Success(groupedImagePaths);
     }
 
-    public async Task<Result<List<ProductCustomerAppVm>>> GetFeaturedProducts()
+    public Result<List<ProductCustomerAppVm>> GetFeaturedProducts()
     {
         var query = from p in _context.Products
                     join pd in _context.ProductDetails on p.Id equals pd.ProductId
                     join pi in _context.ProductImages on pd.Id equals pi.ProductDetailId into ppi
                     from pi in ppi.DefaultIfEmpty()
-                    join i in _context.Images on pi.ImageId equals i.Id
+                    join i in _context.Images on pi.ImageId equals i.Id into ii
+                    from i in ii.DefaultIfEmpty()
                     orderby p.Name descending
-                    select new { p, pi, i };
-        var groupedProductQuery = from product in query
-                                  group product by product.p.Id into g
-                                  select g.FirstOrDefault();
+                    select new { p.Id, p.Name, i.ImagePath };
 
-         var data = await groupedProductQuery.Take(8)
-            .Select(x => new ProductCustomerAppVm()
-            {
-                ProductId = x.p.Id,
-                ProductName = x.p.Name,
-                ImageUrl = x.i.ImagePath
-            }).ToListAsync();
+        
+        var groupedProductQuery = query.AsEnumerable()
+                                       .GroupBy(product => product.Id)
+                                       .Select(g => g.FirstOrDefault());
+
+        var data = groupedProductQuery.Take(8)
+                                      .Select(x => new ProductCustomerAppVm()
+                                      {
+                                          ProductId = x.Id,
+                                          ProductName = x.Name,
+                                          ImageUrl = x.ImagePath
+                                      }).ToList();
 
         return Result<List<ProductCustomerAppVm>>.Success(data);
     }

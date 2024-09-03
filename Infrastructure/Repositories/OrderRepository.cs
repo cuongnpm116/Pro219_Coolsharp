@@ -41,7 +41,11 @@ internal sealed class OrderRepository : IOrderRepository
         IReadOnlyList<OrderDetail> orderDetails = CreateOrderDetailsFromCarts(request.Carts, newOrder.Id);
         await _context.OrderDetails.AddRangeAsync(orderDetails);
 
-        UpdateCartItemsStatus(request.Carts);
+        UpdateCartItems(request.Carts);
+        if (request.VoucherId != null)
+        {
+            UpdateVoucher(request.VoucherId.Value);
+        }
         OrderWithPaymentVm orderVm = new()
         {
             OrderId = newOrder.Id,
@@ -51,10 +55,22 @@ internal sealed class OrderRepository : IOrderRepository
 
         return Result<OrderWithPaymentVm>.Success(orderVm);
     }
-    
+    private void UpdateVoucher(Guid voucherId)
+    {
+
+        var voucher = _context.Vouchers
+            .FirstOrDefault(x => x.Id == voucherId);
+        if (voucher != null)
+        {
+            voucher.Stock -= 1;
+            _context.Vouchers.Update(voucher);
+        }
+
+    }
     private static Order CreateOrderFromRequest(CreateOrderCommand request) => new()
     {
         CustomerId = request.CustomerId,
+        VoucherId = request.VoucherId,
         OrderCode = StringUtility.DateNowToString() + StringUtility.GenerateOrderCode(8),
         Note = string.Empty,
         TotalPrice = request.TotalPrice,
@@ -78,14 +94,14 @@ internal sealed class OrderRepository : IOrderRepository
                 ProductDetailId = item.ProductDetailId,
                 Quantity = item.Quantity,
                 Price = item.UnitPrice
-                
+
             };
             orderDetails.Add(orderedItem);
         }
 
         return orderDetails;
     }
-    private void UpdateCartItemsStatus(IReadOnlyList<CartItemVm> carts)
+    private void UpdateCartItems(IReadOnlyList<CartItemVm> carts)
     {
         foreach (var item in carts)
         {

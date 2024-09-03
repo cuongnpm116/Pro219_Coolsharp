@@ -5,6 +5,7 @@ namespace CustomerWebApp.Components.Orders.Dtos;
 public class CreateOrderRequest
 {
     public Guid CustomerId { get; set; }
+    public Guid? VoucherId { get; set; }
     public IReadOnlyList<CartItemVm> Carts { get; set; }
     public decimal TotalPrice { get; set; }
     public string ShipAddress { get; set; }

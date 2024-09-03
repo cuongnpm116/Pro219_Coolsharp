@@ -7,12 +7,13 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 using MudBlazor;
 using Newtonsoft.Json;
-using WebAppIntegrated.Constants;
 using CustomerWebApp.Components.Carts.ViewModel;
 using CustomerWebApp.Service.Address;
 using CustomerWebApp.Components.Orders.ViewModel;
 using CustomerWebApp.Components.Address.ViewModel;
 using CustomerWebApp.Components.Address;
+using CustomerWebApp.Service.Voucher;
+using CustomerWebApp.Components.Voucher.ViewModel;
 
 namespace CustomerWebApp.Components.Payment;
 
@@ -29,6 +30,8 @@ public partial class Checkout
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
     [Inject]
+    private IVoucherService VoucherService { get; set; }
+    [Inject]
     private IPaymentService PaymentService { get; set; }
     [Inject]
     private IOrderService OrderService { get; set; } = null!;
@@ -40,13 +43,106 @@ public partial class Checkout
     private OrderWithPaymentVm _orderVm = new();
     private List<CartItemVm> _selectedCartItems = [];
     private AddressModel _deliveryAddress;
-    public decimal _totalPayment;
-    private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
+    public decimal totalPriceProduct;
+    public decimal reducedAmount = 0;
+    public decimal totalPayment;
+    //private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
     //public decimal totalPrice;
     public Guid CustomerId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
     public Guid OrderId;
     public int OrderType { get; set; } = 0;
+    #region Voucher
+    private string voucherCode;
+    public bool _isOpen;
 
+    public void ToggleOpen()
+    {
+        if (_isOpen)
+            _isOpen = false;
+        else
+            _isOpen = true;
+    }
+
+    private List<VoucherVm> _lstVoucher = new();
+    private async Task LoadVoucher()
+    {
+        var result = await VoucherService.GetListVoucher();
+        if (result.IsSuccess && result.Value != null)
+        {
+            _lstVoucher = result.Value;
+            AutoSelectBestVoucher();
+        }
+    }
+
+    private VoucherVm? selectedVoucher;
+    private void AutoSelectBestVoucher()
+    {
+        decimal maxDiscount = 0;
+
+        foreach (var voucher in _lstVoucher)
+        {
+            if (voucher.DiscountCondition > totalPriceProduct)
+                continue;
+
+            decimal discountValue = 0;
+
+            if (voucher.DiscountPercent.HasValue && voucher.DiscountPercent != 0)
+            {
+                discountValue = totalPriceProduct * (voucher.DiscountPercent.Value / 100m);
+            }
+            else if (voucher.DiscountAmount.HasValue && voucher.DiscountAmount != 0)
+            {
+                discountValue = voucher.DiscountAmount.Value;
+            }
+
+            if (discountValue > maxDiscount)
+            {
+                maxDiscount = discountValue;
+                selectedVoucher = voucher;
+            }
+        }
+
+        if (selectedVoucher != null)
+        {
+            voucherCode = selectedVoucher.VoucherCode;
+            reducedAmount = maxDiscount;
+            totalPayment = totalPriceProduct - reducedAmount;
+        }
+    }
+    private void ToggleVoucherSelection(VoucherVm voucher)
+    {
+        if (voucher.StartedDate > DateTime.Now)
+        {
+            Snackbar.Add("Voucher này chưa đến ngày sử dụng!", Severity.Warning);
+            return;
+        }
+        if (selectedVoucher != null && selectedVoucher.Id == voucher.Id)
+        {
+            // Bỏ chọn voucher
+            selectedVoucher = null;
+            voucherCode = string.Empty;
+            reducedAmount = 0;
+        }
+        else
+        {
+            // Chọn voucher
+            selectedVoucher = voucher;
+            voucherCode = voucher.VoucherCode;
+
+            if (voucher.DiscountPercent.HasValue)
+            {
+                reducedAmount = totalPriceProduct * (voucher.DiscountPercent.Value / 100m);
+            }
+            else if (voucher.DiscountAmount.HasValue)
+            {
+                reducedAmount = voucher.DiscountAmount.Value;
+            }
+        }
+
+        totalPayment = totalPriceProduct - reducedAmount;
+    }
+    
+    #endregion
     protected override async Task OnInitializedAsync()
     {
         //AuthenticationState? authState = await AuthStateTask;
@@ -64,39 +160,71 @@ public partial class Checkout
             && queryParams.TryGetValue("totalPayment", out var totalPaymentValue))
         {
             _selectedCartItems = JsonConvert.DeserializeObject<List<CartItemVm>>(Uri.UnescapeDataString(cartItemsJson));
-            _totalPayment = decimal.Parse(totalPaymentValue);
+            totalPriceProduct = decimal.Parse(totalPaymentValue);
         }
+        totalPayment = totalPriceProduct - reducedAmount;
+        await LoadVoucher();
 
-        
     }
 
     private async Task MakePaymentOnline()
     {
-        await CreatOrder();
-        var model = new VnPayRequest
+        var dialog = DialogService.Show<LoadResponse>("");
+
+        try
         {
-            Amount = (double)_totalPayment, // Amount in VND
-            CreatedDate = DateTime.Now,
-            OrderCode = _orderVm.OrderCode,
-        };
+            await CreatOrder();
+            var model = new VnPayRequest
+            {
+                Amount = (double)totalPayment, // Amount in VND
+                CreatedDate = DateTime.Now,
+                OrderCode = _orderVm.OrderCode,
+            };
 
-        var paymentUrl = PaymentService.CreatePaymentUrl(HttpContextAccessor.HttpContext, model);
-        Navigation.NavigateTo(paymentUrl, true);
+            var paymentUrl = PaymentService.CreatePaymentUrl(HttpContextAccessor.HttpContext, model);
+            Navigation.NavigateTo(paymentUrl, true);
+        }
+        catch (Exception ex)
+        {
+
+            Snackbar.Add($"Đã xảy ra lỗi: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            DialogService.Close(dialog);
+        }
+
     }
-
     private async Task MakePayment()
     {
-        await CreatOrder();
-        await CreatePayment();
-        Navigation.NavigateTo("/payment-response?success=true", true);
+        var dialog = DialogService.Show<LoadResponse>("");
+
+        try
+        {
+            await CreatOrder();
+            await CreatePayment();
+            Navigation.NavigateTo("/payment-response?success=true", true);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Không thể tạo đơn hàng. Vui lòng thử lại!", Severity.Error);
+        }
+        finally
+        {
+            DialogService.Close(dialog);
+        }
     }
 
     private async Task CreatOrder()
     {
         //goi orderservice
         _orderRequest.Carts = _selectedCartItems;
-        _orderRequest.TotalPrice = _totalPayment;
+        _orderRequest.TotalPrice = totalPayment;
         _orderRequest.CustomerId = CustomerId;
+        if (selectedVoucher?.Id != Guid.Empty)
+        {
+            _orderRequest.VoucherId = selectedVoucher?.Id;
+        }
         _orderRequest.PhoneNumber = _deliveryAddress.PhoneNumber;
         _orderRequest.ShipAddress = _deliveryAddress.Ward.Name + ", " + _deliveryAddress.District.Name + ", " + _deliveryAddress.Province.Name;
         _orderRequest.ShipAddressDetail = _deliveryAddress.Detail;
@@ -120,7 +248,7 @@ public partial class Checkout
         _paymentRequest.OrderCode = _orderVm.OrderCode;
         _paymentRequest.CustomerId = CustomerId;
         _paymentRequest.PaymentMethod = 2;
-        _paymentRequest.Amount = _totalPayment;
+        _paymentRequest.Amount = totalPayment;
         _paymentRequest.PaymentStatus = 1;
         var result = await PaymentService.CreatePayment(_paymentRequest);
         if (result.IsSuccess)

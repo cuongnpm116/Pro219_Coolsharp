@@ -205,9 +205,13 @@ public partial class ProductDetail
         get => _addCartRequest.Quantity;
         set
         {
-            if (value >= 0) 
+            if (value > 0) 
             {
                 _addCartRequest.Quantity = value;
+            }
+            else
+            {
+                _addCartRequest.Quantity = 1;
             }
         }
     }
@@ -257,7 +261,10 @@ public partial class ProductDetail
             item.ProductId == ProductId &&
             item.ColorName == ColorName &&
             item.SizeNumber == SizeNumber);
-
+            //if (_addCartRequest.Quantity <= 0)
+            //{
+            //    _addCartRequest.Quantity = 1;
+            //}
             var response = await CartService.AddToCart(_addCartRequest);
             if (response.IsSuccess)
             {

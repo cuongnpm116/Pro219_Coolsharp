@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddTransient<IPaymentRepository, PaymentRepository>();
         services.AddTransient<ISizeRepository, SizeRepository>();
         services.AddTransient<IColorRepository, ColorRepository>();
+        services.AddTransient<IVoucherRepository, VoucherRepository>();
 
         return services;
     }

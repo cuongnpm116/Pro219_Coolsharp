@@ -11,6 +11,6 @@ public interface IProductRepository
     Task<Result<ProductPriceVm>> GetProductDetailPrice(Guid productId, Guid colorId, Guid sizeId);
     Task<Result<int>> GetProductDetailStock(Guid productId, Guid colorId, Guid sizeId);
     Task<Result<Guid>> GetProductDetailId(Guid productId, Guid colorId, Guid sizeId);
-    Task<Result<List<ProductCustomerAppVm>>> GetFeaturedProducts();
+    Result<List<ProductCustomerAppVm>> GetFeaturedProducts();
     Result<Dictionary<Guid, List<string>>> GetDetailImage(Guid productId);
 }
