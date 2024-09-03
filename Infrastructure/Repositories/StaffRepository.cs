@@ -2,6 +2,7 @@
 using Application.Cqrs.Staff.AddStaff;
 using Application.Cqrs.Staff.GetListStaff;
 using Application.Cqrs.Staff.UpdateStaffInfo;
+using Application.Cqrs.Staff.UpdateStaffRole;
 using Application.IRepositories;
 using Application.ValueObjects.Pagination;
 using Common.Utilities;
@@ -115,5 +116,22 @@ internal sealed class StaffRepository : IStaffRepository
             .Select(s => new StaffUpdateInfoVm(s.Id, s.FirstName, s.LastName, s.DateOfBirth))
             .SingleOrDefaultAsync(cancellationToken);
         return vm;
+    }
+
+    public async Task<bool> UpdateStaffRole(UpdateStaffRoleCommand command)
+    {
+        var staffRoles = await _context.StaffRoles
+            .Where(sr => sr.StaffId == command.StaffId)
+            .ToListAsync();
+        var toRemove = staffRoles.Where(sr => !command.RoleIds.Contains(sr.RoleId));
+        var toAdd = command.RoleIds.Where(roleId => !staffRoles.Any(sr => sr.RoleId == roleId))
+            .Select(roleId => new StaffRole
+            {
+                StaffId = command.StaffId,
+                RoleId = roleId
+            });
+        _context.StaffRoles.RemoveRange(toRemove);
+        await _context.StaffRoles.AddRangeAsync(toAdd);
+        return true;
     }
 }

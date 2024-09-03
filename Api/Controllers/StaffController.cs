@@ -2,6 +2,7 @@
 using Application.Cqrs.Staff.GetListStaff;
 using Application.Cqrs.Staff.GetUpdateInfo;
 using Application.Cqrs.Staff.UpdateStaffInfo;
+using Application.Cqrs.Staff.UpdateStaffRole;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -40,6 +41,13 @@ public class StaffController : ControllerBase
 
     [HttpPut("update-staff-info")]
     public async Task<IActionResult> UpdateStaffInfo([FromBody] UpdateStaffInfoCommand request)
+    {
+        var result = await _mediator.Send(request);
+        return Ok(result);
+    }
+
+    [HttpPut("update-staff-role")]
+    public async Task<IActionResult> UpdateStaffRole([FromBody] UpdateStaffRoleCommand request)
     {
         var result = await _mediator.Send(request);
         return Ok(result);

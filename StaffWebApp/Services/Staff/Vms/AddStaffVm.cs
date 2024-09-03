@@ -10,8 +10,8 @@ public class AddStaffVm
     public string Username { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public DateTime? DateOfBirth { get; set; }
-    public RoleVm _validateRoles { get; set; }
-    public IEnumerable<RoleVm> Roles { get; set; } = [];
+    public RoleVmForGetAll _validateRoles { get; set; }
+    public IEnumerable<RoleVmForGetAll> Roles { get; set; } = [];
 }
 
 public class AddStaffVmValidator : AbstractValidator<AddStaffVm>

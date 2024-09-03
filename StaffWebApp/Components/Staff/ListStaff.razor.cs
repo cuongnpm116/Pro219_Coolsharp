@@ -66,6 +66,16 @@ public partial class ListStaff
         {
             MaxWidth = MaxWidth.Medium,
         };
+        var parameters = new DialogParameters
+        {
+            { "StaffId", staffId }
+        };
+        var dialog = await DialogService.ShowAsync<UpdateRoleDialog>("Cập nhật vai trò", parameters, dialogOptions);
+        DialogResult result = await dialog.Result;
+        if (result is not null && !result.Canceled)
+        {
+            await GetStaff();
+        }
     }
 
     private async Task OnNextPageClicked()

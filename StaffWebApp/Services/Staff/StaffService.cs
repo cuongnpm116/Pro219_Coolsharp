@@ -59,4 +59,13 @@ internal class StaffService : IStaffService
         var result = JsonConvert.DeserializeObject<Result<bool>>(content);
         return result;
     }
+
+    public async Task<Result<bool>> UpdateStaffRole(UpdateStaffRoleRequest request)
+    {
+        string url = _baseUrl + "/update-staff-role";
+        var apiRes = await _client.PutAsJsonAsync(url, request);
+        string content = await apiRes.Content.ReadAsStringAsync();
+        var result = JsonConvert.DeserializeObject<Result<bool>>(content);
+        return result;
+    }
 }

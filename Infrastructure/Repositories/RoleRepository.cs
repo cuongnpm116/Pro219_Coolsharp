@@ -1,7 +1,11 @@
-﻿using Application.Cqrs.Role;
+﻿using Application.Cqrs.Role.GetAll;
 using Application.Cqrs.Role.GetRoleIdsByStaffId;
+using Application.Cqrs.Role.GetWithPagination;
+using Application.Cqrs.Role.Update;
 using Application.IRepositories;
+using Application.ValueObjects.Pagination;
 using Infrastructure.Context;
+using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
@@ -14,7 +18,7 @@ internal sealed class RoleRepository : IRoleRepository
         _context = context;
     }
 
-    public async Task<IList<Guid>> GetRoleIdsByStaffId(GetRoleIdsByStaffIdQuery command)
+    public async Task<IReadOnlyList<Guid>> GetRoleIdsByStaffId(GetRoleIdsByStaffIdQuery command)
     {
         var query = await _context.StaffRoles.AsNoTracking()
             .Where(sr => sr.StaffId == command.StaffId)
@@ -23,11 +27,37 @@ internal sealed class RoleRepository : IRoleRepository
         return query;
     }
 
-    public async Task<IList<RoleVm>> GetRoles()
+    public async Task<IReadOnlyList<RoleVmForGetAll>> GetAllRoles()
     {
         var query = await _context.Roles.AsNoTracking()
-            .Select(r => new RoleVm(r.Id, r.Name))
+            .Select(r => new RoleVmForGetAll(r.Id, r.Name))
             .ToListAsync();
         return query;
+    }
+
+    public async Task<PaginationResponse<RoleVm>> GetRolesWithPagination(GetRolesWithPaginationQuery query)
+    {
+        var roleQueryable = _context.Roles.AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(query.SearchString))
+        {
+            roleQueryable = roleQueryable.Where(x => x.Name.ToLower().Contains(query.SearchString.ToLower())
+            || x.Code.Contains(query.SearchString.ToLower()));
+        }
+        return await roleQueryable.Select(x => new RoleVm(x.Id, x.Code, x.Name))
+                .ToPaginatedResponseAsync(query.PageNumber, query.PageSize);
+    }
+
+    public async Task<bool> UpdateRole(UpdateRoleCommand command)
+    {
+        var exist = await _context.Roles.SingleOrDefaultAsync(x => x.Id == command.Id);
+        if (exist is null)
+        {
+            return false;
+        }
+
+        exist.Code = command.Code;
+        exist.Name = command.Name;
+        _context.Roles.Update(exist);
+        return true;
     }
 }
