@@ -23,7 +23,6 @@
                         <MudTh>Đơn Giá</MudTh>
                         <MudTh>Số Lượng</MudTh>
                         <MudTh>Số Tiền</MudTh>
-
                     </HeaderContent>
                     <RowTemplate>
 
@@ -56,13 +55,65 @@
                 </MudTable>
                 <div class="mt-auto">
                     <MudDivider />
-                    <div class="pa-4" style="display:flex;flex-direction:column">
+                    <div class="pa-4" style="display:flex;flex-direction:column;justify-content:flex-end;">
+                        <div class="ml-auto" style="align-items:end">
+                            <MudText Style="font-weight: bold;color:black">
+                                Mã khuyến mãi: @voucherCode
+                            </MudText>
+                            <MudButton Style="margin-left: 10px;" IconSize=Size.Large Color="Color.Primary" OnClick="@ToggleOpen">
+                                @(_isOpen ? "Đóng" : "Chọn Voucher")
+                            </MudButton>
+                            <MudPopover Open="@_isOpen" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterLeft" Style="max-height:432px;overflow-y:auto">
+                                @foreach (var item in _lstVoucher)
+                                {
+                                    var isActive = totalPriceProduct >= item.DiscountCondition;
+                                    var style = $"height:180px; opacity:{(isActive ? "1" : "0.5")};";
+                                    var isSelected = selectedVoucher != null && selectedVoucher.Id == item.Id;
+
+                                    <MudPaper Elevation="1" Class="my-6 pa-6 d-flex flex-row justify-space-between align-items-center"
+                                              Style="@style">
+                                        <MudPaper Elevation="0" Class="align-content-center">
+                                            <MudText>@item.VoucherCode</MudText>
+                                            <MudText>Đơn tối thiểu @string.Format("{0:#,##0}", @item.DiscountCondition) VND</MudText>
+                                            <MudText>Có hiệu lực từ: @item.StartedDate.ToString("dd.MM.yyyy")</MudText>
+                                            <MudText>
+                                                Số lượng:
+                                                <b style="font-weight:bold;color:red">
+                                                    @item.Stock
+                                                </b>
+                                            </MudText>
+                                        </MudPaper>
+                                        <MudPaper Elevation="0">
+                                            <MudButton Variant="Variant.Filled" Color="Color.Warning"
+                                                       Disabled="@(isActive == false)" OnClick="() => ToggleVoucherSelection(item)">
+                                                @(isSelected ? "Bỏ chọn" : "Chọn")
+                                            </MudButton>
+                                        </MudPaper>
+                                    </MudPaper>
+
+                                }
+                            </MudPopover>
+                        </div>
+                        <MudDivider />
+                        <MudText Class="ml-auto">
+                            Tổng tiền sản phẩm:
+                            <b style="font-weight:bold;">
+                                @string.Format("{0:#,##0}", totalPriceProduct) VND
+                            </b>
+                        </MudText>
+                        <MudText Class="ml-auto">
+                            Tiền giảm:
+                            <b style="font-weight:bold;">
+                                @string.Format("{0:#,##0}", reducedAmount) VND
+                            </b>
+                        </MudText>
                         <MudText Class="ml-auto">
                             Tổng tiền thanh toán:
                             <b style="font-weight:bold;">
-                                @string.Format("{0:#,##0}", _totalPayment) VND
+                                @string.Format("{0:#,##0}", totalPayment) VND
                             </b>
                         </MudText>
+                        
                     </div>
                 </div>
             </MudPaper>

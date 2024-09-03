@@ -186,6 +186,11 @@ internal sealed class AddressRepository : IAddressRepository
             exist.WardCode = request.WardCode;
             isModified = true;
         }
+        if (request.PhoneNumber != exist.PhoneNumber)
+        {
+            exist.PhoneNumber = request.PhoneNumber;
+            isModified = true;
+        }
         if (request.Detail != exist.Detail)
         {
             exist.Detail = request.Detail;

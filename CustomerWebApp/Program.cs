@@ -7,6 +7,7 @@ using CustomerWebApp.Service.Category;
 using CustomerWebApp.Service.Order;
 using CustomerWebApp.Service.Payment;
 using CustomerWebApp.Service.Product;
+using CustomerWebApp.Service.Voucher;
 using MudBlazor;
 using MudBlazor.Services;
 using WebAppIntegrated.AddressService;
@@ -36,6 +37,7 @@ builder.Services.AddTransient<ICartService, CartService>();
 builder.Services.AddTransient<IPaymentService, PaymentService>();
 builder.Services.AddTransient<IOrderService, OrderService>();
 builder.Services.AddTransient<IAddressService, AddressService>();
+builder.Services.AddTransient<IVoucherService, VoucherService>();
 
 builder.Services.AddScoped<CartState>();
 builder.Services.AddScoped<SelectedProductState>();

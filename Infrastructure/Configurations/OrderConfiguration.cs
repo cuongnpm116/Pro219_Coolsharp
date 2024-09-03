@@ -36,5 +36,8 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasOne(x => x.Staff)
             .WithMany(y => y.Orders)
             .HasForeignKey(x => x.StaffId);
+        builder.HasOne(x => x.Voucher)
+            .WithMany(y => y.Orders)
+            .HasForeignKey(x => x.VoucherId);
     }
 }
