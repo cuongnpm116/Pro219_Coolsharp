@@ -442,34 +442,29 @@ internal sealed class OrderRepository : IOrderRepository
                                      join i in _context.Images on p.ImageId equals i.Id
                                      join h in _context.Colors on c.ColorId equals h.Id
                                      join k in _context.Sizes on c.SizeId equals k.Id
-                                     where b.OrderStatus == OrderStatus.Completed 
-                                     group new { a, b, c, d, p, i, h, k } by a.ProductDetailId into g
+                                     where b.OrderStatus == OrderStatus.Completed
+                                     group new { a, c, d, i, h, k } by d.Id into g 
                                      select new
                                      {
-                                         Id = g.Select(x => x.a.Id).FirstOrDefault(),
-                                         OrderId = g.Select(x => x.b.Id).FirstOrDefault(),
-                                         ProductDetailId = g.Key,
-                                         TotalQuantity = g.Sum(x => x.a.Quantity),
-                                         SizeNumber = g.Select(x => x.k.SizeNumber).FirstOrDefault(),
+                                         ProductId = g.Key,
+                                         TotalQuantity = g.Sum(x => x.a.Quantity), 
+                                         ProductName = g.Select(x => x.d.Name).FirstOrDefault(),
+                                         SizeNumber = g.Select(x => x.k.SizeNumber).FirstOrDefault(), 
                                          ColorName = g.Select(x => x.h.Name).FirstOrDefault(),
                                          ImagePath = g.Select(x => x.i.ImagePath).FirstOrDefault(),
-                                         ProductName = g.Select(x => x.d.Name).FirstOrDefault(),
                                          PaidPrice = g.Select(x => x.a.Price).FirstOrDefault(),
                                      })
                                   .OrderByDescending(x => x.TotalQuantity)
-                                  .Take(10) 
+                                  .Take(10)
                                   .Select(x => new OrderDetailVm
                                   {
-                                      Id = x.Id,
-                                      OrderId = x.OrderId,
-                                      ProductDetailId = x.ProductDetailId,
+                                      ProductDetailId = x.ProductId, 
                                       ProductName = x.ProductName,
                                       Price = x.PaidPrice,
                                       Quantity = x.TotalQuantity,
                                       SizeNumber = x.SizeNumber,
                                       ColorName = x.ColorName,
                                       ImagePath = x.ImagePath,
-                                      
                                   }).ToListAsync();
 
             return Result<List<OrderDetailVm>>.Success(topProducts);
@@ -479,6 +474,7 @@ internal sealed class OrderRepository : IOrderRepository
             return Result<List<OrderDetailVm>>.Error(ex.Message);
         }
     }
+
 
     public async Task<Result<List<OrderVm>>> Statistical()
     {

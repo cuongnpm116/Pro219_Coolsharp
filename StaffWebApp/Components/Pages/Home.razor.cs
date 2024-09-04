@@ -103,10 +103,23 @@ public partial class Home
             Data = kvp.Value
         }).ToList();
     }
-    private bool _showChart = false;
 
-    private void ToggleChart()
+
+    private async Task OnBeginDateChanged(DateTime? newBegin)
     {
-        _showChart = !_showChart;
+        _paginationRequest.Begin = newBegin;
+        await TopProducts();
+        StateHasChanged();
     }
+
+
+    private async Task OnEndDateChanged(DateTime? newEnd)
+    {
+        _paginationRequest.End = newEnd;
+        await TopProducts();
+        StateHasChanged();
+    }
+
+
+
 }

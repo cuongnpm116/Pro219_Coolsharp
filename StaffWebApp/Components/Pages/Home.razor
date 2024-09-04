@@ -142,58 +142,95 @@
 </MudGrid>
 
 
-<MudGrid Style="margin-top:15px" >
+<MudGrid Style="margin-top:15px">
     <MudItem xs="12" sm="12" md="12">
-        <MudText Typo="Typo.h5" Class="text-center" Style="margin-block: 10px; cursor: pointer;" @onclick="ToggleChart">
+        <MudText Typo="Typo.h5" Class="text-center" Style="margin-block: 10px;">
             <MudIcon Icon="@Icons.Material.Filled.BarChart" Style="margin-right: 8px;" />
             Sơ đồ doanh thu
         </MudText>
     </MudItem>
 
-    @if (_showChart)
-    {
-        <MudItem xs="12">
-            <MudChart ChartType="ChartType.Bar" ChartSeries="@Series"
-                      XAxisLabels="@XAxisLabels" Width="1232px" Height="450px"></MudChart>
-        </MudItem>
-    }
+    <MudItem xs="12">
+        <MudChart ChartType="ChartType.Bar" ChartSeries="@Series"
+                  XAxisLabels="@XAxisLabels" Width="1232px" Height="450px"></MudChart>
+    </MudItem>
 </MudGrid>
 
 
+
 <MudGrid Style="margin-top:30px">
+
     <MudItem xs="12" sm="7" md="7">
 
         @if (_lstOrderDetail != null)
         {
-            <div class="border_box-shadow">            
-                <MudText Typo="Typo.h6" Class="text-center" Style="margin-block: 35px;">
+            <div class="border_box-shadow" style="padding: 20px;">
+                <MudText Typo="Typo.h5" Class="text-center" Style="margin-bottom: 30px;">
                     Top sản phẩm bán chạy
                 </MudText>
-             
+                <MudGrid Style="margin-top:30px" Spacing="3">
+                    <MudItem xs="6" sm="4" md="4">
+                        <MudTextField T="DateTime?"
+                                      Format="s"
+                                      Value="_paginationRequest.Begin"
+                                      Label="Ngày bắt đầu"
+                                      ValueChanged="OnBeginDateChanged"
+                                      InputType="InputType.DateTimeLocal"
+                                      FullWidth="true" />
+                    </MudItem>
+                    <MudItem xs="6" sm="4" md="4">
+                        <MudTextField T="DateTime?"
+                                      Format="s"
+                                      Value="_paginationRequest.End"
+                                      Label="Ngày Kết Thúc"
+                                      ValueChanged="OnEndDateChanged"
+                                      InputType="InputType.DateTimeLocal"
+                                      FullWidth="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="4" md="4">
+                        <MudSelect Dense="true"
+                                   T="int"
+                                   Label="Chọn số top sản phẩm"
+                                   Variant="Variant.Outlined"
+                                   Value="_paginationRequest.Stock"
+                                   ValueChanged="@OnStockChanged"
+                                   FullWidth="true">
+                            <MudSelectItem Value="50">50</MudSelectItem>
+                            <MudSelectItem Value="100">100</MudSelectItem>
+                            <MudSelectItem Value="150">150</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                </MudGrid>
+
                 <MudTable Items="@_lstOrderDetail" Hover="true" Dense="true">
                     <HeaderContent>
-                        <MudTh>STT</MudTh>
-                        <MudTh>Tên</MudTh>
-                        <MudTh>Image</MudTh>
-                        <MudTh>Số Lượng</MudTh>
-                       
+                        <MudTh align="center">STT</MudTh>
+                        <MudTh align="left">Tên</MudTh>
+                        <MudTh align="center">Hình ảnh</MudTh>
+                        <MudTh align="right">Số lượng</MudTh>
                     </HeaderContent>
 
                     <RowTemplate>
-                        <MudTd DataLabel="STT"> @(_lstOrderDetail.ToList().IndexOf(context) + 1)</MudTd>
-                        <MudTd>@context.ProductName</MudTd>
-                        <MudLink Href="" Style="text-decoration:none">
-                            <MudImage Src="@($"{_imageUrl}{context.ImagePath}")" Width="60" Height="60" alt="Image" />
-                        </MudLink>
-                        <MudTd>@context.Quantity</MudTd>
-                     
+                        <MudTd align="center" DataLabel="STT">@(_lstOrderDetail.ToList().IndexOf(context) + 1)</MudTd>
+                        <MudTd align="left">
+                            <MudText Typo="Typo.body1">@context.ProductName</MudText>
+                            <MudText Typo="Typo.caption" Class="text-muted">
+                                Màu: @context.ColorName - Size: @context.SizeNumber 
+                            </MudText>
+                        </MudTd>
+                        <MudTd align="center">
+                            <MudLink Href="/List/ProductDetail" Style="text-decoration:none">
+                                <MudImage Src="@($"{_imageUrl}{context.ImagePath}")" Width="60" Height="60" alt="Image" />
+                            </MudLink>
+                        </MudTd>
+                        <MudTd align="right">@context.Quantity</MudTd>
                     </RowTemplate>
                 </MudTable>
             </div>
         }
-
-
     </MudItem>
+
+
 @*     <MudItem xs="12" sm="5" md="5">
 
         @if (_lstProductDetail != null)
