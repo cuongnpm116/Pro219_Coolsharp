@@ -1,0 +1,79 @@
+﻿@page "/vouchers/{VoucherId:guid}"
+@if (_voucherDetailVm != null)
+{
+    <div class="d-flex flex-row align-items-center" style="width: 100%;height: 60px;border-bottom: solid 1px #ebebeb;margin-bottom: 10px;">
+        <ul>
+            <li style="display: inline-block;margin-right: 17px;"><a style="text-decoration:none;color:#51545f" href="/">Trang chủ</a>/</li>
+            <li style="display: inline-block;margin-right: 17px;"><a style="text-decoration:none;color:#51545f" href="/discounts">Khuyến mãi</a>/</li>
+            <li style="display: inline-block;margin-right: 17px;">@VoucherName</li>
+        </ul>
+    </div>
+    <MudContainer Class="mt-10 px-8" MaxWidth="MaxWidth.False" Style="max-height:1000px;overflow:auto;">
+        <MudGrid>
+            <MudItem xs="12" sm="6" md="6">
+                <div style="display:flex;align-items:center;margin-bottom:16px;">
+                    <MudText Class="mud-text-left" Style="width: 30%;">Tên chương trình:</MudText>
+                    <MudTextField @bind-Value="_voucherDetailVm.Name" ReadOnly="IsReadOnly" Style="width: 70%;"></MudTextField>
+                </div>
+                <div style="display:flex;align-items:center;margin-bottom:16px;">
+                    <MudText Class="mud-text-left" Style="width: 30%;">Tên chương trình:</MudText>
+                    <MudText  Style="width: 70%;">@_voucherDetailVm.VoucherCode</MudText>
+                </div>
+                <div style="display:flex;align-items:center;margin-bottom:16px;">
+                    <MudText Class="mud-text-left" Style="width: 30%;">Thời gian:</MudText>
+                    <div style="width:70%;">
+                        <MudDatePicker @bind-Date="_voucherDetailVm.StartedDate" ReadOnly="IsReadOnly" />
+                        
+                        <MudDatePicker @bind-Date="_voucherDetailVm.FinishedDate" ReadOnly="IsReadOnly"  />
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;margin-bottom:16px;">
+                    <MudText Class="mud-text-left" Style="width: 30%;">Số lượng:</MudText>
+                    <MudTextField @bind-Value="_voucherDetailVm.Stock" ReadOnly="IsReadOnly" Style="width: 70%;"></MudTextField>
+                </div>
+                
+            </MudItem>
+            <MudItem xs="12" sm="6" md="6">
+                <div style="display:flex;align-items:center;margin-bottom:16px;">
+                    <MudText Class="mud-text-left" Style="width: 30%;">Số tiền tối thiểu:</MudText>
+                    <MudTextField @bind-Value="_voucherDetailVm.DiscountCondition" ReadOnly="IsReadOnly"  Style="width: 70%;" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Money"/>
+                </div>
+                <MudGrid Style="display:flex;align-items:center">
+                    <MudItem xs="2" sm="2" md="2">
+                        <MudSelect Margin="Margin.Dense" @bind-Value="_typeDiscount" Variant="Variant.Outlined">
+                            <MudSelectItem Value="0">
+                                <MudIcon Icon="@Icons.Material.Filled.Percent" Color="Color.Success" Size="Size.Small"></MudIcon>
+                            </MudSelectItem>
+                            <MudSelectItem Value="1">
+                                <MudIcon Icon="@Icons.Material.Filled.Money" Color="Color.Primary" Size="Size.Small"></MudIcon>
+                            </MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="10" sm="10" md="10">
+                        @if (_typeDiscount == 0)
+                        {
+                            <MudTextField T="int?"  Class="margin" ReadOnly="IsReadOnly" Label="Giảm theo phần trăm" @bind-Value="_voucherDetailVm.DiscountPercent" />
+                        }
+                        else if (_typeDiscount == 1)
+                        {
+                            <MudTextField T="decimal?"  Class="margin" ReadOnly="IsReadOnly" Label="Giảm giá tiền" @bind-Value="_voucherDetailVm.DiscountAmount" />
+                        }
+                    </MudItem>
+                </MudGrid>
+                <MudSelect Class="margin mb-5" @bind-Value="_voucherDetailVm.Status" ReadOnly="IsReadOnly" T="int" Label="Trạng thái">
+                    <MudSelectItem Value="1">Hoạt động</MudSelectItem>
+                    <MudSelectItem Value="2">Không hoạt động</MudSelectItem>
+                    <MudSelectItem Value="3">Khóa</MudSelectItem>
+                    <MudSelectItem Value="5">Chờ </MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="12">
+                <div style="display: flex; justify-content: flex-end;">
+                    <MudButton Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" OnClick="HandleButtonClick">
+                        @(IsReadOnly ? "Sửa đổi" : "Lưu")
+                    </MudButton>
+                </div>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+}

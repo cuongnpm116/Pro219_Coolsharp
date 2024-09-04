@@ -1,0 +1,36 @@
+﻿.buy-button {
+    text-align: right;
+    margin-right: 30px;
+}
+
+    .buy-button button {
+        margin: 20px 0;
+        width: 200px;
+        height: 50px;
+    }
+
+.hover-filled-button {
+    background-color: transparent;
+    color: var(--mud-palette-primary-main);
+    border: 1px solid var(--mud-palette-primary-main);
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+    .hover-filled-button:hover {
+        background-color: var(--mud-palette-primary-main);
+        color: var(--mud-palette-primary-contrast-text);
+        border-color: var(--mud-palette-primary-main);
+    }
+
+.product-name {
+    max-width: 200px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre-wrap;
+    max-height: 4em;
+    font-size: 1.2rem;
+    line-height: 1.5rem;
+}

@@ -1,0 +1,39 @@
+﻿@page "/ListOrder"
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using WebAppIntegrated.Enum
+@* @attribute [Authorize(Roles = "admin,staff")] *@
+
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Style="margin-top: 30px;">
+    <MudTabPanel Text="Tất Cả">
+
+        <OrderGrid OrderStatus="OrderStatus.None"></OrderGrid>
+
+    </MudTabPanel>
+    <MudTabPanel Text="Chờ xác nhận">
+
+        <OrderGrid OrderStatus=@OrderStatus.Pending></OrderGrid>
+       
+    </MudTabPanel>
+    <MudTabPanel Text="Chờ lấy hàng">
+
+        <OrderGrid OrderStatus=@OrderStatus.AwaitingShipment></OrderGrid>
+
+    </MudTabPanel>
+    <MudTabPanel Text="Chờ giao hàng">
+
+        <OrderGrid OrderStatus=@OrderStatus.AWaitingPickup></OrderGrid>
+
+    </MudTabPanel> 
+    <MudTabPanel Text="Hoàn thành">
+
+        <OrderGrid OrderStatus=@OrderStatus.Completed></OrderGrid>
+
+    </MudTabPanel>
+    <MudTabPanel Text="Đã hủy">
+
+        <OrderGrid OrderStatus=@OrderStatus.Cancelled></OrderGrid>
+
+    </MudTabPanel>
+ 
+</MudTabs>

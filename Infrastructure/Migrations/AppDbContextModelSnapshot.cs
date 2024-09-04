@@ -301,6 +301,9 @@ namespace Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<Guid?>("VoucherId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedOn");
@@ -308,6 +311,8 @@ namespace Infrastructure.Migrations
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("StaffId");
+
+                    b.HasIndex("VoucherId");
 
                     b.ToTable("Orders");
                 });
@@ -613,12 +618,12 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d"),
-                            CreatedOn = new DateTime(2024, 8, 30, 5, 46, 34, 892, DateTimeKind.Local).AddTicks(6354),
+                            CreatedOn = new DateTime(2024, 9, 2, 16, 12, 24, 394, DateTimeKind.Local).AddTicks(9059),
                             DateOfBirth = new DateTime(2003, 11, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DeletedOn = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "sohardz01@gmail.com",
                             FirstName = "Nguyễn",
-                            HashedPassword = "0C661030EF7376B1374F1740DE44C9B35F315E9C36481EE67B7AB06C299ADA06:CA75327244E713F685BA56EA033E5467:50000:SHA256",
+                            HashedPassword = "5FE6B5461374B2208E72B16B7F1479A0B38384FAD8D985D7F08D3E9F5DC72C8C:19782C09C7B32946C3DA6C5E9A4BD754:50000:SHA256",
                             ImageUrl = "default.png",
                             IsDeleted = false,
                             LastName = "Cương",
@@ -650,10 +655,59 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("b3492b52-34ba-448c-a775-91465ea1e6fd"),
+                            Id = new Guid("b76ee838-b63e-4a2c-baee-10da718e3c39"),
                             RoleId = new Guid("0fc1d27c-f6c4-4011-8d3c-4d33b2703369"),
                             StaffId = new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d")
                         });
+                });
+
+            modelBuilder.Entity("Domain.Entities.Voucher", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DiscountCondition")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("DiscountPercent")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FinishedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar");
+
+                    b.Property<DateTime>("StartedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VoucherCode")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Vouchers");
                 });
 
             modelBuilder.Entity("Domain.Entities.Address", b =>
@@ -718,9 +772,15 @@ namespace Infrastructure.Migrations
                         .WithMany("Orders")
                         .HasForeignKey("StaffId");
 
+                    b.HasOne("Domain.Entities.Voucher", "Voucher")
+                        .WithMany("Orders")
+                        .HasForeignKey("VoucherId");
+
                     b.Navigation("Customer");
 
                     b.Navigation("Staff");
+
+                    b.Navigation("Voucher");
                 });
 
             modelBuilder.Entity("Domain.Entities.OrderDetail", b =>
@@ -916,6 +976,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("StaffRoles");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Voucher", b =>
+                {
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

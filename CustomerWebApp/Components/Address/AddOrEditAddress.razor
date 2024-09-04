@@ -1,0 +1,68 @@
+﻿@using WebAppIntegrated.AddressService
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Edit" Class="mr-3"></MudIcon>
+            @DialogInstance.Title
+        </MudText>
+    </TitleContent>
+
+    <DialogContent>
+        <MudForm Model="_vm" @ref="_form" Validation="validator.ValidateValue" ValidationDelay="0">
+            <MudAutocomplete T="ProvinceVm"
+                             Value="_vm.Province"
+                             ValueChanged="async (ProvinceVm selected) => await OnProvinceChanged(selected)"
+                             SearchFunc="SearchProvince"
+                             ToStringFunc="(ProvinceVm vm) => vm.Name"
+                             MaxItems="63"
+                             For="() => _vm.Province"
+                             Immediate="true"
+                             Label="Tỉnh/Thành phố"
+                             AnchorOrigin="Origin.BottomCenter"
+                             TransformOrigin="Origin.TopCenter"
+                             Class="mt-3">
+            </MudAutocomplete>
+
+            <MudAutocomplete T="DistrictVm"
+                             Label="Quận/Huyện"
+                             Value="_vm.District"
+                             ValueChanged="(DistrictVm selected) => OnDistrictChanged(selected)"
+                             SearchFunc="SearchDistrict"
+                             ToStringFunc="(DistrictVm vm) => vm.Name"
+                             MaxItems="_districts.Count()"
+                             For="() => _vm.District"
+                             Immediate="true"
+                             AnchorOrigin="Origin.BottomCenter"
+                             TransformOrigin="Origin.TopCenter"
+                             Disabled="string.IsNullOrWhiteSpace(_vm.Province.Name)"
+                             Class="mt-3">
+            </MudAutocomplete>
+
+            <MudAutocomplete T="WardVm"
+                             @bind-Value="_vm.Ward"
+                             SearchFunc="SearchWard"
+                             ToStringFunc="(WardVm vm) => vm.Name"
+                             MaxItems="_wards.Count()"
+                             Label="Xã/Thị trấn"
+                             For="() => _vm.Ward"
+                             Immediate="true"
+                             AnchorOrigin="Origin.BottomCenter"
+                             TransformOrigin="Origin.TopCenter"
+                             Disabled="string.IsNullOrWhiteSpace(_vm.District.Name)"
+                             Class="mt-3">
+            </MudAutocomplete>
+            <MudTextField @bind-Value="_vm.Detail" For="() => _vm.Detail" Immediate="true" Label="Địa chỉ chi tiết"></MudTextField>
+            <MudTextField @bind-Value="_vm.PhoneNumber" For="() => _vm.PhoneNumber" Label="Số điện thoại"></MudTextField>
+            @if (!IsDefault)
+            {
+                <MudCheckBox @bind-Value="_vm.IsDefault" Label="Đặt làm địa chỉ mặt định"></MudCheckBox>
+            }
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="() => DialogInstance.Cancel()" Variant="Variant.Filled" Color="Color.Error">Hủy</MudButton>
+        <MudButton OnClick="async () => await OnSaveButtonClick()" Variant="Variant.Outlined">Lưu</MudButton>
+    </DialogActions>
+</MudDialog>
+

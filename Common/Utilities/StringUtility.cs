@@ -50,7 +50,20 @@ public partial class StringUtility
         string result = $"{now.Year}{now.Month:00}{now.Day:00}";
         return result;
     }
+    private static readonly char[] _chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
+    private static readonly Random _random = new Random();
 
+    public static string GenerateVoucherCode(int length)
+    {
+        var voucherCode = new char[length];
+
+        for (int i = 0; i < length; i++)
+        {
+            voucherCode[i] = _chars[_random.Next(_chars.Length)];
+        }
+
+        return new string(voucherCode);
+    }
     public static string GenerateOrderCode(int length)
     {
         const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";

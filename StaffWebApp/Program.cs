@@ -1,6 +1,7 @@
 using MudBlazor.Services;
 using StaffWebApp.Components;
 using StaffWebApp.Extensions;
+using StaffWebApp.Services.Voucher;
 using WebAppIntegrated.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddServerSideBlazor()
     .AddCircuitOptions(opts => { opts.DetailedErrors = true; });
 
+builder.Services.AddTransient<IVoucherSevice, VoucherService>();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient(ShopConstants.EShopClient, client =>

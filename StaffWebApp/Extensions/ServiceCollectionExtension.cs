@@ -1,4 +1,7 @@
-﻿using StaffWebApp.Services.Role;
+﻿using StaffWebApp.Services.Color;
+using StaffWebApp.Services.Order;
+using StaffWebApp.Services.Role;
+using StaffWebApp.Services.Size;
 using StaffWebApp.Services.Staff;
 using WebAppIntegrated.Services;
 
@@ -10,6 +13,9 @@ internal static class ServiceCollectionExtension
     {
         services.AddTransient<IStaffService, StaffService>();
         services.AddTransient<IRoleService, RoleService>();
+        services.AddTransient<IOrderService, OrderService>();
+        services.AddTransient<ISizeService, SizeService>();
+        services.AddTransient<IColorService, ColorService>();
 
         services.AddScoped<IGrpcService, GrpcService>();
 

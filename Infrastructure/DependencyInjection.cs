@@ -26,6 +26,14 @@ public static class DependencyInjection
         services.AddTransient<IAddressRepository, AddressRepository>();
         services.AddTransient<IStaffRepository, StaffRepository>();
         services.AddTransient<IRoleRepository, RoleRepository>();
+        services.AddTransient<IProductRepository, ProductRepository>();
+        services.AddTransient<ICartRepository, CartRepository>();
+        services.AddTransient<ICategoryRepository, CategoryRepository>();
+        services.AddTransient<IOrderRepository, OrderRepository>();
+        services.AddTransient<IPaymentRepository, PaymentRepository>();
+        services.AddTransient<ISizeRepository, SizeRepository>();
+        services.AddTransient<IColorRepository, ColorRepository>();
+        services.AddTransient<IVoucherRepository, VoucherRepository>();
 
         return services;
     }

@@ -1,0 +1,81 @@
+﻿@page "/ListColor"
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using WebAppIntegrated.Enum
+@* @attribute [Authorize(Roles = "admin,staff")] *@
+
+<div class="row" style="margin-top:10px;display:flex;justify-content:space-between">
+    <div class="col-8" style="display:flex; align-items: center;">
+        <MudText Typo="Typo.h5">
+            Danh sách màu sắc sản phẩm
+        </MudText>
+    </div>
+    <MudFab Class="px-3" Style="margin-right:10px;"
+            OnClick="() => OpenDialog(Guid.Empty)"
+            Color="Color.Primary" Label="Thêm mới" StartIcon="@Icons.Material.Filled.Add">
+    </MudFab>
+</div>
+
+<MudGrid>
+    <MudItem xs="12" md="3" lg="4">
+        <MudTextField @bind-Value="_paginationRequest.SearchString"
+                      Label="Search"
+                      Adornment="Adornment.Start"
+                      Variant="Variant.Outlined"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      IconSize="Size.Medium"
+                      Class="mr-5"
+                      @oninput="HandleSearchValueChanged"
+                      @onkeydown="HandleKeyPress">
+        </MudTextField>
+    </MudItem>
+</MudGrid>
+@if (_lstColor.Data != null)
+{
+    <div class="border_box-shadow">
+
+        <MudTable Items="_lstColor.Data" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>STT</MudTh>
+                <MudTh>Tên</MudTh>
+                <MudTh>Trạng thái</MudTh>
+                <MudTh Class="custom-center">Chức năng</MudTh>
+            </HeaderContent>
+            
+            <RowTemplate>
+                <MudTd DataLabel="STT"> @(_lstColor.Data.ToList().IndexOf(context) + 1)</MudTd>
+                <MudTd DataLabel="Name" >@context.Name</MudTd>
+                <MudTd DataLabel="Status">@EnumUtility.ConvertStatusColorSize(context.Status)</MudTd>
+      
+                <MudTd Class="custom-center">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" OnClick="() => OpenDialog(context.Id)" Title="Sửa Color" />
+                                
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <div style="display:flex; justify-content:center; align-items: center; height:70px;">
+                    <MudIconButton Size="@Size.Large" Icon="@Icons.Material.Filled.NavigateBefore" Disabled="_lstColor.PageNumber ==1" OnClick="OnPreviousPageClicked"></MudIconButton>
+                    <MudText>@_lstColor.PageNumber</MudText>
+                    <MudIconButton Size="@Size.Large" Icon="@Icons.Material.Filled.NavigateNext" Disabled="!_lstColor.HasNext" OnClick="OnNextPageClicked"></MudIconButton>
+                </div>
+            </PagerContent>
+
+        </MudTable>
+    </div>
+}
+
+ <style>
+    .custom-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        padding-right: 10px;
+    }
+
+    .small-select {
+        max-width: 80px;
+        font-size: 0.875rem;
+        height: 32px;
+    }
+ </style>

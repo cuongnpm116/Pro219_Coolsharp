@@ -1,58 +1,120 @@
 ﻿@page "/"
+@using CustomerWebApp.Service.Product
+@using CustomerWebApp.Service.Product.ViewModel
+@using WebAppIntegrated.Constants
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Home Page</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">Hello, world!</MudText>
-<MudText Class="mb-8">Welcome to your new app, powered by MudBlazor and the .NET 8 Template!</MudText>
+<MudContainer Class="mt-16">
+    <MudCarousel Class="mud-width-full" ShowBullets="false" Style="height:635px;" TData="object">
+        <MudCarouselItem Transition="transition">
+            <div class="d-flex position-relative" style="height:100%">
+                <MudImage Width="1842" Height="635" ObjectPosition="ObjectPosition.Left" Class="mx-auto my-auto"
+                          Src="/images/banner.jpg" />
+                <div class="position-absolute" style="top: 40%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                    <h2 style=" padding: 10px;">Tưng bừng khai trương giảm giá 20% tất cả sản phẩm </h2>
+                    <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Success" Href="/products">
+                        Mua ngay
+                    </MudButton>
+                </div>
+            </div>
+        </MudCarouselItem>
+        <MudCarouselItem Transition="transition">
+            <div class="d-flex position-relative" style="height:100%">
+                <MudImage Width="1842" Height="635" ObjectPosition="ObjectPosition.Left" Class="mx-auto my-auto"
+                          Src="/images/banner.jpg" />
+                <div class="position-absolute" style="top: 40%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                    <h2 style=" padding: 10px;">Tưng bừng khai trương giảm giá 20% tất cả sản phẩm </h2>
+                    <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Success" Href="/products">
+                        Mua ngay
+                    </MudButton>
+                </div>
+            </div>
+        </MudCarouselItem>
+        <MudCarouselItem Transition="transition">
+            <div class="d-flex position-relative" style="height:100%">
+                <MudImage Width="1842" Height="635" ObjectPosition="ObjectPosition.Left" Class="mx-auto my-auto"
+                          Src="/images/banner.jpg" />
+                <div class="position-absolute" style="top: 40%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                    <h2 style=" padding: 10px;">Tưng bừng khai trương giảm giá 20% tất cả sản phẩm </h2>
+                    <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Success" Size="Size.Large" Href="/products">
+                        Mua ngay
+                    </MudButton>
+                </div>
+            </div>
+        </MudCarouselItem>
+    </MudCarousel>
+    <MudGrid Class="mt-5">
+        <MudItem xs="12" md="6" lg="6">
+            <MudPaper colo Class="pa-4 mb-4 d-flex align-center" Style="background-color: #f55831;" Elevation="4">
+                <MudIcon Icon="@Icons.Material.Filled.LocalShipping" Style="@($"color:{Colors.Gray.Lighten5};")" Size="Size.Large"
+                         Class="mr-4" />
+                <div>
+                    <MudText Typo="Typo.h6" Class="text-uppercase">Miễn phí giao hàng</MudText>
+                    <MudText>Bị thay đổi dưới một số hình thức</MudText>
+                </div>
+            </MudPaper>
+        </MudItem>
 
-<MudAlert Severity="Severity.Normal">
-    You can find documentation and examples on our website here:
-    <MudLink Href="https://mudblazor.com" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        <b>www.mudblazor.com</b>
-    </MudLink>
-</MudAlert>
+        <MudItem xs="12" md="6" lg="6">
+            <MudPaper Class="pa-4 mb-4 d-flex align-center" Style="background-color: #f55831;" Elevation="4">
+                <MudIcon Icon="@Icons.Material.Filled.Alarm" Style="@($"color:{Colors.Gray.Lighten5};")" Size="Size.Large" Class="mr-4" />
+                <div>
+                    <MudText Typo="Typo.h6" Class="text-uppercase">Mở cửa cả tuần</MudText>
+                    <MudText>8AM - 9PM</MudText>
+                </div>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+    <MudText Typo="Typo.h3" Class="mt-5" Align="Align.Center" GutterBottom="true">Sản phẩm mới</MudText>
+    <MudGrid>
+        @foreach (var item in _lstProduct)
+        {
+            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudCard>
+                    <MudLink Href="@($"/productdetail/{item.ProductId}")" Underline="Underline.None">
+                        <MudCardMedia Image="@item.ImageUrl"
+                                      Height="200" />
+                    </MudLink>
+                    <MudLink Href="@($"/productdetail/{item.ProductId}")" Underline="Underline.None">
+                        <MudCardContent>
+                            <div class="text-center">
+                                <MudText title="@item.ProductName" Color="Color.Success" Typo="Typo.h6"
+                                         Style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap; max-height: 4em; font-size: 1.2rem; line-height: 1.5rem;">
+                                    @item.ProductName
+                                </MudText>
+                            </div>
+                        </MudCardContent>
+                    </MudLink>
+                </MudCard>
+            </MudItem>
 
-<br />
-<MudText Typo="Typo.h5" GutterBottom="true">Interactivity in this Template</MudText>
-<br />
-<MudText Typo="Typo.body2">
-    When you opt for the "Global" Interactivity Location, <br />
-    the render modes are defined in App.razor and consequently apply to all child components.<br />
-    In this case, providers are globally set in the MainLayout.<br />
-    <br />
-    On the other hand, if you choose the "Per page/component" Interactivity Location,<br />
-    it is necessary to include the <br />
-    <br />
-    &lt;MudPopoverProvider /&gt; <br />
-    &lt;MudDialogProvider /&gt; <br />
-    &lt;MudSnackbarProvider /&gt; <br />
-    <br />
-    components on every interactive page.<br />
-    <br />
-    If a render mode is not specified for a page, it defaults to Server-Side Rendering (SSR),<br />
-    similar to this page. While MudBlazor allows pages to be rendered in SSR,<br />
-    please note that interactive features, such as buttons and dropdown menus, will not be functional.
-</MudText>
+        }
+    </MudGrid>
 
-<br />
-<MudText Typo="Typo.h5" GutterBottom="true">What's New in Blazor with the Release of .NET 8</MudText>
-<br />
-<MudText Typo="Typo.h6" GutterBottom="true">Prerendering</MudText>
-<MudText Typo="Typo.body2" GutterBottom="true">
-    If you're exploring the features of .NET 8 Blazor,<br /> you might be pleasantly surprised to learn that each page is prerendered on the server,<br /> regardless of the selected render mode.<br /><br />
-    This means that you'll need to inject all necessary services on the server,<br /> even when opting for the wasm (WebAssembly) render mode.<br /><br />
-    This prerendering functionality is crucial to ensuring that WebAssembly mode feels fast and responsive,<br /> especially when it comes to initial page load times.<br /><br />
-    For more information on how to detect prerendering and leverage the RenderContext, you can refer to the following link:
-    <MudLink Href="https://github.com/dotnet/aspnetcore/issues/51468#issuecomment-1783568121" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        More details
-    </MudLink>
-</MudText>
+</MudContainer>
+@code {
+    [Inject]
+    private IProductService ProductService { get; set; }
 
-<br />
-<MudText Typo="Typo.h6" GutterBottom="true">InteractiveAuto</MudText>
-<MudText Typo="Typo.body2">
-    A discussion on how to achieve this can be found here:
-    <MudLink Href="https://github.com/dotnet/aspnetcore/issues/51468#issue-1950424116" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        More details
-    </MudLink>
-</MudText>
+    private ProductVm _product = new();
+    private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
+    private List<ProductVm> _lstProduct = new();
+
+    private Transition transition = Transition.Slide;
+
+    private async Task FeaturedProduct()
+    {
+        var result = await ProductService.GetFeaturedProducts();
+        if (result.IsSuccess && result.Value != null)
+        {
+            _lstProduct = result.Value;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FeaturedProduct();
+
+    }
+}

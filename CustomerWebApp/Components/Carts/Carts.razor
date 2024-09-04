@@ -1,0 +1,157 @@
+﻿@page "/cart"
+@using CustomerWebApp.Components
+@using Microsoft.AspNetCore.Authorization
+@* @attribute [Authorize(Roles = "customer")] *@
+
+
+<div class="d-flex flex-row align-center" style="width: 100%;height: 60px;border-bottom: solid 1px #ebebeb;margin-bottom: 20px;">
+    <ul>
+        <li style="display: inline-block;margin-right: 17px;"><a style="text-decoration:none;color:#51545f" href="/">Trang chủ</a>/</li>
+        <li style="display: inline-block;margin-right: 17px;">Giỏ hàng</li>
+    </ul>
+</div>
+
+@if (_cartVm.ListCart.Count == 0)
+{
+    <div class="d-flex flex-column justify-center align-center" style="height: 90vh;margin-bottom:50px">
+
+        <MudText Typo="Typo.h5">Giỏ hàng của bạn còn trống</MudText>
+        <MudLink Href="/products">
+            <MudButton Variant="Variant.Filled" Size="Size.Large" Color="Color.Success">Mua ngay</MudButton>
+        </MudLink>
+
+    </div>
+}
+else
+{
+    <MudContainer>
+        <MudTable Items="@_cartVm.ListCart" Hover>
+            <HeaderContent>
+                <MudTh>
+                    <MudCheckBox @bind-Value="selectAllChecked"
+                                 @bind-Value:event=""
+                                 Style="margin-left:8px"
+                                 ValueChanged="(bool value) => UpdateHeaderCheckbox(value)">
+                    </MudCheckBox>
+                </MudTh>
+                <MudTh>Sản Phẩm</MudTh>
+                <MudTh></MudTh>
+                <MudTh>Đơn Giá</MudTh>
+                <MudTh>Số Lượng</MudTh>
+                <MudTh>Số Tiền</MudTh>
+                <MudTh>Thao Tác</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <MudCheckBox @bind-Value="context.IsChecked"
+                                 @bind-Value:event=""
+                                 ValueChanged="(bool value) => UpdateSelectedIds(value, context.ProductDetailId)">
+                    </MudCheckBox>
+                </MudTd>
+                <MudTd DataLabel="Name" Style="max-width:300px!important">
+                    <div style="display:flex;max-width:280px">
+                        <MudLink Href="@($"/productdetail/{context.ProductId}")" Style="text-decoration:none">
+                            <MudImage Src="@context.ImagePath" Width="60" Height="60" alt="Image" />
+                        </MudLink>
+                        <MudLink Href="@($"/productdetail/{context.ProductId}")" Style="text-decoration:none">
+                            <MudText Class="product-name" Style="font-weight: bold;color:black" title="@context.ProductName">
+                                @context.ProductName
+                            </MudText>
+                        </MudLink>
+                    </div>
+                </MudTd>
+
+                <MudTd>
+                    @context.ColorName, @context.SizeNumber
+                </MudTd>
+
+                <MudTd DataLabel="Price" Style="font-weight:bold;">
+                    @string.Format("{0:#,##0}", context.UnitPrice) VND
+                </MudTd>
+
+                <MudTd DataLabel="Quantity">
+                    <div class="d-flex align-center">
+                        <MudIconButton Icon="@Icons.Material.Filled.Remove"
+                                       Variant="Variant.Outlined"
+                                       Color="Color.Dark"
+                                       Size="Size.Small"
+                                       Disabled="@isUpdating"
+                                       OnClick="async () => await AdjustQuantity(context, -1)" />
+                        <input style="align-content:center; max-width:45px; text-align:center !important"
+                               value="@context.Quantity"
+                               @onchange="async (e) => await HandleQuantityChange(context, e)" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                       Variant="Variant.Outlined"
+                                       Disabled="context.Quantity >= context.ProductQuantity || isUpdating"
+                                       Color="Color.Dark"
+                                       Size="Size.Small"
+                                       OnClick="async () => await AdjustQuantity(context, 1)" />
+                    </div>
+                    <MudText Color="Color.Error">@context.ProductQuantity sản phẩm có sẵn</MudText>
+                </MudTd>
+
+                <MudTd DataLabel="TotalPrice" Style="font-weight: bold;">
+                    @string.Format("{0:#,##0}", context.AmountOfMoney) VND
+                </MudTd>
+                <MudTd DataLabel="Action">
+                    <MudButton OnClick="() => RemoveCartItem(context.ProductDetailId)">
+                        <MudText>Xóa</MudText>
+                    </MudButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+        <br />
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudGrid Class="mb-5">
+                    <MudItem xs="12" md="6" Class="d-flex justify-center">
+                        <MudButton Href="/products"
+                                   Variant="Variant.Filled"
+                                   Class="hover-filled-button"
+                                   Color="Color.Inherit"
+                                   Size="Size.Large"
+                                   FullWidth>
+                            <MudText Typo="Typo.h6">Tiếp tục mua sắm</MudText>
+                        </MudButton>
+                        <MudButton OnClick="async () => await RemoveCarts()"
+                                   Variant="Variant.Filled"
+                                   Style="margin-left:10px"
+                                   Class="hover-filled-button"
+                                   Color="Color.Inherit"
+                                   Disabled="IsDisable"
+                                   Size="Size.Medium">
+                            <MudText Typo="Typo.h6">Xóa</MudText>
+                        </MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudGrid Class="justify-end">
+                    <MudItem xs="12" md="7">
+                        <MudPaper Class="pa-4">
+                            <MudGrid Class="mb-3">
+                                <MudItem xs="6">
+                                    <MudText Class="text-black">Tổng tiền</MudText>
+                                </MudItem>
+                                <MudItem xs="6" Class="text-right">
+                                    <MudText Bold Class="text-black">@string.Format("{0:#,##0}", _cartVm.TotalPayment) VND</MudText>
+                                </MudItem>
+                            </MudGrid>
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Inherit"
+                                       Size="Size.Large"
+                                       FullWidth
+                                       OnClick="() =>  NavigateToCheckout()">
+                                Mua Hàng
+                            </MudButton>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+}
+
+<link href="../Components/Cart/Cart.razor.css" rel="stylesheet" />
+
+

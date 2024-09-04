@@ -1,0 +1,171 @@
+﻿@page "/payment-response"
+@using CustomerWebApp.Service.Payment
+@using CustomerWebApp.Service.Payment.Dtos
+@using System.Collections.Specialized
+@* @using Microsoft.AspNetCore.Authorization
+@attribute [Authorize] *@
+
+@inject NavigationManager Navigation
+@if (paymentResponse != null && paymentResponse.VnPayResponseCode == "00")
+{
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
+        <MudPaper Class="pa-6 text-center">
+            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Large" />
+            <MudText Typo="Typo.h4" GutterBottom="true" Class="my-4">Thanh toán thành công</MudText>
+            <MudText Typo="Typo.subtitle1" GutterBottom="true">Cảm ơn bạn đã thanh toán! Giao dịch của bạn đã được hoàn tất thành công.</MudText>
+
+            <MudDivider Class="my-4" />
+
+            <MudList Dense="true" T="string">
+                <MudListItem>
+                    <MudText>Mã giao dịch: @paymentResponse.TransactionId</MudText>
+                </MudListItem>
+                <MudListItem>
+                    <MudText>Ngày thanh toán: @paymentResponse.PayDate</MudText>
+                </MudListItem>
+                <MudListItem>
+                    <MudText>Thành tiền: @amount</MudText>
+                </MudListItem>
+                <MudListItem>
+                    <MudText>Chi tiết giao dịch: @paymentResponse.OrderDescription</MudText>
+                </MudListItem>
+            </MudList>
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="GoToHomePage" Class="mt-4">Về trang chủ</MudButton>
+        </MudPaper>
+    </MudContainer>
+}
+else if (isSuccess)
+{
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
+        <MudPaper Class="pa-6 text-center">
+            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Large" />
+            <MudText Typo="Typo.h4" GutterBottom="true" Class="my-4">Thanh toán thành công</MudText>
+            <MudText Typo="Typo.subtitle1" GutterBottom="true">Cảm ơn bạn đã mua hàng! Đơn hành của bạn sẽ nhanh chóng được xử lí.</MudText>
+
+            <MudDivider Class="my-4" />
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="GoToHomePage" Class="mt-4">Về trang chủ</MudButton>
+        </MudPaper>
+    </MudContainer>
+}
+else
+{
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
+        <MudPaper Class="pa-6 text-center">
+            <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error" Size="Size.Large" />
+            <MudText Typo="Typo.h4" GutterBottom="true" Class="my-4">Thanh toán không thành công.</MudText>
+            <MudText Typo="Typo.subtitle1" GutterBottom="true">Giao dịch không thành công. Vui lòng thử lại.</MudText>
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="GoToHomePage" Class="mt-4">Về trang chủ</MudButton>
+        </MudPaper>
+    </MudContainer>
+}
+
+
+@code {
+    [Inject]
+    private IPaymentService PaymentService { get; set; }
+    // [CascadingParameter]
+    // private Task<AuthenticationState> AuthStateTask { get; set; }
+    private PaymentResponse paymentResponse = new();
+    private CreatePaymentRequest paymentRequest = new();
+    private string orderCode;
+    private Guid CustomerId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
+    private string amount = "";
+    private bool isSuccess;
+
+    protected override void OnInitialized()
+    {
+
+        // AuthenticationState? authState = await AuthStateTask;
+        // var stringUserId = authState.User.Claims.FirstOrDefault(x => x.Type == "userId")?.Value;
+        // UserId = new(stringUserId);
+
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        isSuccess = queryParams["success"] == "true";
+        if (!isSuccess)
+        {
+            var queryCollection = ToQueryCollection(queryParams);
+            paymentResponse = PaymentService.PaymentExecute(queryCollection);
+
+            int startIndex = paymentResponse.OrderDescription.IndexOf("hàng") + 5;
+            orderCode = paymentResponse.OrderDescription.Substring(startIndex);
+
+            amount = paymentResponse.Amount.ToString("N0") + " VND";
+        }
+
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !isSuccess)
+        {
+            await CreatePayment();
+        }
+    }
+    private async Task CreatePayment()
+    {
+        paymentRequest.PaymentDate = paymentResponse.PayDate;
+        paymentRequest.OrderCode = orderCode;
+        paymentRequest.CustomerId = CustomerId;
+        paymentRequest.PaymentMethod = 1;
+        paymentRequest.Amount = paymentResponse.Amount;
+        if (paymentResponse != null)
+        {
+            switch (paymentResponse.VnPayResponseCode)
+            {
+                case "00":
+                    paymentRequest.PaymentStatus = 2;
+                    break;
+                case "01":
+                case "05":
+                case "06":
+                case "11":
+                    paymentRequest.PaymentStatus = 1;
+                    break;
+                case "02":
+                case "09":
+                case "10":
+                case "12":
+                case "13":
+                case "24":
+                case "51":
+                case "65":
+                case "75":
+                case "79":
+                case "99":
+                    paymentRequest.PaymentStatus = 3;
+                    break;
+                default:
+                    paymentRequest.PaymentStatus = 0;
+                    break;
+
+            }
+            paymentRequest.StatusCode = paymentResponse.VnPayResponseCode;
+        }
+
+        var result = await PaymentService.CreatePayment(paymentRequest);
+    }
+
+    private static IQueryCollection ToQueryCollection(NameValueCollection nameValueCollection)
+    {
+        var dictionary = new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>();
+
+        foreach (var key in nameValueCollection.AllKeys)
+        {
+            if (key != null)
+            {
+                dictionary[key] = nameValueCollection.GetValues(key);
+            }
+        }
+
+        return new QueryCollection(dictionary);
+    }
+    private void GoToHomePage()
+    {
+        Navigation.NavigateTo("/");
+    }
+}
+
