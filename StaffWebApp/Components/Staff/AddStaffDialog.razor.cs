@@ -24,11 +24,11 @@ public partial class AddStaffDialog
     [Inject]
     private IStaffService StaffService { get; set; } = null!;
 
-    private IReadOnlyList<RoleVm> _roles = [];
+    private IReadOnlyList<RoleVmForGetAll> _roles = [];
     private AddStaffVm _addStaffVm = new();
 
     private AddStaffVmValidator _validator = new();
-    private MudSelect<RoleVm> _roleSelect;
+    private MudSelect<RoleVmForGetAll> _roleSelect;
     private MudForm _addStaffForm;
 
     private bool isShow;
@@ -84,7 +84,7 @@ public partial class AddStaffDialog
         _roles = result.Value;
     }
 
-    private async Task RoleSelectionChanged(IEnumerable<RoleVm> values)
+    private async Task RoleSelectionChanged(IEnumerable<RoleVmForGetAll> values)
     {
         _addStaffVm.Roles = values;
         await _roleSelect.Validate();

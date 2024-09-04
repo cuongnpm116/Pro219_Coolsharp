@@ -50,12 +50,12 @@
                           MaxLength="40"
                           Label="Mật khẩu" />
 
-            <MudSelect T="RoleVm"
+            <MudSelect T="RoleVmForGetAll"
                        @ref="_roleSelect"
                        SelectedValues="_addStaffVm.Roles"
                        SelectedValuesChanged="RoleSelectionChanged"
                        MultiSelection="true"
-                       ToStringFunc="(RoleVm vm) => vm is not null ? vm.Name : string.Empty"
+                       ToStringFunc="(RoleVmForGetAll vm) => vm is not null ? vm.Name : string.Empty"
                        For="() => _addStaffVm._validateRoles"
                        Immediate="true"
                        Label="Vai trò">

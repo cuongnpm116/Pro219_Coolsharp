@@ -14,7 +14,7 @@ public class Staff
     public string Email { get; set; } = string.Empty;
     public string HashedPassword { get; set; } = string.Empty;
     public string Username { get; set; } = string.Empty;
-    public string ImageUrl { get; set; } = "default.png";
+    public string ImageUrl { get; set; } = "default-profile.png";
     public DateTime DateOfBirth { get; set; }
     public Status Status { get; set; } = Status.Active;
 

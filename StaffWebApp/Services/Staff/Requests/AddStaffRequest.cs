@@ -18,7 +18,7 @@ public class AddStaffRequest
         string email,
         string username,
         string password,
-        IEnumerable<RoleVm> roles)
+        IEnumerable<RoleVmForGetAll> roles)
     {
         FirstName = firstName;
         LastName = lastName;

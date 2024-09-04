@@ -18,7 +18,7 @@ internal sealed class GetRoleIdsByStaffIdQueryHandler
         try
         {
             var result = await _roleRepository.GetRoleIdsByStaffId(request);
-            return Result<IList<Guid>>.Success(result);
+            return Result<IReadOnlyList<Guid>>.Success(result);
         }
         catch (Exception ex)
         {

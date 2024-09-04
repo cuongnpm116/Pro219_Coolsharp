@@ -2,4 +2,4 @@
 using MediatR;
 
 namespace Application.Cqrs.Role.GetRoles;
-public readonly record struct GetRolesQuery() : IRequest<Result>;
+public readonly record struct GetAllRolesQuery() : IRequest<Result>;

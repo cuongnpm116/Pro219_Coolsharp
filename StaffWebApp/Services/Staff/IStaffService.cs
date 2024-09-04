@@ -10,4 +10,5 @@ public interface IStaffService
     Task<Result<bool>> AddStaff(AddStaffRequest request);
     Task<Result<UpdateStaffInfoVm>> GetStaffInfoToUpdate(Guid staffId);
     Task<Result<bool>> UpdateStaffInfo(UpdateStaffInfoVm request);
+    Task<Result<bool>> UpdateStaffRole(UpdateStaffRoleRequest request);
 }

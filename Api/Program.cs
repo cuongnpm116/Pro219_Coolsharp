@@ -1,8 +1,24 @@
-using Api.Extensions;
+﻿using Api.Extensions;
 using Application;
 using Infrastructure;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(1000, listenOptions =>
+    {
+        listenOptions.UseHttps();
+        listenOptions.Protocols = HttpProtocols.Http1;
+    });
+
+    options.ListenAnyIP(1001, listenOptions =>
+    {
+        listenOptions.UseHttps();
+        listenOptions.Protocols = HttpProtocols.Http2;
+    });
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -17,13 +33,14 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(settings => settings.DisplayRequestDuration());
 }
 
 app.UseStaticFiles();
 app.UseCors("eShopApi");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRouting();
 app.MapControllers();
 
 await app.RunAsync();
