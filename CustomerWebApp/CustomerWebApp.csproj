@@ -20,7 +20,10 @@
 
 
   <ItemGroup>
+    <Folder Include="Components\Categorys\" />
     <Folder Include="Components\Customer\" />
+    <Folder Include="Components\Orders\" />
+    <Folder Include="Components\Voucher\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 </Project>

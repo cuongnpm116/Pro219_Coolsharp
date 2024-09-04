@@ -1,4 +1,4 @@
-﻿using CustomerWebApp.Components.Categorys.ViewModel;
+﻿using CustomerWebApp.Service.Category.ViewModel;
 using WebAppIntegrated.ApiResponse;
 using WebAppIntegrated.Constants;
 

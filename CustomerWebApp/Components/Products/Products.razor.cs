@@ -1,8 +1,8 @@
-using CustomerWebApp.Components.Categorys.ViewModel;
-using CustomerWebApp.Components.Products.Dtos;
-using CustomerWebApp.Components.Products.ViewModel;
 using CustomerWebApp.Service.Category;
+using CustomerWebApp.Service.Category.ViewModel;
 using CustomerWebApp.Service.Product;
+using CustomerWebApp.Service.Product.Dtos;
+using CustomerWebApp.Service.Product.ViewModel;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using WebAppIntegrated.Constants;

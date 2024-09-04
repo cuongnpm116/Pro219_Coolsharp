@@ -1,5 +1,5 @@
-﻿using StaffWebApp.Components.Voucher.Dtos;
-using StaffWebApp.Components.Voucher.ViewModel;
+﻿using StaffWebApp.Services.Voucher.Dtos;
+using StaffWebApp.Services.Voucher.ViewModel;
 using WebAppIntegrated.ApiResponse;
 using WebAppIntegrated.Constants;
 using WebAppIntegrated.Pagination;

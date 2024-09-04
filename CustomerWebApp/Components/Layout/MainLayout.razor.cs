@@ -5,8 +5,8 @@ using MudBlazor;
 using System.Security.Claims;
 using WebAppIntegrated.Constants;
 using CustomerWebApp.Components.Carts;
-using CustomerWebApp.Components.Carts.ViewModel;
 using CustomerWebApp.Service.Cart;
+using CustomerWebApp.Service.Cart.ViewModel;
 
 namespace CustomerWebApp.Components.Layout
 {

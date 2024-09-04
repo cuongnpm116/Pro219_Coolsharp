@@ -1,6 +1,6 @@
 ﻿using CustomerWebApp.Components.Address;
-using CustomerWebApp.Components.Address.ViewModel;
 using CustomerWebApp.Service.Address;
+using CustomerWebApp.Service.Address.ViewModel;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 

@@ -1,13 +1,13 @@
-﻿using CustomerWebApp.Components.Carts.Dtos;
-using CustomerWebApp.Components.Carts;
+﻿using CustomerWebApp.Components.Carts;
 using CustomerWebApp.Service.Cart;
 using CustomerWebApp.Service.Product;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using WebAppIntegrated.Constants;
-using CustomerWebApp.Components.Carts.ViewModel;
-using CustomerWebApp.Components.Products.ViewModel;
+using CustomerWebApp.Service.Cart.Dtos;
+using CustomerWebApp.Service.Cart.ViewModel;
+using CustomerWebApp.Service.Product.ViewModel;
 
 namespace CustomerWebApp.Components.Products;
 

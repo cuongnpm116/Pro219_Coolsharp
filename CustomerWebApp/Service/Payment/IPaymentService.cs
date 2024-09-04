@@ -1,4 +1,4 @@
-﻿using CustomerWebApp.Components.Payment.Dtos;
+﻿using CustomerWebApp.Service.Payment.Dtos;
 using WebAppIntegrated.ApiResponse;
 
 namespace CustomerWebApp.Service.Payment;

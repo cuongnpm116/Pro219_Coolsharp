@@ -1,5 +1,5 @@
-﻿using CustomerWebApp.Components.Carts.Dtos;
-using CustomerWebApp.Components.Carts.ViewModel;
+﻿using CustomerWebApp.Service.Cart.Dtos;
+using CustomerWebApp.Service.Cart.ViewModel;
 using WebAppIntegrated.ApiResponse;
 
 namespace CustomerWebApp.Service.Cart;

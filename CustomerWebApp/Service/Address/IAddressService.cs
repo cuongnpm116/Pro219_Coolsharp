@@ -1,5 +1,5 @@
-﻿using CustomerWebApp.Components.Address.Dtos;
-using CustomerWebApp.Components.Address.ViewModel;
+﻿using CustomerWebApp.Service.Address.Dtos;
+using CustomerWebApp.Service.Address.ViewModel;
 using WebAppIntegrated.AddressService;
 using WebAppIntegrated.ApiResponse;
 

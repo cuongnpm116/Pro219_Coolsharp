@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using StaffWebApp.Components.Voucher.Dtos;
 using StaffWebApp.Services.Voucher;
 using WebAppIntegrated.Pagination;
-using StaffWebApp.Components.Voucher.ViewModel;
+using StaffWebApp.Services.Voucher.Dtos;
+using StaffWebApp.Services.Voucher.ViewModel;
 
 namespace StaffWebApp.Components.Voucher;
 

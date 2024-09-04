@@ -1,5 +1,5 @@
-﻿using CustomerWebApp.Components.Orders.Dtos;
-using CustomerWebApp.Components.Orders.ViewModel;
+﻿using CustomerWebApp.Service.Order.Dtos;
+using CustomerWebApp.Service.Order.ViewModel;
 using WebAppIntegrated.ApiResponse;
 
 namespace CustomerWebApp.Service.Order;

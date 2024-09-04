@@ -1,5 +1,5 @@
-﻿using CustomerWebApp.Components.Address.Dtos;
-using CustomerWebApp.Service.Address;
+﻿using CustomerWebApp.Service.Address;
+using CustomerWebApp.Service.Address.Dtos;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using WebAppIntegrated.AddressService;

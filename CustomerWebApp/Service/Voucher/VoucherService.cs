@@ -1,4 +1,4 @@
-﻿using CustomerWebApp.Components.Voucher.ViewModel;
+﻿using CustomerWebApp.Service.Voucher.ViewModel;
 using WebAppIntegrated.ApiResponse;
 using WebAppIntegrated.Constants;
 

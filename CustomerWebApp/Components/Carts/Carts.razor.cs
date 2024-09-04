@@ -1,6 +1,6 @@
-﻿using CustomerWebApp.Components.Carts.Dtos;
-using CustomerWebApp.Components.Carts.ViewModel;
-using CustomerWebApp.Service.Cart;
+﻿using CustomerWebApp.Service.Cart;
+using CustomerWebApp.Service.Cart.Dtos;
+using CustomerWebApp.Service.Cart.ViewModel;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Newtonsoft.Json;
