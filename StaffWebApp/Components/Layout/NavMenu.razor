@@ -33,4 +33,20 @@
     </MudNavGroup>
 
 </MudNavMenu>
+@code {
+    private MudTheme _customTheme = new()
+        {
+            PaletteDark = new PaletteDark()
+            {
+                Black = "#1a73e8"
+            }
+        };
+
+    private async Task HandleNavLinkClick()
+    {
+        // Perform any necessary logic before navigation
+        // Prevent the default behavior
+        await Task.CompletedTask;
+    }
+}
 

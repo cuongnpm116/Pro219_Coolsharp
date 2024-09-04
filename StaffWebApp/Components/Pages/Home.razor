@@ -1,58 +1,271 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
+@using WebAppIntegrated.Enum
+@* @attribute [Authorize(Roles = "admin,staff")] *@
 
-<PageTitle>Home</PageTitle>
+<MudGrid Justify="Justify.SpaceAround" Spacing="3" Style="margin-top: 30px;">
+    <!-- Hôm Nay -->
+    <MudItem xs="12" sm="6" md="6">
+        <MudPaper Class="pa-4" MaxWidth="700px" Elevation="0" Style="background-color: #f0f8ff;">
+            <MudGrid>
+                @if (_Statistical != null)
+                {
+                    var ordersInDay = _Statistical.Where(order => order.CreatedOn?.Day == DateTime.Now.Day
+                    && order.CreatedOn?.Month == DateTime.Now.Month && order.CreatedOn?.Year == DateTime.Now.Year);
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.h6" Align="Align.Center">Hôm Nay (@ordersInDay.Count())</MudText>
+                        <MudText Typo="Typo.h4" Align="Align.Center">@string.Format("{0:#,##0}", ordersInDay.Where(order => order.OrderStatus == OrderStatus.Completed).Sum(order => order.TotalPrice))</MudText>
+                    </MudItem>
+                    <MudGrid>
+                        <MudItem xs="4">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn đang giải quyết:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">@ordersInDay.Count(order => order.OrderStatus != OrderStatus.Completed && order.OrderStatus != OrderStatus.Cancelled)</MudText>
+                        </MudItem>
+                        <MudItem xs="4">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn thành công:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">@ordersInDay.Count(order => order.OrderStatus == OrderStatus.Completed)</MudText>
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn huỷ:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">@ordersInDay.Count(order => order.OrderStatus == OrderStatus.Cancelled)</MudText>
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn trả:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">0</MudText>
+                        </MudItem>
+                    </MudGrid>
+                }
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
 
-<MudText Typo="Typo.h3" GutterBottom="true">Hello, world!</MudText>
-<MudText Class="mb-8">Welcome to your new app, powered by MudBlazor and the .NET 8 Template!</MudText>
+    <!-- Tháng -->
+    <MudItem xs="12" sm="6" md="6">
+        <MudPaper Class="pa-4" MaxWidth="700px" Elevation="0" Style="background-color: #cce7ff;">
+            <MudGrid>
+                @if (_Statistical != null)
+                {
+                    var ordersInMonth = _Statistical.Where(order => order.CreatedOn?.Month == DateTime.Now.Month && order.CreatedOn?.Year == DateTime.Now.Year);
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.h6" Align="Align.Center">Tháng Nay (@ordersInMonth.Count())</MudText>
+                        <MudText Typo="Typo.h4" Align="Align.Center">@string.Format("{0:#,##0}", ordersInMonth.Where(order => order.OrderStatus == OrderStatus.Completed).Sum(order => order.TotalPrice))</MudText>
+                    </MudItem>
+                    <MudGrid>
+                        <MudItem xs="4">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn đang giải quyết:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">@ordersInMonth.Count(order => order.OrderStatus != OrderStatus.Completed && order.OrderStatus != OrderStatus.Cancelled)</MudText>
+                        </MudItem>
+                        <MudItem xs="4">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn thành công:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">@ordersInMonth.Count(order => order.OrderStatus == OrderStatus.Completed)</MudText>
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn huỷ:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">@ordersInMonth.Count(order => order.OrderStatus == OrderStatus.Cancelled)</MudText>
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn trả:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">0</MudText>
+                        </MudItem>
+                    </MudGrid>
+                }
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
 
-<MudAlert Severity="Severity.Normal">
-    You can find documentation and examples on our website here:
-    <MudLink Href="https://mudblazor.com" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        <b>www.mudblazor.com</b>
-    </MudLink>
-</MudAlert>
+    <!-- Năm -->
+    <MudItem xs="12" sm="6" md="6">
+        <MudPaper Class="pa-4" MaxWidth="700px" Elevation="0" Style="background-color: #b3e0ff ;">
+            <MudGrid>
+                @if (_Statistical != null)
+                {
+                    var ordersInYear = _Statistical.Where(order => order.CreatedOn?.Year == DateTime.Now.Year);
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.h6" Align="Align.Center">Năm Nay (@ordersInYear.Count())</MudText>
+                        <MudText Typo="Typo.h4" Align="Align.Center">@string.Format("{0:#,##0}", ordersInYear.Where(order => order.OrderStatus == OrderStatus.Completed).Sum(order => order.TotalPrice))</MudText>
+                    </MudItem>
+                    <MudGrid>
+                        <MudItem xs="4">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn đang giải quyết:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">@ordersInYear.Count(order => order.OrderStatus != OrderStatus.Completed && order.OrderStatus != OrderStatus.Cancelled)</MudText>
+                        </MudItem>
+                        <MudItem xs="4">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn thành công:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">@ordersInYear.Count(order => order.OrderStatus == OrderStatus.Completed)</MudText>
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn huỷ:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">@ordersInYear.Count(order => order.OrderStatus == OrderStatus.Cancelled)</MudText>
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn trả:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">0</MudText>
+                        </MudItem>
+                    </MudGrid>
+                }
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
 
-<br />
-<MudText Typo="Typo.h5" GutterBottom="true">Interactivity in this Template</MudText>
-<br />
-<MudText Typo="Typo.body2">
-    When you opt for the "Global" Interactivity Location, <br />
-    the render modes are defined in App.razor and consequently apply to all child components.<br />
-    In this case, providers are globally set in the MainLayout.<br />
-    <br />
-    On the other hand, if you choose the "Per page/component" Interactivity Location,<br />
-    it is necessary to include the <br />
-    <br />
-    &lt;MudPopoverProvider /&gt; <br />
-    &lt;MudDialogProvider /&gt; <br />
-    &lt;MudSnackbarProvider /&gt; <br />
-    <br />
-    components on every interactive page.<br />
-    <br />
-    If a render mode is not specified for a page, it defaults to Server-Side Rendering (SSR),<br />
-    similar to this page. While MudBlazor allows pages to be rendered in SSR,<br />
-    please note that interactive features, such as buttons and dropdown menus, will not be functional.
-</MudText>
+    <!-- Tất Cả -->
+    <MudItem xs="12" sm="6" md="6">
+        <MudPaper Class="pa-4" MaxWidth="700px" Elevation="0" Style="background-color: #b0e0e6;">
+            <MudGrid>
+                @if (_Statistical != null)
+                {
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.h6" Align="Align.Center">Tất Cả (@_Statistical.Count())</MudText>
+                        <MudText Typo="Typo.h4" Align="Align.Center">@string.Format("{0:#,##0}", _Statistical.Where(order => order.OrderStatus == OrderStatus.Completed).Sum(order => order.TotalPrice))</MudText>
+                    </MudItem>
+                    <MudGrid>
+                        <MudItem xs="4">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn đang giải quyết:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">@_Statistical.Count(order => order.OrderStatus != OrderStatus.Completed && order.OrderStatus != OrderStatus.Cancelled)</MudText>
+                        </MudItem>
+                        <MudItem xs="4">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn thành công:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">@_Statistical.Count(order => order.OrderStatus == OrderStatus.Completed)</MudText>
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn huỷ:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">@_Statistical.Count(order => order.OrderStatus == OrderStatus.Cancelled)</MudText>
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn trả:</MudText>
+                            <MudText Typo="Typo.h6" Align="Align.Center">0</MudText>
+                        </MudItem>
+                    </MudGrid>
+                }
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
 
-<br />
-<MudText Typo="Typo.h5" GutterBottom="true">What's New in Blazor with the Release of .NET 8</MudText>
-<br />
-<MudText Typo="Typo.h6" GutterBottom="true">Prerendering</MudText>
-<MudText Typo="Typo.body2" GutterBottom="true">
-    If you're exploring the features of .NET 8 Blazor,<br /> you might be pleasantly surprised to learn that each page is prerendered on the server,<br /> regardless of the selected render mode.<br /><br />
-    This means that you'll need to inject all necessary services on the server,<br /> even when opting for the wasm (WebAssembly) render mode.<br /><br />
-    This prerendering functionality is crucial to ensuring that WebAssembly mode feels fast and responsive,<br /> especially when it comes to initial page load times.<br /><br />
-    For more information on how to detect prerendering and leverage the RenderContext, you can refer to the following link:
-    <MudLink Href="https://github.com/dotnet/aspnetcore/issues/51468#issuecomment-1783568121" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        More details
-    </MudLink>
-</MudText>
 
-<br />
-<MudText Typo="Typo.h6" GutterBottom="true">InteractiveAuto</MudText>
-<MudText Typo="Typo.body2">
-    A discussion on how to achieve this can be found here:
-    <MudLink Href="https://github.com/dotnet/aspnetcore/issues/51468#issue-1950424116" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        More details
-    </MudLink>
-</MudText>
+<MudGrid Style="margin-top:15px">
+    <MudItem xs="12" sm="12" md="12">
+        <MudText Typo="Typo.h5" Class="text-center" Style="margin-block: 10px;">
+            <MudIcon Icon="@Icons.Material.Filled.BarChart" Style="margin-right: 8px;" />
+            Sơ đồ doanh thu
+        </MudText>
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudChart ChartType="ChartType.Bar" ChartSeries="@Series"
+                  XAxisLabels="@XAxisLabels" Width="1232px" Height="450px"></MudChart>
+    </MudItem>
+</MudGrid>
+
+
+
+<MudGrid Style="margin-top:30px">
+
+    <MudItem xs="12" sm="7" md="7">
+
+        @if (_lstOrderDetail != null)
+        {
+            <div class="border_box-shadow" style="padding: 20px;">
+                <MudText Typo="Typo.h5" Class="text-center" Style="margin-bottom: 30px;">
+                    Top sản phẩm bán chạy
+                </MudText>
+                <MudGrid Style="margin-top:30px" Spacing="3">
+                    <MudItem xs="6" sm="4" md="4">
+                        <MudTextField T="DateTime?"
+                                      Format="s"
+                                      Value="_paginationRequest.Begin"
+                                      Label="Ngày bắt đầu"
+                                      ValueChanged="OnBeginDateChanged"
+                                      InputType="InputType.DateTimeLocal"
+                                      FullWidth="true" />
+                    </MudItem>
+                    <MudItem xs="6" sm="4" md="4">
+                        <MudTextField T="DateTime?"
+                                      Format="s"
+                                      Value="_paginationRequest.End"
+                                      Label="Ngày Kết Thúc"
+                                      ValueChanged="OnEndDateChanged"
+                                      InputType="InputType.DateTimeLocal"
+                                      FullWidth="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="4" md="4">
+                        <MudSelect Dense="true"
+                                   T="int"
+                                   Label="Chọn số top sản phẩm"
+                                   Variant="Variant.Outlined"
+                                   Value="_paginationRequest.Stock"
+                                   ValueChanged="@OnStockChanged"
+                                   FullWidth="true">
+                            <MudSelectItem Value="50">50</MudSelectItem>
+                            <MudSelectItem Value="100">100</MudSelectItem>
+                            <MudSelectItem Value="150">150</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                </MudGrid>
+
+                <MudTable Items="@_lstOrderDetail" Hover="true" Dense="true">
+                    <HeaderContent>
+                        <MudTh align="center">STT</MudTh>
+                        <MudTh align="left">Tên</MudTh>
+                        <MudTh align="center">Hình ảnh</MudTh>
+                        <MudTh align="right">Số lượng</MudTh>
+                    </HeaderContent>
+
+                    <RowTemplate>
+                        <MudTd align="center" DataLabel="STT">@(_lstOrderDetail.ToList().IndexOf(context) + 1)</MudTd>
+                        <MudTd align="left">
+                            <MudText Typo="Typo.body1">@context.ProductName</MudText>
+                            <MudText Typo="Typo.caption" Class="text-muted">
+                                Màu: @context.ColorName - Size: @context.SizeNumber 
+                            </MudText>
+                        </MudTd>
+                        <MudTd align="center">
+                            <MudLink Href="/List/ProductDetail" Style="text-decoration:none">
+                                <MudImage Src="@($"{_imageUrl}{context.ImagePath}")" Width="60" Height="60" alt="Image" />
+                            </MudLink>
+                        </MudTd>
+                        <MudTd align="right">@context.Quantity</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </div>
+        }
+    </MudItem>
+
+
+@*     <MudItem xs="12" sm="5" md="5">
+
+        @if (_lstProductDetail != null)
+        {
+            <div class="border_box-shadow">
+                <MudText Typo="Typo.h6" Class="text-center" Style="margin-block: 35px;">
+                    Sản phẩm sắp hết hàng
+                </MudText>
+                <MudSelect Dense="true" T="int" Label="Chọn số lượng" Variant="Variant.Outlined" Value="_paginationRequest.Stock" ValueChanged="@OnStockChanged">
+                    <MudSelectItem Value="50">50</MudSelectItem>
+                    <MudSelectItem Value="100">100</MudSelectItem>
+                    <MudSelectItem Value="150">150</MudSelectItem>
+                </MudSelect>
+                <MudTable Items="@_lstProductDetail" Hover="true" Dense="true">
+                    <HeaderContent>
+                        <MudTh>STT</MudTh>
+                        <MudTh>Tên</MudTh>
+                        <MudTh>Image</MudTh>
+                        <MudTh>Số Lượng</MudTh>
+
+                    </HeaderContent>
+
+                    <RowTemplate>
+                        <MudTd DataLabel="STT"> @(_lstProductDetail.ToList().IndexOf(context) + 1)</MudTd>
+                        <MudTd>@context.ProductName</MudTd>
+                        <MudLink Href="" Style="text-decoration:none">
+                            <MudImage Src="@($"{_imageUrl}{context.ImageUrl}")" Width="60" Height="60" alt="Image" />
+                        </MudLink>
+                        <MudTd>@context.Stock</MudTd>
+
+                    </RowTemplate>
+                </MudTable>
+            </div>
+        }
+    </MudItem> *@
+
+</MudGrid>
+
