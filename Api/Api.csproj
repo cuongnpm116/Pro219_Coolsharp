@@ -13,7 +13,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\application\Application.csproj" />
+    <ProjectReference Include="..\GrpcIntegrated\GrpcIntegrated.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\user-content\" />
   </ItemGroup>
 
 </Project>

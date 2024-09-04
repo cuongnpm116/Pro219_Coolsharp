@@ -13,17 +13,20 @@
 
   <ItemGroup>
     <PackageReference Include="google.protobuf" Version="3.28.0" />
-    <PackageReference Include="grpc.net.client" Version="2.65.0" />
+    <PackageReference Include="grpc.aspnetcore.server" Version="2.65.0" />
     <PackageReference Include="grpc.tools" Version="2.66.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.8" />
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="Protos\hello.proto" GrpcServices="Client" />
-    <Protobuf Include="Protos\upload.proto" GrpcServices="Client" />
+    <ProjectReference Include="..\Common\Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos\hello.proto" GrpcServices="Server" />
+    <Protobuf Include="Protos\upload.proto" GrpcServices="Server" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,6 @@
 ﻿@page "/counter"
+@using Grpc.Net.Client
+@using Hello
 
 <PageTitle>Counter</PageTitle>
 
@@ -8,11 +10,14 @@
 
 <MudButton Color="Color.Primary" Variant="Variant.Filled" @onclick="IncrementCount">Click me</MudButton>
 
-@code {
-    private int currentCount = 0;
+<MudButton OnClick="Hello">hello from grpc</MudButton>
 
-    private void IncrementCount()
-    {
-        currentCount++;
-    }
-}
+<MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+    <ActivatorContent>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.CloudUpload">
+            Upload Files
+        </MudButton>
+    </ActivatorContent>
+</MudFileUpload>

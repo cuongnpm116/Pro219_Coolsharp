@@ -1,5 +1,6 @@
 ﻿using StaffWebApp.Services.Role;
 using StaffWebApp.Services.Staff;
+using WebAppIntegrated.Services;
 
 namespace StaffWebApp.Extensions;
 
@@ -9,6 +10,8 @@ internal static class ServiceCollectionExtension
     {
         services.AddTransient<IStaffService, StaffService>();
         services.AddTransient<IRoleService, RoleService>();
+
+        services.AddScoped<IGrpcService, GrpcService>();
 
         return services;
     }
