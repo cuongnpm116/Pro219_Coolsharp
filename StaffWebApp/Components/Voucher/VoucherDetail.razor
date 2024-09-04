@@ -8,7 +8,7 @@
             <li style="display: inline-block;margin-right: 17px;">@VoucherName</li>
         </ul>
     </div>
-    <MudContainer Class="mt-10 px-8" MaxWidth="MaxWidth.False">
+    <MudContainer Class="mt-10 px-8" MaxWidth="MaxWidth.False" Style="max-height:1000px;overflow:auto;">
         <MudGrid>
             <MudItem xs="12" sm="6" md="6">
                 <div style="display:flex;align-items:center;margin-bottom:16px;">
@@ -20,17 +20,18 @@
                     <MudText  Style="width: 70%;">@_voucherDetailVm.VoucherCode</MudText>
                 </div>
                 <div style="display:flex;align-items:center;margin-bottom:16px;">
-                    <MudText Class="mud-text-left" Style="width: 30%;">Số lượng:</MudText>
-                    <MudTextField @bind-Value="_voucherDetailVm.Stock" ReadOnly="IsReadOnly" Style="width: 70%;"></MudTextField>
-                </div>
-                <div style="display:flex;align-items:center;margin-bottom:16px;">
                     <MudText Class="mud-text-left" Style="width: 30%;">Thời gian:</MudText>
                     <div style="width:70%;">
                         <MudDatePicker @bind-Date="_voucherDetailVm.StartedDate" ReadOnly="IsReadOnly" />
-                        -
+                        
                         <MudDatePicker @bind-Date="_voucherDetailVm.FinishedDate" ReadOnly="IsReadOnly"  />
                     </div>
                 </div>
+                <div style="display:flex;align-items:center;margin-bottom:16px;">
+                    <MudText Class="mud-text-left" Style="width: 30%;">Số lượng:</MudText>
+                    <MudTextField @bind-Value="_voucherDetailVm.Stock" ReadOnly="IsReadOnly" Style="width: 70%;"></MudTextField>
+                </div>
+                
             </MudItem>
             <MudItem xs="12" sm="6" md="6">
                 <div style="display:flex;align-items:center;margin-bottom:16px;">
@@ -68,8 +69,9 @@
             </MudItem>
             <MudItem xs="12" sm="6" md="12">
                 <div style="display: flex; justify-content: flex-end;">
-                    <MudButton Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" style="margin-right:5px" OnClick="OpenUpdate">Sửa đổi</MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small" OnClick="Submit">Lưu</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" OnClick="HandleButtonClick">
+                        @(IsReadOnly ? "Sửa đổi" : "Lưu")
+                    </MudButton>
                 </div>
             </MudItem>
         </MudGrid>

@@ -64,33 +64,44 @@
                                 @(_isOpen ? "Đóng" : "Chọn Voucher")
                             </MudButton>
                             <MudPopover Open="@_isOpen" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterLeft" Style="max-height:432px;overflow-y:auto">
-                                @foreach (var item in _lstVoucher)
+                                @if (_lstVoucher.Count > 0)
                                 {
-                                    var isActive = totalPriceProduct >= item.DiscountCondition;
-                                    var style = $"height:180px; opacity:{(isActive ? "1" : "0.5")};";
-                                    var isSelected = selectedVoucher != null && selectedVoucher.Id == item.Id;
+                                    @foreach (var item in _lstVoucher)
+                                    {
+                                        var isActive = totalPriceProduct >= item.DiscountCondition;
+                                        var style = $"height:180px; opacity:{(isActive ? "1" : "0.5")};";
+                                        var isSelected = selectedVoucher != null && selectedVoucher.Id == item.Id;
 
-                                    <MudPaper Elevation="1" Class="my-6 pa-6 d-flex flex-row justify-space-between align-items-center"
-                                              Style="@style">
-                                        <MudPaper Elevation="0" Class="align-content-center">
-                                            <MudText>@item.VoucherCode</MudText>
-                                            <MudText>Đơn tối thiểu @string.Format("{0:#,##0}", @item.DiscountCondition) VND</MudText>
-                                            <MudText>Có hiệu lực từ: @item.StartedDate.ToString("dd.MM.yyyy")</MudText>
-                                            <MudText>
-                                                Số lượng:
-                                                <b style="font-weight:bold;color:red">
-                                                    @item.Stock
-                                                </b>
-                                            </MudText>
+                                        <MudPaper Elevation="1" Class="my-6 pa-6 d-flex flex-row justify-space-between align-items-center"
+                                                  Style="@style">
+                                            <MudPaper Elevation="0" Class="align-content-center">
+                                                <MudText>@item.VoucherCode</MudText>
+                                                <MudText>Đơn tối thiểu @string.Format("{0:#,##0}", @item.DiscountCondition) VND</MudText>
+                                                <MudText>Có hiệu lực từ: @item.StartedDate.ToString("dd.MM.yyyy")</MudText>
+                                                <MudText>
+                                                    Số lượng:
+                                                    <b style="font-weight:bold;color:red">
+                                                        @item.Stock
+                                                    </b>
+                                                </MudText>
+                                            </MudPaper>
+                                            <MudPaper Elevation="0">
+                                                <MudButton Variant="Variant.Filled" Color="Color.Warning"
+                                                           Disabled="@(isActive == false)" OnClick="() => ToggleVoucherSelection(item)">
+                                                    @(isSelected ? "Bỏ chọn" : "Chọn")
+                                                </MudButton>
+                                            </MudPaper>
                                         </MudPaper>
-                                        <MudPaper Elevation="0">
-                                            <MudButton Variant="Variant.Filled" Color="Color.Warning"
-                                                       Disabled="@(isActive == false)" OnClick="() => ToggleVoucherSelection(item)">
-                                                @(isSelected ? "Bỏ chọn" : "Chọn")
-                                            </MudButton>
-                                        </MudPaper>
+
+                                    }
+                                }
+                                else
+                                {
+                                    <MudPaper Elevation="1" Class="my-6 pa-6 d-flex flex-row justify-space-between align-items-center">
+                                        <MudText Color="Color.Error">
+                                            Không có voucher.
+                                        </MudText>
                                     </MudPaper>
-
                                 }
                             </MudPopover>
                         </div>

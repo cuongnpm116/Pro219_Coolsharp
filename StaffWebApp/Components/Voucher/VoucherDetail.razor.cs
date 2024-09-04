@@ -36,48 +36,54 @@ public partial class VoucherDetail
     }
     private bool? messageResult;
 
-    private async Task Submit()
+    private async Task HandleButtonClick()
     {
-        messageResult = await DialogService.ShowMessageBox("Cảnh báo",
+        if (IsReadOnly)
+        {
+            OpenUpdate();
+        }
+        else
+        {
+            messageResult = await DialogService.ShowMessageBox("Cảnh báo",
                                             "Bạn chắc chắn muốn sửa khuyến mãi này?",
                                             yesText: "Sửa",
                                             cancelText: "Hủy");
-        if (messageResult == true && Validate())
-        {
-            _updateRequest.Id = _voucherDetailVm.Id;
-            _updateRequest.Name = _voucherDetailVm.Name;
-            _updateRequest.DiscountAmount = _voucherDetailVm.DiscountAmount;
-            _updateRequest.DiscountPercent = _voucherDetailVm.DiscountPercent;
-            if (_typeDiscount == 0)
+            if (messageResult == true && Validate())
             {
-                _updateRequest.DiscountAmount = 0;
-            }
-            else if (_typeDiscount == 1)
-            {
-                _updateRequest.DiscountPercent = 0;
-            }
-           
-            _updateRequest.StartedDate = _voucherDetailVm.StartedDate;
-            _updateRequest.FinishedDate = _voucherDetailVm.FinishedDate;
-            _updateRequest.DiscountCondition = _voucherDetailVm.DiscountCondition;
-            _updateRequest.Status = _voucherDetailVm.Status;
-           
-            var result = await VoucherService.UpdateVoucher(_updateRequest);
-            if (result.IsSuccess)
-            {
-                Snackbar.Add("Cập nhật thành công!", Severity.Success);
-                await GetVoucher();
-                IsReadOnly = true;
-                StateHasChanged();
-            }
-            else
-            {
-                Snackbar.Add("Cập nhật không thành công.", Severity.Error);
-            }
+                _updateRequest.Id = _voucherDetailVm.Id;
+                _updateRequest.Name = _voucherDetailVm.Name;
+                _updateRequest.DiscountAmount = _voucherDetailVm.DiscountAmount;
+                _updateRequest.DiscountPercent = _voucherDetailVm.DiscountPercent;
+                if (_typeDiscount == 0)
+                {
+                    _updateRequest.DiscountAmount = 0;
+                }
+                else if (_typeDiscount == 1)
+                {
+                    _updateRequest.DiscountPercent = 0;
+                }
 
+                _updateRequest.StartedDate = _voucherDetailVm.StartedDate;
+                _updateRequest.FinishedDate = _voucherDetailVm.FinishedDate;
+                _updateRequest.DiscountCondition = _voucherDetailVm.DiscountCondition;
+                _updateRequest.Status = _voucherDetailVm.Status;
+
+                var result = await VoucherService.UpdateVoucher(_updateRequest);
+                if (result.IsSuccess)
+                {
+                    Snackbar.Add("Cập nhật thành công!", Severity.Success);
+                    await GetVoucher();
+                    IsReadOnly = true; 
+                    StateHasChanged();
+                }
+                else
+                {
+                    Snackbar.Add("Cập nhật không thành công.", Severity.Error);
+                }
+            }
         }
     }
-   
+
     private bool Validate()
     {
         if (string.IsNullOrWhiteSpace(_voucherDetailVm.Name))

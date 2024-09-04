@@ -47,7 +47,7 @@ public partial class CheckOutAddress
 
         DialogParameters dialogParams = [];
         dialogParams.Add("AddressId", addressId);
-        dialogParams.Add("UserId", modifierId);
+        dialogParams.Add("CustomerId", modifierId);
         dialogParams.Add("IsDefault", isDefault);
 
         string title = "Cập nhật địa chỉ";

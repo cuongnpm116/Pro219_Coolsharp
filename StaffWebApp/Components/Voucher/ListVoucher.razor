@@ -2,17 +2,17 @@
 
 <div class="row" style="margin-top:10px;display:flex;justify-content:space-between">
     <div class="col-8" style="display:flex; align-items: center;">
-        <MudText>
+        <MudText Typo="Typo.h5">
             Danh sách khuyến mãi
         </MudText>
     </div>
-    <MudFab Class="px-3" Style="margin-right:10px;"
+    <MudFab Class="px-3" Style="margin-right:10px; margin-top:10px"
             OnClick="OpenAddVoucherDialog"
             Color="Color.Primary" Label="Thêm mới" StartIcon="@Icons.Material.Filled.Add">
     </MudFab>
 </div>
 
-<MudGrid>
+<MudGrid Style="margin-bottom:10px">
     <MudItem xs="12" md="3" lg="4">
         <MudTextField @bind-Value="paginationRequest.SearchString" Label="Search" Adornment="Adornment.Start" Variant="Variant.Outlined" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mr-5" @oninput="() => HandleSearchValueChanged()"
                       @onkeydown="HandleKeyPress">
