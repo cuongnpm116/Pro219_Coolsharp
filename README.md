@@ -22,12 +22,12 @@ dotnet ef database update
 ### Bước 3: Set up project run
 Api > customerapp > staffapp
 ### Bước 4: Sử dụng
-Mở trình duyệt và truy cập địa chỉ http://localhost:2000 cho người mua hàng.
++ Mở trình duyệt và truy cập địa chỉ http://localhost:2000 cho người mua hàng.
 - Đăng ký hoặc đăng nhập để bắt đầu mua sắm.
 - Tìm kiếm và thêm sản phẩm vào giỏ hàng.
 - Tiến hành thanh toán bằng phương thức mong muốn.
 - Theo dõi tình trạng đơn hàng trong trang cá nhân.
-Mở trình duyệt và truy cập địa chỉ http://localhost:3000 cho người bán hàng.
++ Mở trình duyệt và truy cập địa chỉ http://localhost:3000 cho người bán hàng.
 - Tài khoản admin: admin -- 12345678
 - Quản lý sản phẩm.
 - Quản lý, cập nhật đơn hàng.
