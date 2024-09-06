@@ -11,7 +11,7 @@
 - Tìm kiếm và lọc sản phẩm.
 - Thống kê.
 ## Yêu cầu hệ thống
-- .NET SDK 6.0 trở lên
+- .NET SDK 8.0 trở lên
 - SQL Server (hoặc bất kỳ cơ sở dữ liệu nào bạn đang sử dụng)
 - Visual Studio 2022 (hoặc IDE hỗ trợ .NET)
 ## Cài đặt và triển khai
