@@ -4,7 +4,6 @@ using Application.Cqrs.Voucher.GetVoucherById;
 using Application.Cqrs.Voucher.GetVoucherPaging;
 using Application.Cqrs.Voucher.UpdateVoucher;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;

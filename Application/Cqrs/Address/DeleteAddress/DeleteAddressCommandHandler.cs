@@ -15,12 +15,12 @@ internal sealed class DeleteAddressCommandHandler : IRequestHandler<DeleteAddres
     {
         try
         {
-            var result = await _addressRepository.DeleteAddress(request,cancellationToken);
+            var result = await _addressRepository.DeleteAddress(request, cancellationToken);
             return result;
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);    
+            return Result.Error(ex.Message);
         }
     }
 }

@@ -4,5 +4,5 @@ namespace WebAppIntegrated.Services;
 public interface IGrpcService
 {
     Task<string> SayHelloAsync(string name);
-    Task<string> UploadFileAsync(IBrowserFile file);
+    Task UploadFileAsync(IBrowserFile file, string extendDir, string newFileName);
 }

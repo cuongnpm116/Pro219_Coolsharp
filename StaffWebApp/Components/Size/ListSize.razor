@@ -40,7 +40,7 @@
             <RowTemplate>
                 <MudTd DataLabel="STT"> @(_listSize.Data.ToList().IndexOf(context) + 1)</MudTd>
                 <MudTd DataLabel="SizeNumber">@context.SizeNumber</MudTd>
-                <MudTd DataLabel="Status">@EnumUtility.ConvertStatusColorSize(context.Status)</MudTd>
+                <MudTd DataLabel="Status">@EnumUtility.ConvertStatus(context.Status)</MudTd>
 
                 <MudTd Class="custom-center">
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" @onclick="()=> OpenDialog(context.Id)" Title="Sửa Color" />

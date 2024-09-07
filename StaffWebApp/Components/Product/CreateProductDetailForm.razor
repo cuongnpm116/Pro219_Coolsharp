@@ -1,0 +1,106 @@
+﻿@using StaffWebApp.Services.Color.Vms
+@using StaffWebApp.Services.Product.Vms
+@using StaffWebApp.Services.Size.Vms
+
+<MudForm @ref="_form" Model="CreateProductDetail" Validation="_validator.ValidateValue">
+    <MudPaper Class="pa-4 my-2 d-flex flex-row">
+        <MudAutocomplete T="ColorForSelectVm"
+                         Value="CreateProductDetail.Color"
+                         SelectValueOnTab
+                         ValueChanged="async (ColorForSelectVm vm) => await ChangeColor(vm)"
+                         SearchFunc="SearchColors"
+                         MaxItems="AvailableColors.Count()"
+                         ToStringFunc="(ColorForSelectVm color) => color is null ? string.Empty : color.Name"
+                         For="() => CreateProductDetail.Color"
+                         Immediate
+                         OnlyValidateIfDirty
+                         Required="true"
+                         Label="Màu" />
+
+        <MudAutocomplete T="SizeForSelectVm"
+                         @bind-Value="CreateProductDetail.Size"
+                         SelectValueOnTab
+                         SearchFunc="SearchSizes"
+                         MaxItems="AvailableSizes.Count()"
+                         ToStringFunc="(SizeForSelectVm size) => size is null ? string.Empty : size.SizeNumber.ToString()"
+                         For="() => CreateProductDetail.Size"
+                         Immediate
+                         OnlyValidateIfDirty
+                         Required="true"
+                         Label="Kích cỡ" />
+
+        <MudTextField @bind-Value="CreateProductDetail.Stock" Required="true" Label="Số lượng" />
+
+        <MudTextField T="decimal" @bind-Value="CreateProductDetail.OriginalPrice" Required="true" Label="Giá gốc" />
+
+        <MudTextField T="decimal" @bind-Value="CreateProductDetail.Price" For="() => CreateProductDetail.Price" Immediate Required="true" Label="Giá bán" />
+
+        <MudButton OnClick="async () => await RemoveDetailClick()" Variant="Variant.Filled" Color="MudBlazor.Color.Error">
+            <MudIcon Icon="@Icons.Material.Filled.Remove" />
+        </MudButton>
+    </MudPaper>
+</MudForm>
+
+@code {
+    [EditorRequired]
+    [Parameter]
+    public CreateProductDetailVm CreateProductDetail { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public IEnumerable<ColorForSelectVm> AvailableColors { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public IEnumerable<SizeForSelectVm> AvailableSizes { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback<ColorForSelectVm> OnColorSelected { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback<CreateProductDetailVm> OnDetailRemove { get; set; }
+
+    private MudForm _form;
+    private CreateProductDetailVmValidator _validator = new();
+
+    private async Task<bool> CreateProductDetailValidateAsync()
+    {
+        await _form.Validate();
+        return _form.IsValid;
+    }
+
+    private async Task RemoveDetailClick()
+    {
+        await OnDetailRemove.InvokeAsync(CreateProductDetail);
+    }
+
+    private async Task ChangeColor(ColorForSelectVm color)
+    {
+        CreateProductDetail.Color = color;
+        await OnColorSelected.InvokeAsync(color);
+    }
+
+    private async Task<IEnumerable<ColorForSelectVm>> SearchColors(string value, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return await Task.FromResult(AvailableColors.AsEnumerable());
+        }
+
+        return await Task.FromResult(AvailableColors
+            .Where(c => c.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)));
+    }
+
+    private async Task<IEnumerable<SizeForSelectVm>> SearchSizes(string value, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return await Task.FromResult(AvailableSizes.AsEnumerable());
+        }
+
+        return await Task.FromResult(AvailableSizes
+            .Where(s => s.SizeNumber.ToString().Contains(value, StringComparison.InvariantCultureIgnoreCase)));
+    }
+}

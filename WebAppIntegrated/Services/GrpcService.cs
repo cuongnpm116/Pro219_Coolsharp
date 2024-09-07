@@ -22,19 +22,17 @@ public class GrpcService : IGrpcService
         return reply.Message;
     }
 
-    public async Task<string> UploadFileAsync(IBrowserFile file)
+    public async Task UploadFileAsync(IBrowserFile file, string extendDir, string newFileName)
     {
         using var channel = GrpcChannel.ForAddress(ShopConstants.GrpcApiHost);
         var client = new Uploader.UploaderClient(channel);
         var call = client.UploadFile();
-
-        string fileEx = Path.GetExtension(file.Name);
-
-        await call.RequestStream.WriteAsync(new UploadFileRequest
+        var firstMessage = new UploadFileRequest
         {
-            FileName = Path.GetRandomFileName() + Path.GetExtension(fileEx),
-            ExtendDir = DirectoryConstants.UserContent
-        });
+            FileName = newFileName,
+            ExtendDir = extendDir
+        };
+        await call.RequestStream.WriteAsync(firstMessage);
 
         await using var readStream = file.OpenReadStream();
 
@@ -54,7 +52,6 @@ public class GrpcService : IGrpcService
         }
 
         await call.RequestStream.CompleteAsync();
-        var response = await call;
-        return response.Id;
+        await call.ResponseAsync;
     }
 }

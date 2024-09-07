@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
+using WebAppIntegrated.Constants;
 using WebAppIntegrated.Services;
 
 namespace StaffWebApp.Components.Pages;
@@ -27,7 +28,8 @@ public partial class Counter
 
     private async Task UploadFiles(IBrowserFile file)
     {
-        var fileId = await GrpcService.UploadFileAsync(file);
-        Snackbar.Add(fileId, Severity.Success);
+        string newFileName = Path.GetRandomFileName() + Path.GetExtension(file.Name);
+        await GrpcService.UploadFileAsync(file, DirectoryConstants.ProductContent, newFileName);
+        Snackbar.Add($"File uploaded successfully {newFileName}", Severity.Success);
     }
 }

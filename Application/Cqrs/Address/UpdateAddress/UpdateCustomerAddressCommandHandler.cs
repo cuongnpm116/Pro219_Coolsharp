@@ -15,7 +15,7 @@ internal sealed class UpdateCustomerAddressCommandHandler : IRequestHandler<Upda
     {
         try
         {
-            var result = await _addressRepository.UpdateUserAddress(request,cancellationToken);
+            var result = await _addressRepository.UpdateUserAddress(request, cancellationToken);
             return result;
         }
         catch (Exception ex)

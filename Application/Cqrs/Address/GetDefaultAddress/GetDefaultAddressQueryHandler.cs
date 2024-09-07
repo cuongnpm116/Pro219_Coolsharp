@@ -24,5 +24,5 @@ internal sealed class GetDefaultAddressQueryHandler : IRequestHandler<GetDefault
         {
             return Result.Error(ex.Message);
         }
-    } 
+    }
 }

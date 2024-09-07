@@ -2,7 +2,6 @@
 using Application.Cqrs.Product.GetProductCustomerAppPaging;
 using Application.IRepositories;
 using Application.ValueObjects.Pagination;
-using Common.Utilities;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Primitives;
@@ -45,7 +44,7 @@ internal sealed class ProductRepository : IProductRepository
                     orderby p.Name descending
                     select new { p.Id, p.Name, i.ImagePath };
 
-        
+
         var groupedProductQuery = query.AsEnumerable()
                                        .GroupBy(product => product.Id)
                                        .Select(g => g.FirstOrDefault());
@@ -63,10 +62,10 @@ internal sealed class ProductRepository : IProductRepository
 
     public async Task<Result<ProductDetailVm>> GetProductDetailForShowOnCustomerApp(Guid productId)
     {
-       
+
         var query = from p in _context.Products.AsNoTracking()
                     join pd in _context.ProductDetails.AsNoTracking() on p.Id equals pd.ProductId
-                    where pd.ProductId == productId 
+                    where pd.ProductId == productId
                     select new { pd, p };
 
         Dictionary<Guid, string> colorsDictionary = [];
@@ -117,19 +116,19 @@ internal sealed class ProductRepository : IProductRepository
             return Result<Guid>.Error("Không có sẵn sản phẩm này.");
         }
 
-       
+
         return Result<Guid>.Success(detail.Id);
     }
 
     public async Task<Result<ProductPriceVm>> GetProductDetailPrice(Guid productId, Guid colorId, Guid sizeId)
     {
         var detail = await (from pd in _context.ProductDetails.AsNoTracking()
-                                        
-                                        where pd.ProductId == productId && pd.ColorId == colorId && pd.SizeId == sizeId
-                                        select new ProductPriceVm
-                                        {
-                                            Price = pd.SalePrice,
-                                        }).FirstOrDefaultAsync();
+
+                            where pd.ProductId == productId && pd.ColorId == colorId && pd.SizeId == sizeId
+                            select new ProductPriceVm
+                            {
+                                Price = pd.SalePrice,
+                            }).FirstOrDefaultAsync();
         if (detail == null)
         {
             return Result<ProductPriceVm>.Invalid("Không tồn tại sản phẩm.");
@@ -161,11 +160,11 @@ internal sealed class ProductRepository : IProductRepository
 
         if (request.CategoryIds is not null && request.CategoryIds.Count > 0)
         {
-                productIds = await _context.ProductCategories
-                .Where(pc => request.CategoryIds.Contains(pc.CategoryId))
-                .Select(pc => pc.Product.Id)
-                .Distinct()
-                .ToListAsync();
+            productIds = await _context.ProductCategories
+            .Where(pc => request.CategoryIds.Contains(pc.CategoryId))
+            .Select(pc => pc.Product.Id)
+            .Distinct()
+            .ToListAsync();
 
         }
 

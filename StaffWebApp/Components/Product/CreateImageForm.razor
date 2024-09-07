@@ -1,0 +1,177 @@
+﻿@using StaffWebApp.Services.Color.Vms
+@using StaffWebApp.Services.Product.Vms
+
+<div class="d-flex justify-space-between">
+    <MudText>@Color.Name</MudText>
+    @if (!string.IsNullOrEmpty(_msg))
+    {
+        <MudText Color="MudBlazor.Color.Error">@_msg</MudText>
+    }
+</div>
+
+<MudFileUpload T="IReadOnlyList<IBrowserFile>"
+               @ref="_files"
+               OnFilesChanged="OnInputFileChanged"
+               AppendMultipleFiles
+               Accept=".jpg, .jpeg, .png, .jfif"
+               MaximumFileCount="99"
+               tabindex="-1">
+</MudFileUpload>
+
+<MudPaper Outlined="true" Class="relative rounded-lg border-2 border-dashed pa-4 mud-width-full mud-height-full mt-4">
+    @if (Images is not null)
+    {
+        foreach (var item in Images)
+        {
+            <div style="position: relative; display: inline-block;">
+                <MudImage Src="@item.Binary" Width="150" Height="150" Elevation="25" Class="rounded-lg ma-4" />
+
+                <MudFab OnClick="() => RemoveImage(item)"
+                        Color="MudBlazor.Color.Primary"
+                        StartIcon="@Icons.Material.Filled.Close"
+                        Style="position: absolute; top: 5px; right: 5px;"
+                        Size="Size.Small" />
+            </div>
+        }
+    }
+    @if (Images.Count < 5)
+    {
+        <MudButton OnClick="OpenFilePickerAsync"
+                   Style="width: 150px; height: 150px;"
+                   Variant="Variant.Filled"
+                   Color="MudBlazor.Color.Transparent">
+            <MudIcon Icon="@Icons.Material.Filled.Add" />
+        </MudButton>
+    }
+    else
+    {
+        <MudButton OnClick="ClearImages"
+                   Style="height:150px; width:150px"
+                   Variant="Variant.Filled"
+                   Color="MudBlazor.Color.Error">
+            <MudIcon Icon="@Icons.Material.Filled.Remove" />
+        </MudButton>
+    }
+</MudPaper>
+
+@code {
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public ColorForSelectVm Color { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public List<CreateImageVm> Images { get; set; } = null!;
+
+    private MudFileUpload<IReadOnlyList<IBrowserFile>> _files;
+
+    private string ErrMsg = string.Empty;
+    private string _msg = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        ErrMsg = $"Hãy chọn ảnh cho màu {Color.Name}";
+    }
+
+    private Task OpenFilePickerAsync() => _files?.OpenFilePickerAsync() ?? Task.CompletedTask;
+
+    private async Task OnInputFileChanged(InputFileChangeEventArgs e)
+    {
+        _msg = string.Empty;
+        var files = e.GetMultipleFiles(99);
+
+        if (!ValidateFileCount(files))
+        {
+            return;
+        }
+
+        if (!ValidateFiles(files))
+        {
+            return;
+        }
+
+        await AddValidFiles(files);
+    }
+
+    private bool ValidateFileCount(IReadOnlyList<IBrowserFile> files)
+    {
+        if (files.Count > 5)
+        {
+            Snackbar.Add("Chỉ được chọn tối đa 5 ảnh", Severity.Error);
+            return false;
+        }
+        return true;
+    }
+
+    private bool ValidateFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".jfif" };
+        string overSizeFiles = string.Empty;
+        string invalidFiles = string.Empty;
+
+        foreach (var item in files)
+        {
+            if (item.Size > 10 * 1024 * 1024)
+            {
+                overSizeFiles += $" {item.Name},";
+            }
+            if (!allowedExtensions.Contains(Path.GetExtension(item.Name).ToLower()))
+            {
+                invalidFiles += $" {item.Name},";
+            }
+        }
+
+        bool valid = true;
+
+        if (!string.IsNullOrEmpty(overSizeFiles))
+        {
+            Snackbar.Add($"Các file {overSizeFiles} vượt quá kích thước cho phép. Vui lòng kiểm tra lại tệp trước khi tải lên", Severity.Error);
+            valid = false;
+        }
+
+        if (!string.IsNullOrEmpty(invalidFiles))
+        {
+            Snackbar.Add($"Các file {invalidFiles} không đúng định dạng. Vui lòng kiểm tra lại tệp trước khi tải lên", Severity.Error);
+            valid = false;
+        }
+
+        return valid;
+    }
+
+    private async Task AddValidFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        foreach (var item in files)
+        {
+            Images.Add(new()
+                {
+                    File = item,
+                    Binary = await GetImageBinary(item)
+                });
+        }
+    }
+
+    private async Task ClearImages()
+    {
+        await (_files.ClearAsync() ?? Task.CompletedTask);
+        Images.Clear();
+    }
+
+    private void RemoveImage(CreateImageVm img)
+    {
+        Images.Remove(img);
+    }
+
+    private static async Task<string> GetImageBinary(IBrowserFile file)
+    {
+        using var stream = file.OpenReadStream(10 * 1024 * 1024);
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+
+        string base64String = Convert.ToBase64String(memoryStream.ToArray());
+        string imageBinary = $"data:{file.ContentType};base64,{base64String}";
+        return imageBinary;
+    }
+}

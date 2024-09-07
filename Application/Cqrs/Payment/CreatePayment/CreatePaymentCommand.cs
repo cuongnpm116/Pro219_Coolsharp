@@ -9,8 +9,8 @@ public class CreatePaymentCommand : IRequest<Result>
     public decimal Amount { get; set; }
     public string OrderCode { get; set; } = string.Empty;
     public DateTime PaymentDate { get; set; }
-    public string StatusCode { get; set; } = "";                         
-    public int PaymentStatus { get; set; } 
-    public int PaymentMethod { get; set; } 
-    
+    public string StatusCode { get; set; } = "";
+    public int PaymentStatus { get; set; }
+    public int PaymentMethod { get; set; }
+
 }

@@ -1,0 +1,38 @@
+﻿@using StaffWebApp.Components.Category
+@using StaffWebApp.Services.Category
+@using StaffWebApp.Services.Category.ViewModel
+@using StaffWebApp.Services.Product.Vms
+
+<MudForm @ref=_form Model=CreateProductInfo Validation=_validator.ValidateValue>
+    <MudTextField @bind-Value="CreateProductInfo.Name"
+                  For="() => CreateProductInfo.Name"
+                  Required="true"
+                  Label="Tên sản phẩm" />
+    @if (!_categories.Any())
+    {
+        <MudButton OnClick="async () => await ShowAddCategoryDialog()">
+            Hiện tại chưa có danh mục nào. Hãy thêm danh mục
+        </MudButton>
+    }
+    else
+    {
+        <MudPaper Class="d-flex flex-row" Elevation=0>
+            <MudSelect T=CategoryVm
+                       @ref=_categorySelect
+                       SelectedValues=CreateProductInfo.Categories
+                       SelectedValuesChanged=CategorySelectionChanged
+                       MultiSelection=true
+                       ToStringFunc="(CategoryVm vm) => vm.CategoryName"
+                       Immediate=true
+                       Label="Danh mục">
+                @foreach (var item in _categories)
+                {
+                    <MudSelectItem Value=item>@item.CategoryName</MudSelectItem>
+                }
+            </MudSelect>
+            <MudButton OnClick="async () => await ShowAddCategoryDialog()">
+                Thêm danh mục
+            </MudButton>
+        </MudPaper>
+    }
+</MudForm>

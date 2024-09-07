@@ -18,7 +18,7 @@ internal sealed class CreatePaymentCommandHandler : IRequestHandler<CreatePaymen
             var result = await _paymentRepository.CreatePayment(request);
             return result;
         }
-        catch (Exception ex)      
+        catch (Exception ex)
         {
             return Result.Error(ex.Message);
         }

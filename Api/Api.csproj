@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\product-content\" />
     <Folder Include="wwwroot\user-content\" />
   </ItemGroup>
 

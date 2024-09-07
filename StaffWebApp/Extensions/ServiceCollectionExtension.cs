@@ -1,4 +1,5 @@
-﻿using StaffWebApp.Services.Color;
+﻿using StaffWebApp.Services.Category;
+using StaffWebApp.Services.Color;
 using StaffWebApp.Services.Order;
 using StaffWebApp.Services.Role;
 using StaffWebApp.Services.Size;
@@ -16,6 +17,7 @@ internal static class ServiceCollectionExtension
         services.AddTransient<IOrderService, OrderService>();
         services.AddTransient<ISizeService, SizeService>();
         services.AddTransient<IColorService, ColorService>();
+        services.AddTransient<ICategoryService, CategoryService>();
 
         services.AddScoped<IGrpcService, GrpcService>();
 

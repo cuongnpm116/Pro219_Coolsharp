@@ -25,7 +25,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietNamAddress", "VietNamAd
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAppIntegrated", "WebAppIntegrated\WebAppIntegrated.csproj", "{7BC850C0-E8C7-4B9A-9EE9-40F9D72D0E08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcIntegrated", "GrpcIntegrated\GrpcIntegrated.csproj", "{1992CFAA-BBCC-417F-95C7-BF4B377FEC9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcIntegrated", "GrpcIntegrated\GrpcIntegrated.csproj", "{1992CFAA-BBCC-417F-95C7-BF4B377FEC9B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BFD6EC83-3B1B-4F6A-AA2E-4FB694CF5223}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

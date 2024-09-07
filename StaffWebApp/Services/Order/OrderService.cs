@@ -20,7 +20,7 @@ public class OrderService : IOrderService
         _hostingEnvironment = hostingEnvironment;
     }
 
- 
+
 
     public async Task<Result<PaginationResponse<OrderVm>>> GetOrders(OrderPaginationRequest request)
     {
@@ -81,7 +81,7 @@ public class OrderService : IOrderService
     }
 
 
- public async Task<string> PrintOrder(Guid orderId)
+    public async Task<string> PrintOrder(Guid orderId)
     {
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 

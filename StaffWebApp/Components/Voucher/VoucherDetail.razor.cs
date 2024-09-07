@@ -10,7 +10,7 @@ public partial class VoucherDetail
 {
     [Inject]
     private IVoucherSevice VoucherService { get; set; }
-    
+
     [Inject]
     private ISnackbar Snackbar { get; set; }
     [Inject]
@@ -22,7 +22,7 @@ public partial class VoucherDetail
 
     public string VoucherName = "";
     private VoucherDetailVm _voucherDetailVm = new();
-    
+
     private UpdateVoucherRequest _updateRequest = new();
     private int _typeDiscount = 0;
     private bool IsReadOnly = true;
@@ -73,7 +73,7 @@ public partial class VoucherDetail
                 {
                     Snackbar.Add("Cập nhật thành công!", Severity.Success);
                     await GetVoucher();
-                    IsReadOnly = true; 
+                    IsReadOnly = true;
                     StateHasChanged();
                 }
                 else
@@ -101,16 +101,16 @@ public partial class VoucherDetail
             Snackbar.Add("Giảm giá theo phần trăm chỉ từ 0 - 100.", Severity.Error);
             return false;
         }
-        
+
         if (_voucherDetailVm.StartedDate >= _voucherDetailVm.FinishedDate)
         {
             Snackbar.Add("Thời gian kết thúc đợt giảm giá phải lớn hơn thời gian bắt đầu đợt giảm giá.", Severity.Error);
             return false;
         }
-        
+
         return true;
     }
-   
+
     private async Task GetVoucher()
     {
         var result = await VoucherService.GetVoucherById(VoucherId);

@@ -17,8 +17,8 @@ internal sealed class GetProductDetailPriceQueryHandler : IRequestHandler<GetPro
     {
         try
         {
-            var result = await _productRepository.GetProductDetailPrice(request.ProductId,request.ColorId, request.SizeId);
-            
+            var result = await _productRepository.GetProductDetailPrice(request.ProductId, request.ColorId, request.SizeId);
+
             return result;
         }
         catch (Exception ex)

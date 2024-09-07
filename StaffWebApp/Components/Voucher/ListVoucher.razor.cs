@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using StaffWebApp.Services.Voucher;
-using WebAppIntegrated.Pagination;
 using StaffWebApp.Services.Voucher.Dtos;
 using StaffWebApp.Services.Voucher.ViewModel;
+using WebAppIntegrated.Pagination;
 
 namespace StaffWebApp.Components.Voucher;
 
@@ -100,7 +100,7 @@ public partial class ListVoucher
             await LoadVoucher();
         }
     }
-    
+
     private async Task OnPreviousPageClicked()
     {
         paginationRequest.PageNumber--;

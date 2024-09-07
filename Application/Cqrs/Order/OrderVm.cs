@@ -22,5 +22,5 @@ public class OrderVm
     public PaymentMethod PaymentMethod { get; set; }
     public PaymentStatus PaymentStatus { get; set; }
     public OrderStatus OrderStatus { get; set; }
-    public List<OrderDetailVm> Details { get; set; } 
+    public List<OrderDetailVm> Details { get; set; }
 }

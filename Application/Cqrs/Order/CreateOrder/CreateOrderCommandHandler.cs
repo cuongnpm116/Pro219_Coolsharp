@@ -24,7 +24,7 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Res
         catch (Exception ex)
         {
             return Result.Error(ex.Message);
-            
+
         }
     }
 

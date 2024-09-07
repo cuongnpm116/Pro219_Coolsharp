@@ -25,5 +25,5 @@ internal sealed class GetProductImageQueryHandler : IRequestHandler<GetProductIm
         }
     }
 
-   
+
 }

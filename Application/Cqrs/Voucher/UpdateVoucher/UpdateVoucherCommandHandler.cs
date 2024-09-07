@@ -20,7 +20,7 @@ internal sealed class UpdateVoucherCommandHandler : IRequestHandler<UpdateVouche
         }
         catch (Exception ex)
         {
-             return Result<bool>.Error(ex.Message);
+            return Result<bool>.Error(ex.Message);
         }
     }
 }

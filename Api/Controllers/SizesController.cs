@@ -1,6 +1,7 @@
 ﻿using Application.Cqrs.Size.Create;
 using Application.Cqrs.Size.Get;
 using Application.Cqrs.Size.GetById;
+using Application.Cqrs.Size.GetForSelect;
 using Application.Cqrs.Size.Update;
 using Domain.Primitives;
 using MediatR;
@@ -48,5 +49,15 @@ public class SizesController : Controller
         Result result = await _mediator.Send(request);
         return Ok(result);
     }
-  
+
+    [HttpGet("size-for-select")]
+    public async Task<IActionResult> GetSizeForSelect()
+    {
+        var result = await _mediator.Send(new GetSizeForSelectQuery());
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value);
+        }
+        return BadRequest(result.Message);
+    }
 }

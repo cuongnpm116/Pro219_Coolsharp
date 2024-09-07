@@ -16,12 +16,12 @@ internal sealed class GetProductDetailQueryHandler : IRequestHandler<GetProductD
     {
         try
         {
-            var result = await _productRepository.GetProductDetailForShowOnCustomerApp(request.ProductId);    
+            var result = await _productRepository.GetProductDetailForShowOnCustomerApp(request.ProductId);
             return result;
         }
         catch (Exception ex)
         {
-                return Result<ProductDetailVm>.Error(ex.Message);
+            return Result<ProductDetailVm>.Error(ex.Message);
         }
     }
 }

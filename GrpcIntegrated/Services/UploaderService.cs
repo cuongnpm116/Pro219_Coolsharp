@@ -1,4 +1,5 @@
 ﻿using Common.Consts;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.AspNetCore.Hosting;
 using Upload;
@@ -15,7 +16,7 @@ public class UploaderService : Uploader.UploaderBase
         _dir = [StorageDirectory.ProductContent, StorageDirectory.UserContent, StorageDirectory.AppContent];
     }
 
-    public override async Task<UploadFileResponse> UploadFile(IAsyncStreamReader<UploadFileRequest> requestStream, ServerCallContext context)
+    public override async Task<Empty> UploadFile(IAsyncStreamReader<UploadFileRequest> requestStream, ServerCallContext context)
     {
         await requestStream.MoveNext(CancellationToken.None);
         var initialMessage = requestStream.Current ?? throw new RpcException(new Status(StatusCode.InvalidArgument, "No file uploaded"));
@@ -30,7 +31,6 @@ public class UploaderService : Uploader.UploaderBase
                 await writeStream.WriteAsync(message.Data.Memory);
             }
         }
-
-        return new UploadFileResponse { Id = fileName };
+        return new Empty();
     }
 }

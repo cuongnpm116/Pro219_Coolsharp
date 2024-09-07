@@ -1,6 +1,7 @@
 ﻿using Application.Cqrs.Color.Create;
 using Application.Cqrs.Color.Get;
 using Application.Cqrs.Color.GetById;
+using Application.Cqrs.Color.GetForSelect;
 using Application.Cqrs.Color.Update;
 using Domain.Primitives;
 using MediatR;
@@ -49,4 +50,14 @@ public class ColorsController : Controller
         return Ok(result);
     }
 
+    [HttpGet("color-for-select")]
+    public async Task<IActionResult> GetColorForSelect()
+    {
+        var result = await _mediator.Send(new GetColorForSelectQuery());
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value);
+        }
+        return BadRequest(result.Message);
+    }
 }

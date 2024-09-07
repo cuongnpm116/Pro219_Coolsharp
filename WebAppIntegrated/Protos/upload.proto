@@ -2,16 +2,14 @@ syntax = "proto3";
 
 package upload;
 
+import "google/protobuf/empty.proto";
+
 service Uploader {
-  rpc UploadFile (stream UploadFileRequest) returns (UploadFileResponse);
+  rpc UploadFile (stream UploadFileRequest) returns (google.protobuf.Empty);
 }
 
 message UploadFileRequest {
 	string extend_dir = 1;
 	string file_name = 2;
 	bytes data = 3;
-}
-
-message UploadFileResponse {
-  string id = 1;
 }

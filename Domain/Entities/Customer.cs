@@ -18,6 +18,5 @@ public class Customer
     public virtual ICollection<Order>? Orders { get; set; }
     public virtual ICollection<Address>? Addresses { get; set; }
     public virtual ICollection<Payment>? Payments { get; set; }
-    public virtual ICollection<Notification>? Notifications { get; set; }
     public virtual Cart? Cart { get; set; }
 }

@@ -44,7 +44,6 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<Size> Sizes { get; set; }
     public DbSet<Address> Addresses { get; set; }
     public DbSet<Payment> Payments { get; set; }
-    public DbSet<Notification> Notifications { get; set; }
     public DbSet<Image> Images { get; set; }
     public DbSet<Voucher> Vouchers { get; set; }
 }

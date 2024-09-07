@@ -1,11 +1,13 @@
-﻿using Application.Cqrs.Cart;
+﻿using System.Globalization;
+using System.Text;
+using Application.Cqrs.Cart;
 using Application.Cqrs.Order;
 using Application.Cqrs.Order.CancelOrder;
 using Application.Cqrs.Order.CreateOrder;
 using Application.Cqrs.Order.Get;
 using Application.Cqrs.Order.UpdateOrder;
-using Application.Cqrs.Payment;
 using Application.IRepositories;
+using Application.IServices;
 using Application.ValueObjects.Email;
 using Application.ValueObjects.Pagination;
 using Common.Utilities;
@@ -13,15 +15,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Domain.Primitives;
 using Infrastructure.Context;
-using MailKit.Search;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Asn1.X509;
-using System.Globalization;
-using System.Net.Mail;
-using System.Net;
-using Application.IServices;
-using System.Text;
 
 namespace Infrastructure.Repositories;
 internal sealed class OrderRepository : IOrderRepository
@@ -153,7 +147,7 @@ internal sealed class OrderRepository : IOrderRepository
         // Tìm kiếm
         if (!string.IsNullOrEmpty(request.SearchString))
         {
-            query = query.Where(x => x.PhoneNumber.Contains(request.SearchString));         
+            query = query.Where(x => x.PhoneNumber.Contains(request.SearchString));
         }
 
         var paginatedQuery = query
@@ -263,7 +257,7 @@ internal sealed class OrderRepository : IOrderRepository
         var cultureInfo = new CultureInfo("vi-VN");
         body = body.Replace("{CustomerName}", $"{customer.LastName} {customer.FirstName}")
                    .Replace("{OrderCode}", order.OrderCode)
-                   .Replace("{PaymentMethod}",payment.PaymentMethod.ToString())
+                   .Replace("{PaymentMethod}", payment.PaymentMethod.ToString())
                    .Replace("{TotalPrice}", order.TotalPrice.ToString("C", cultureInfo))
                    .Replace("{ShipAddress}", order.ShipAddress)
                    .Replace("{ShipAddressDetail}", order.ShipAddressDetail)
@@ -344,7 +338,7 @@ internal sealed class OrderRepository : IOrderRepository
                                 }
                             }
                         }
-                        
+
                         await SendEmail(exist, orderDetails);
                     }
 
@@ -392,7 +386,7 @@ internal sealed class OrderRepository : IOrderRepository
         }
     }
 
-    public async  Task<Result<bool>> CancelOrderForStaff(CancelOrderForStaffCommand request, CancellationToken token)
+    public async Task<Result<bool>> CancelOrderForStaff(CancelOrderForStaffCommand request, CancellationToken token)
     {
         try
         {
@@ -443,13 +437,13 @@ internal sealed class OrderRepository : IOrderRepository
                                      join h in _context.Colors on c.ColorId equals h.Id
                                      join k in _context.Sizes on c.SizeId equals k.Id
                                      where b.OrderStatus == OrderStatus.Completed
-                                     group new { a, c, d, i, h, k } by d.Id into g 
+                                     group new { a, c, d, i, h, k } by d.Id into g
                                      select new
                                      {
                                          ProductId = g.Key,
-                                         TotalQuantity = g.Sum(x => x.a.Quantity), 
+                                         TotalQuantity = g.Sum(x => x.a.Quantity),
                                          ProductName = g.Select(x => x.d.Name).FirstOrDefault(),
-                                         SizeNumber = g.Select(x => x.k.SizeNumber).FirstOrDefault(), 
+                                         SizeNumber = g.Select(x => x.k.SizeNumber).FirstOrDefault(),
                                          ColorName = g.Select(x => x.h.Name).FirstOrDefault(),
                                          ImagePath = g.Select(x => x.i.ImagePath).FirstOrDefault(),
                                          PaidPrice = g.Select(x => x.a.Price).FirstOrDefault(),
@@ -458,7 +452,7 @@ internal sealed class OrderRepository : IOrderRepository
                                   .Take(10)
                                   .Select(x => new OrderDetailVm
                                   {
-                                      ProductDetailId = x.ProductId, 
+                                      ProductDetailId = x.ProductId,
                                       ProductName = x.ProductName,
                                       Price = x.PaidPrice,
                                       Quantity = x.TotalQuantity,

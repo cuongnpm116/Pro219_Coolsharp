@@ -78,7 +78,7 @@ internal sealed class CartRepository : ICartRepository
                     from i in piImage.DefaultIfEmpty()
                     join cl in _context.Colors on pd.ColorId equals cl.Id
                     join s in _context.Sizes on pd.SizeId equals s.Id
-                    where c.CustomerId == customerId 
+                    where c.CustomerId == customerId
                     select new CartItemVm
                     {
                         CartId = c.Id,
