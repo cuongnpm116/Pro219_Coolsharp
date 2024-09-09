@@ -129,11 +129,11 @@ public partial class Checkout
             selectedVoucher = voucher;
             voucherCode = voucher.VoucherCode;
 
-            if (voucher.DiscountPercent.HasValue)
+            if (voucher.DiscountPercent.HasValue && voucher.DiscountPercent != 0)
             {
                 reducedAmount = totalPriceProduct * (voucher.DiscountPercent.Value / 100m);
             }
-            else if (voucher.DiscountAmount.HasValue)
+            else if (voucher.DiscountAmount.HasValue && voucher.DiscountAmount != 0)
             {
                 reducedAmount = voucher.DiscountAmount.Value;
             }
@@ -233,7 +233,6 @@ public partial class Checkout
         if (response.IsSuccess && response.Value != null)
         {
             _orderVm = response.Value;
-            Snackbar.Add("Đặt hàng thành công", Severity.Warning);
         }
         else if (!response.IsSuccess)
         {
@@ -250,11 +249,8 @@ public partial class Checkout
         _paymentRequest.PaymentMethod = 2;
         _paymentRequest.Amount = totalPayment;
         _paymentRequest.PaymentStatus = 1;
-        var result = await PaymentService.CreatePayment(_paymentRequest);
-        if (result.IsSuccess)
-        {
-            Snackbar.Add("Đặt hàng thành công", Severity.Warning);
-        }
+        await PaymentService.CreatePayment(_paymentRequest);
+        
     }
 
     private async Task GetDefaultAddress()

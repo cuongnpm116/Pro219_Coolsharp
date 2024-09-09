@@ -7,6 +7,7 @@ public class OrderVm
     public Guid Id { get; set; }
     public Guid? CustomerId { get; set; }
     public Guid? StaffId { get; set; }
+    public string VoucherCode { get; set; } 
     public string OrderCode { get; set; } = string.Empty;
     public DateTime? CreatedOn { get; set; }
     public DateTime? ConfirmedDate { get; set; }
@@ -16,7 +17,7 @@ public class OrderVm
     public string ShipAddress { get; set; } = string.Empty;
     public string ShipAddressDetail { get; set; } = string.Empty;
     public string Customer { get; set; }
-    public string Staff { get; set; }
+    public string? Staff { get; set; }
     public string PhoneNumber { get; set; } = string.Empty;
     public decimal TotalPrice { get; set; }
     public PaymentMethod PaymentMethod { get; set; }

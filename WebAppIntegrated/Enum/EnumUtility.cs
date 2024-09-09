@@ -37,6 +37,28 @@ public static class EnumUtility
             _ => "Không xác định"
         };
     }
+    public static string ConvertPaymentStatus(PaymentStatus status)
+    {
+        return status switch
+        {
+            PaymentStatus.None => "Không có",
+            PaymentStatus.Pending => "Chờ thanh toán",
+            PaymentStatus.Completed => "Đã thanh toán",
+            PaymentStatus.Failed => "Thanh toán không thành công",
+            PaymentStatus.Canceled => "Đã huỷ",
+            _ => "N/A"
+        };
+    }
+    public static string ConvertPaymentMethod(PaymentMethod status)
+    {
+        return status switch
+        {
+            PaymentMethod.None => "Không có",
+            PaymentMethod.OnlinePayment => "Thanh toán online (VnPay)",
+            PaymentMethod.CashOnDelivery => "Thanh toán khi nhận hàng",
+            _ => "N/A"
+        };
+    }
     public static string ConvertStatusColorSize(Status status)
     {
         return status switch
