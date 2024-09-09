@@ -119,8 +119,6 @@ internal sealed class OrderRepository : IOrderRepository
     }
 
 
-
-
     #region OrderStaff
     public async Task<Result<PaginationResponse<OrderVm>>> GetOrdersForStaff(GetOrdersForStaffQuery request)
     {
@@ -211,11 +209,14 @@ internal sealed class OrderRepository : IOrderRepository
             var userStaff = await _context.Staffs.AsNoTracking().FirstOrDefaultAsync(x => x.Id == order.StaffId);
             var userCustomer = await _context.Customers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == order.CustomerId);
             var payment = await _context.Payments.AsNoTracking().FirstOrDefaultAsync(x => x.OrderId == order.Id);
+            var voucher = await _context.Vouchers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == order.VoucherId);
 
             OrderVm vm = new()
             {
                 Id = order.Id,
                 OrderCode = order.OrderCode,
+                VoucherCode = voucher?.VoucherCode != null ? voucher.VoucherCode : "N/A",
+                //ReduceAmount = ,
                 CreatedOn = order.CreatedOn,
                 ConfirmedDate = order.ConfirmedDate,
                 ShippedDate = order.ShippedDate,
@@ -227,8 +228,8 @@ internal sealed class OrderRepository : IOrderRepository
                 Note = order.Note,
                 StaffId = order.StaffId,
                 CustomerId = order.CustomerId,
-                Staff = userStaff.LastName + userStaff.FirstName,
-                Customer = userCustomer.LastName + userCustomer.FirstName,
+                Staff = userStaff?.LastName + " " + userStaff?.FirstName,
+                Customer = userCustomer?.LastName + " " + userCustomer?.FirstName,
                 PhoneNumber = order.PhoneNumber,
                 ShipAddress = order.ShipAddress,
                 ShipAddressDetail = order.ShipAddressDetail,
@@ -312,9 +313,11 @@ internal sealed class OrderRepository : IOrderRepository
     }
 
 
+
+
+
     public async Task<Result<bool>> UpdateOrderStatusForStaff(UpdateOrderForStaffCommand request)
     {
-
         try
         {
             Order? exist = await _context.Orders.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id);
@@ -351,43 +354,29 @@ internal sealed class OrderRepository : IOrderRepository
                         await SendEmail(exist, orderDetails);
                     }
 
-                    orderstatus = "xác nhận. Đang được đóng gói và chờ shipper nhận hàng.";
-                    break;
-                case OrderStatus.AWaitingPickup:
+                    exist.OrderStatus = OrderStatus.AWaitingPickup;
                     exist.ShippedDate = DateTime.Now;
-                    exist.OrderStatus = request.OrderStatus;
+                    exist.OrderStatus = OrderStatus.AWaitingPickup;
                     orderstatus = "vận chuyển và sẽ giao cho bạn trong thời gian tới.";
-
-                    break;
+                    exist.OrderStatus = OrderStatus.Completed;
                 case OrderStatus.Completed:
                     exist.CompletedDate = DateTime.Now;
-                    exist.OrderStatus = request.OrderStatus;
+                    exist.OrderStatus = OrderStatus.Completed;
                     orderstatus = "giao thành công.";
                     var transaction = from o in _context.Orders
                                       join p in _context.Payments on o.Id equals p.OrderId
                                       where o.Id == exist.Id
                                       select p;
-                    Payment payment = await transaction.FirstOrDefaultAsync();
-                    //payment.Status = "Đã thanh toán";
+                    Payment? payment = await transaction.FirstOrDefaultAsync();
+                    payment.Status = PaymentStatus.Completed;
                     _context.Payments.Update(payment);
                     break;
 
             }
 
             _context.Orders.Update(exist);
-            //var notification = new Notification
-            //{
-            //    UserId = exist.UserId,
-            //    Message = $"Đơn hàng {exist.OrderCode} đã được {orderstatus}",
-            //    CreatedOn = DateTime.Now,
-            //    IsRead = false
-            //};
-
-            //await _context.Notifications.AddAsync(notification);
-            //await _hubContext.Clients.User(exist.UserId.ToString()).SendAsync("SendOrderUpdate", notification.Message);
-            //await _hubContext.Clients.All.SendAsync("SendOrderUpdate", notification.Message);
-
-            return Result<bool>.Success(true/*, "Cập nhật status Order thành công"*/);
+            
+            return Result<bool>.Success(true);
         }
         catch (Exception ex)
         {

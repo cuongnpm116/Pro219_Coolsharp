@@ -25,8 +25,9 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasOne(x => x.Order)
-            .WithMany(y => y.Payments)
-            .HasForeignKey(x => x.OrderId)
-            .OnDelete(DeleteBehavior.NoAction);
+             .WithOne(y => y.Payment) 
+             .HasForeignKey<Payment>(x => x.OrderId)
+             .OnDelete(DeleteBehavior.Cascade); 
     }
 }
+

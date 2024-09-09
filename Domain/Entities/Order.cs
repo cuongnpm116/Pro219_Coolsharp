@@ -26,6 +26,6 @@ public class Order
     public virtual Staff? Staff { get; set; }
     public virtual Customer? Customer { get; set; }
     public virtual Voucher? Voucher { get; set; }
-    public virtual ICollection<Payment>? Payments { get; set; }
+    public virtual Payment? Payment { get; set; }
     public virtual ICollection<OrderDetail>? OrderDetails { get; set; }
 }

@@ -16,7 +16,7 @@
         <MudItem xs="12">
             <MudText Typo="Typo.h5">Giỏ hàng</MudText>
             <MudPaper Class="d-flex flex-column" Style="height:100%;" Outlined="true">
-                <MudTable Items="@_selectedCartItems"  Hover>
+                <MudTable Items="@_selectedCartItems" Hover>
                     <HeaderContent>
                         <MudTh>Sản Phẩm</MudTh>
                         <MudTh></MudTh>
@@ -76,7 +76,10 @@
                                                   Style="@style">
                                             <MudPaper Elevation="0" Class="align-content-center">
                                                 <MudText>@item.VoucherCode</MudText>
-                                                <MudText>Đơn tối thiểu @string.Format("{0:#,##0}", @item.DiscountCondition) VND</MudText>
+                                                <MudText>
+                                                    Giảm @(item.DiscountPercent != 0 ? string.Format("{0:P0}", item.DiscountPercent/100m) : string.Format("{0:#,##0}", item.DiscountAmount))
+                                                    cho đơn hàng từ @string.Format("{0:#,##0}", @item.DiscountCondition) VND
+                                                </MudText>
                                                 <MudText>Có hiệu lực từ: @item.StartedDate.ToString("dd.MM.yyyy")</MudText>
                                                 <MudText>
                                                     Số lượng:
@@ -124,7 +127,7 @@
                                 @string.Format("{0:#,##0}", totalPayment) VND
                             </b>
                         </MudText>
-                        
+
                     </div>
                 </div>
             </MudPaper>

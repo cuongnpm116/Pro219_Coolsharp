@@ -79,16 +79,20 @@
         <MudItem xs="12" sm="6">
             <MudPaper class="pa-4">
                 <MudText Typo="Typo.h6">Khách hàng: @orderVm.Customer</MudText>
-                <MudText Typo="Typo.h6">Nhân viên xác nhận: @orderVm.Staff</MudText>
-                <MudText Typo="Typo.h6">@orderVm.PhoneNumber</MudText>
+                <MudText Typo="Typo.h6">Số điện thoại: @orderVm.PhoneNumber</MudText>
+                <MudText Typo="Typo.h6">Nhân viên xác nhận: @(orderVm.Staff != "" ? orderVm.Staff : "N/A")</MudText>
                 <MudText Typo="Typo.h6">@orderVm.ShipAddress</MudText>
                 <MudText Typo="Typo.h6">@orderVm.ShipAddressDetail</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6">
             <MudPaper class="pa-4">
-                <MudText Typo="Typo.h6">Phương thức thanh toán: @orderVm.PaymentMethod</MudText>
-                <MudText Typo="Typo.h6">Tổng tiền:@string.Format("{0:#,##0}", orderVm.TotalPrice)</MudText>
+                <MudText Typo="Typo.h6">Trạng thái đơn hàng: @EnumUtility.ConvertOrderStatus(orderVm.OrderStatus) </MudText>
+                <MudText Typo="Typo.h6">Phương thức thanh toán: @EnumUtility.ConvertPaymentMethod(orderVm.PaymentMethod)</MudText>
+                <MudText Typo="Typo.h6">Trạng thái thanh toán: @EnumUtility.ConvertPaymentStatus(orderVm.PaymentStatus)</MudText>
+                <MudText Typo="Typo.h6">Voucher: @orderVm.VoucherCode</MudText>
+                <MudText Typo="Typo.h6">Số tiền đã giảm: @string.Format("{0:N0} VND", _reduceAmount)</MudText>
+                <MudText Typo="Typo.h6">Thành tiền: @string.Format("{0:#,##0}", orderVm.TotalPrice)</MudText>
                 <div class="d-flex justify-end">
                     @if (orderVm.OrderStatus != OrderStatus.Cancelled)
                     {
@@ -97,7 +101,7 @@
                                    Color="Color.Info"
                                    Size="Size.Small"
                                    Style="border: none;"
-                                   @onclick="()=>PrintInvoice(orderVm.Id)">
+                                   @onclick="() => PrintInvoice(orderVm.Id)">
                             In hóa đơn
                         </MudButton>
                     }
@@ -117,7 +121,7 @@
                 <MudTh>Image</MudTh>
                 <MudTh>Số Lượng</MudTh>
                 <MudTh>Đơn Giá</MudTh>
-                <MudTh>Trạng thái</MudTh>
+                <MudTh>Tổng tiền</MudTh>
             </HeaderContent>
 
             <RowTemplate>
@@ -131,7 +135,7 @@
                 <MudImage Src="@($"{_imageUrl}{context.ImagePath}")" Width="60" Height="60" alt="Image" />
                 <MudTd>@context.Quantity</MudTd>
                 <MudTd>@string.Format("{0:#,##0}", context.Price)</MudTd>
-                <MudTd> @EnumUtility.ConvertOrderStatus(orderVm.OrderStatus) </MudTd>
+                <MudTd>@string.Format("{0:#,##0}", context.Price * context.Quantity)</MudTd>
                 <MudTd></MudTd>
             </RowTemplate>
 

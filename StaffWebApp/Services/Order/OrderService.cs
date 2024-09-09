@@ -20,7 +20,7 @@ public class OrderService : IOrderService
         _hostingEnvironment = hostingEnvironment;
     }
 
- 
+
 
     public async Task<Result<PaginationResponse<OrderVm>>> GetOrders(OrderPaginationRequest request)
     {
@@ -95,14 +95,23 @@ public class OrderService : IOrderService
     }
 
 
- public async Task<string> PrintOrder(Guid orderId)
+    public async Task<string> PrintOrder(Guid orderId)
     {
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
-        // Giả định: Bạn có cách nào đó để lấy thông tin đơn hàng ở đây
+        
         var order = await GetOrderDetais(orderId);
-
+        decimal _totalPrice = 0;
         var orderDetails = order.Value.Details;
+
+        string webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "pdf-invoice");
+
+        if (!Directory.Exists(webRootPath))
+        {
+            Directory.CreateDirectory(webRootPath);
+        }
+        string fileName = $"{order.Value.OrderCode}.pdf";
+        string filePath = Path.Combine(webRootPath, fileName);
 
         using (var memoryStream = new MemoryStream())
         {
@@ -129,15 +138,15 @@ public class OrderService : IOrderService
                 SpacingAfter = 10
             });
             document.Add(new Paragraph("HÓA ĐƠN BÁN HÀNG", subTitleFont) { Alignment = Element.ALIGN_CENTER, SpacingAfter = 20 });
-            document.Add(new Paragraph($"Số HĐ: {order.Value.OrderCode} - {order.Value.ConfirmedDate:yyyy-MM-dd}", bodyFont)
+            document.Add(new Paragraph($"Số HĐ: {order.Value.OrderCode} - {order.Value.CompletedDate:yyyy-MM-dd}", bodyFont)
             {
                 Alignment = Element.ALIGN_CENTER,
                 SpacingAfter = 20
             });
 
             // Tạo bảng chi tiết sản phẩm
-            var table = new PdfPTable(4) { WidthPercentage = 100 };
-            table.SetWidths(new float[] { 1, 4, 2, 2 });
+            var table = new PdfPTable(5) { WidthPercentage = 100 };
+            table.SetWidths(new float[] { 1, 4, 2, 2, 2 });
 
             // Hàm nội tuyến để thêm ô vào bảng
             void AddCellToTable(PdfPTable tbl, string txt, Font fnt, int align, BaseColor bgColor = null)
@@ -156,6 +165,7 @@ public class OrderService : IOrderService
             AddCellToTable(table, "Tên Sản Phẩm", bodyFont, Element.ALIGN_CENTER, BaseColor.LIGHT_GRAY);
             AddCellToTable(table, "Số Lượng", bodyFont, Element.ALIGN_CENTER, BaseColor.LIGHT_GRAY);
             AddCellToTable(table, "Đơn Giá", bodyFont, Element.ALIGN_CENTER, BaseColor.LIGHT_GRAY);
+            AddCellToTable(table, "Tổng Tiền", bodyFont, Element.ALIGN_CENTER, BaseColor.LIGHT_GRAY);
 
             // Thêm chi tiết sản phẩm vào bảng
             int index = 1;
@@ -164,16 +174,38 @@ public class OrderService : IOrderService
                 AddCellToTable(table, index.ToString(), bodyFont, Element.ALIGN_CENTER);
                 AddCellToTable(table, detail.ProductName, bodyFont, Element.ALIGN_CENTER);
                 AddCellToTable(table, detail.Quantity.ToString(), bodyFont, Element.ALIGN_CENTER);
+                AddCellToTable(table, $"{detail.Price:N0} VND", bodyFont, Element.ALIGN_CENTER);
                 AddCellToTable(table, $"{detail.Price * detail.Quantity:N0} VND", bodyFont, Element.ALIGN_CENTER);
+                _totalPrice += (detail.Price * detail.Quantity);
                 index++;
+
             }
             document.Add(table);
 
-            // Thêm tổng tiền
-            document.Add(new Paragraph($"Tổng tiền: {order.Value.TotalPrice:N0} VND", bodyFont)
+            document.Add(new Paragraph($"{_totalPrice:N0} VND", bodyFont)
+            {
+                Alignment = Element.ALIGN_RIGHT,
+                SpacingBefore = 5,
+                SpacingAfter = 5
+            });
+
+            document.Add(new Paragraph($"Voucher đã dùng: {order.Value.VoucherCode} ", bodyFont)
             {
                 Alignment = Element.ALIGN_RIGHT,
                 SpacingBefore = 20,
+                SpacingAfter = 5
+            });
+            document.Add(new Paragraph($"Số tiền giảm: {(_totalPrice - order.Value.TotalPrice):N0} VND ", bodyFont)
+            {
+                Alignment = Element.ALIGN_RIGHT,
+                SpacingBefore = 5,
+                SpacingAfter = 5
+            });
+            // Thêm tổng tiền
+            document.Add(new Paragraph($"Thành tiền: {order.Value.TotalPrice:N0} VND", bodyFont)
+            {
+                Alignment = Element.ALIGN_RIGHT,
+                SpacingBefore = 5,
                 SpacingAfter = 30
             });
 
@@ -193,6 +225,7 @@ public class OrderService : IOrderService
 
             document.Close();
 
+            File.WriteAllBytes(filePath, memoryStream.ToArray());
             // Chuyển đổi mảng byte thành chuỗi Base64
             var pdfBytes = memoryStream.ToArray();
             return Convert.ToBase64String(pdfBytes);
