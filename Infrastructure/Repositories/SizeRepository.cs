@@ -28,7 +28,6 @@ internal sealed class SizeRepository : ISizeRepository
             {
                 Id = Guid.NewGuid(),
                 SizeNumber = request.SizeNumber,
-                Status = request.Status,
             };
             await _context.Sizes.AddAsync(size);
             return Result<bool>.Success(true/*, "Thêm size thành công"*/);

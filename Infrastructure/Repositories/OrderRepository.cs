@@ -313,9 +313,6 @@ internal sealed class OrderRepository : IOrderRepository
     }
 
 
-
-
-
     public async Task<Result<bool>> UpdateOrderStatusForStaff(UpdateOrderForStaffCommand request)
     {
         try
@@ -329,9 +326,8 @@ internal sealed class OrderRepository : IOrderRepository
             }
             switch (request.OrderStatus)
             {
-                case OrderStatus.AwaitingShipment:
+                case OrderStatus.Pending:
                     exist.ConfirmedDate = DateTime.Now;
-                    exist.StaffId= request.StaffId;
                     exist.OrderStatus = request.OrderStatus;
                     if (exist != null)
                     {
@@ -354,15 +350,15 @@ internal sealed class OrderRepository : IOrderRepository
                         await SendEmail(exist, orderDetails);
                     }
 
-                    exist.OrderStatus = OrderStatus.AWaitingPickup;
+
+                    break;
+                case OrderStatus.AwaitingShipment:
                     exist.ShippedDate = DateTime.Now;
-                    exist.OrderStatus = OrderStatus.AWaitingPickup;
-                    orderstatus = "vận chuyển và sẽ giao cho bạn trong thời gian tới.";
-                    exist.OrderStatus = OrderStatus.Completed;
-                case OrderStatus.Completed:
+                    exist.OrderStatus = request.OrderStatus;
+                    break;
+                case OrderStatus.AWaitingPickup:
                     exist.CompletedDate = DateTime.Now;
-                    exist.OrderStatus = OrderStatus.Completed;
-                    orderstatus = "giao thành công.";
+                    exist.OrderStatus = request.OrderStatus;
                     var transaction = from o in _context.Orders
                                       join p in _context.Payments on o.Id equals p.OrderId
                                       where o.Id == exist.Id
@@ -375,7 +371,7 @@ internal sealed class OrderRepository : IOrderRepository
             }
 
             _context.Orders.Update(exist);
-            
+
             return Result<bool>.Success(true);
         }
         catch (Exception ex)

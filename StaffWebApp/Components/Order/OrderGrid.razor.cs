@@ -133,7 +133,6 @@ namespace StaffWebApp.Components.Order
                                                               "Bạn có chắc chắn muốn thay đổi trạng thái đơn hàng?",
                                                               yesText: "Thay đổi",
                                                               cancelText: "Hủy");
-
             if (result == true)
             {
                 var nextStatus = GetNextStatus(OrderStatus);
@@ -144,12 +143,10 @@ namespace StaffWebApp.Components.Order
                     //StaffId= _staffId,
                     StaffId=Guid.Parse("b48703e5-2bc4-4996-88dd-4369d76fd61d"),
                 };
-
                 try
                 {
                     await OrderService.UpdateOrderStatus(updateRequest);
                     Snackbar.Add("Thay đổi trạng thái đơn hàng thành công", Severity.Success);
-
                     // Gọi callback để thông báo trạng thái mới
                     await OnOrderStatusChanged.InvokeAsync(nextStatus);
 
@@ -157,11 +154,13 @@ namespace StaffWebApp.Components.Order
                 }
                 catch (Exception ex)
                 {
-                    Snackbar.Add($"Thay đổi trạng thái đơn hàng thất bại: {ex.Message}", Severity.Error);
+                    Snackbar.Add($"Thay đổi trạng thái đơn hàng thất bại. Vui lòng thử lại !", Severity.Error);
+                }
+                finally
+                {
+                    MudDialog?.Close(DialogResult.Cancel());
                 }
             }
-
-            MudDialog?.Close(DialogResult.Cancel());
         }
 
         protected async Task CancelOrder(Guid orderId)
@@ -172,15 +171,24 @@ namespace StaffWebApp.Components.Order
                                                    cancelText: "Hủy");
             if (messageResult == true)
             {
-                await OrderService.CancelOrderStatus(orderId);
-                Snackbar.Add("Hủy đơn thành công", Severity.Success);
-                // Sau khi hủy, cập nhật lại OrderStatus
-                await OnOrderStatusChanged.InvokeAsync(OrderStatus.Cancelled);
-                await LoadOrder();
-                StateHasChanged();
-            }
+                try
+                {
+                    await OrderService.CancelOrderStatus(orderId);
+                    Snackbar.Add("Hủy đơn thành công", Severity.Success);
+                    await OnOrderStatusChanged.InvokeAsync(OrderStatus.Cancelled);
+                    await LoadOrder();
+                    StateHasChanged();
+                }
+                catch (Exception ex)
+                {
 
-            MudDialog?.Close(DialogResult.Cancel());
+                    Snackbar.Add($"Hủy đơn hàng thất bại. Vui lòng thử lại !", Severity.Error);
+                }
+                finally 
+                {
+                    MudDialog?.Close(DialogResult.Cancel());
+                }
+            }
         }
 
         private OrderStatus GetNextStatus(OrderStatus OrderStatus)

@@ -52,7 +52,6 @@ public partial class CreateSize
 
 
                 _createRequest.SizeNumber = _sizeVm.SizeNumber;
-                _createRequest.Status = _sizeVm.Status;
                 var result = await SizeService.CreateSize(_createRequest);
                 success = result.Value;
                 Snackbar.Add($"{result.Message}", Severity.Success);

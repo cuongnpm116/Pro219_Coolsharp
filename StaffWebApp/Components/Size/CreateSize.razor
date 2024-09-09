@@ -7,14 +7,15 @@
     </TitleContent>
     <DialogContent>
         <MudTextField Class="margin" T="int" @bind-Value="_sizeVm.SizeNumber" Label="Size" Required="true"></MudTextField>
-
+        @if (Id != Guid.Empty)
+        {
         <MudSelect T="Status" Label="Trạng Thái" @bind-Value="_sizeVm.Status" Style="margin:25px 0px" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Required="true" RequiredError="Status is required.">
             @foreach (Status status in Enum.GetValues(typeof(Status)))
             {
                 <MudSelectItem Value="status">@EnumUtility.ConvertStatusColorSize(status)</MudSelectItem>
             }
         </MudSelect>
-
+        }
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="OnClickCloseBtn">Cancel</MudButton>
