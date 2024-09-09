@@ -64,14 +64,28 @@ public class OrderService : IOrderService
         var response = await httpClient.DeleteAsync(apiUrl + $"/cancel-order-status-staff?Id={orderId}");
         response.EnsureSuccessStatusCode();
     }
-    public async Task<Result<List<OrderDetailVm>>> TopProducts()
+    public async Task<Result<List<OrderDetailVm>>> TopProducts(OrderPaginationRequest request)
     {
         var httpClient = _httpClientFactory.CreateClient("eShopApi");
-        string url = apiUrl + $"/top-products ";
+        string url = apiUrl + $"/top-products?Stock={request.Stock}";
+        if (request.Begin.HasValue)
+        {
+            url += $"&Begin={Uri.EscapeDataString(request.Begin.ToString())}";
+        }
+        if (request.End.HasValue)
+        {
+            url += $"&End={Uri.EscapeDataString(request.End.ToString())}";
+        }
         var result = await httpClient.GetFromJsonAsync<Result<List<OrderDetailVm>>>(url);
         return result;
     }
-
+    public async Task<Result<List<ProductDetailVm>>> LowStockProducts()
+    {
+        var httpClient = _httpClientFactory.CreateClient("eShopApi");
+        var url = apiUrl + $"/low-stock-products";
+        var result = await httpClient.GetFromJsonAsync<Result<List<ProductDetailVm>>>(url);
+        return result;
+    }
     public async Task<Result<List<OrderVm>>> Statistical()
     {
         var httpClient = _httpClientFactory.CreateClient("eShopApi");
@@ -307,4 +321,6 @@ public class OrderService : IOrderService
             return false;
         }
     }
+
+    
 }

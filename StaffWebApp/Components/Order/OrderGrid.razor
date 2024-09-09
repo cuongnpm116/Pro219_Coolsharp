@@ -24,7 +24,7 @@
         </MudTextField>
     </MudItem>
     <MudItem xs="12" md="3" lg="4">
-        <MudSelect T="OrderStatus" Label="Chọn Trạng Thái" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Value="_paginationRequest.OrderStatus" ValueChanged="@OnStatusChanged">
+        <MudSelect T="OrderStatus" Label="Chọn Trạng Thái" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Value="_paginationRequest.OrderStatus" ValueChanged="@StatusChanged">
             @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
             {
                 <MudSelectItem T="OrderStatus" Value="@status">
@@ -47,6 +47,7 @@
             <HeaderContent>
                 <MudTh class="nowrap">STT</MudTh>
                 <MudTh class="nowrap">Mã Đơn Hàng</MudTh>
+                <MudTh class="nowrap">SĐT</MudTh>
                 <MudTh class="nowrap">Tổng Tiền</MudTh>
                 <MudTh class="nowrap">Ngày Đặt Hàng</MudTh>
                 <MudTh class="nowrap">Phương thức thanh toán</MudTh>
@@ -59,6 +60,7 @@
             <RowTemplate>
                 <MudTd DataLabel="STT"> @(_lstOrder.Data.ToList().IndexOf(context) + 1)</MudTd>
                 <MudTd DataLabel="OrderCode">@context.OrderCode</MudTd>
+                <MudTd DataLabel="OrderCode">@context.PhoneNumber</MudTd>
                 <MudTd DataLabel="TotalPrice">@string.Format("{0:#,##0}", context.TotalPrice)</MudTd>
                 <MudTd DataLabel="CreatedOn">@context.CreatedOn</MudTd>            
                 <MudTd DataLabel="PaymentmMthods">@context.PaymentMethod</MudTd>
@@ -98,7 +100,7 @@
 }
 
 
-<style>
+ <style>
 
     .nowrap {
         white-space: nowrap;

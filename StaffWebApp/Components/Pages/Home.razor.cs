@@ -17,12 +17,12 @@ public partial class Home
     private List<ProductDetailVm> _lstProductDetail = new();
     private OrderPaginationRequest _paginationRequest = new();
     private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
+
     protected override async Task OnInitializedAsync()
     {
         await Statistical();
         await TopProducts();
-        //await LowStockProducts();
-        BarChart();
+        await LowStockProducts();
         StateHasChanged();
     }
 
@@ -38,7 +38,7 @@ public partial class Home
 
     private async Task TopProducts()
     {
-        var response = await OrderService.TopProducts();
+        var response = await OrderService.TopProducts(_paginationRequest);
 
         if (response.Value != null)
         {
@@ -46,64 +46,22 @@ public partial class Home
             StateHasChanged();
         }
     }
+    private async Task LowStockProducts()
+    {
+        var response = await OrderService.LowStockProducts();
+
+        if (response.Value != null)
+        {
+            _lstProductDetail = response.Value;
+            StateHasChanged();
+        }
+    }
     private async Task OnStockChanged(int newStock)
     {
         _paginationRequest.Stock = newStock;
-        //await LowStockProducts();
+        await TopProducts();
         StateHasChanged();
     }
-
-    //private async Task LowStockProducts()
-    //{
-    //    var response = await OrderService.LowStockProducts(_paginationRequest);
-
-    //    if (response.Value != null)
-    //    {
-    //        _lstProductDetail = response.Value;
-    //        await TimeBasedData();
-    //        StateHasChanged();
-    //    }
-    //}
-
-
-
-    public string[] XAxisLabels = { "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8",
-            "Tháng 9","Tháng 10","Tháng 11","Tháng 12" };
-    public List<ChartSeries> Series { get; set; } = new();
-
-    private void BarChart()
-    {
-        var monthlyRevenue = _Statistical
-            .Where(order => order.OrderStatus == OrderStatus.Completed && order.CompletedDate.HasValue) // lấy hóa đơn đã hoàn thành
-            .GroupBy(order => new { order.CompletedDate.Value.Year, order.CompletedDate.Value.Month })
-            .Select(group => new
-            {
-                Year = group.Key.Year,
-                Month = group.Key.Month,
-                TotalRevenue = group.Sum(order => order.TotalPrice)
-            })
-            .OrderBy(x => x.Year)
-            .ThenBy(x => x.Month)
-            .ToList();
-
-        var revenueDataByYear = new Dictionary<int, double[]>();
-
-        foreach (var item in monthlyRevenue)
-        {
-            if (!revenueDataByYear.ContainsKey(item.Year))
-            {
-                revenueDataByYear[item.Year] = new double[12];
-            }
-            revenueDataByYear[item.Year][item.Month - 1] = (double)item.TotalRevenue;
-        }
-
-        Series = revenueDataByYear.Select(kvp => new ChartSeries
-        {
-            Name = $"Danh thu Năm {kvp.Key}",
-            Data = kvp.Value
-        }).ToList();
-    }
-
 
     private async Task OnBeginDateChanged(DateTime? newBegin)
     {
@@ -118,6 +76,89 @@ public partial class Home
         _paginationRequest.End = newEnd;
         await TopProducts();
         StateHasChanged();
+    }
+
+
+
+
+
+
+
+
+
+    private int Index = -1; //default value cannot be 0 -> first selectedindex is 0.
+
+    public List<OrderVm> Series = new List<OrderVm>()
+    {
+
+    };
+    public string[] XAxisLabels = { "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12" };
+
+
+
+
+    private async Task barchar()
+    {
+        var response = await OrderService.Statistical();
+
+        if (response.Value != null)
+        {
+            Series = response.Value;
+            StateHasChanged();
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        int dataSize = 4;
+    double[] data = { 77, 25, 20, 5 };
+    string[] labels = { "Uranium", "Plutonium", "Thorium", "Caesium", "Technetium", "Promethium",
+                        "Polonium", "Astatine", "Radon", "Francium", "Radium", "Actinium", "Protactinium",
+                        "Neptunium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Mudblaznium" };
+
+    Random random = new Random();
+
+    void RandomizeData()
+    {
+        var new_data = new double[dataSize];
+        for (int i = 0; i < new_data.Length; i++)
+            new_data[i] = random.NextDouble() * 100;
+        data = new_data;
+        StateHasChanged();
+    }
+
+    void AddDataSize()
+    {
+        if (dataSize < 20)
+        {
+            dataSize = dataSize + 1;
+            RandomizeData();
+        }
+    }
+    void RemoveDataSize()
+    {
+        if (dataSize > 0)
+        {
+            dataSize = dataSize - 1;
+            RandomizeData();
+        }
     }
 
 

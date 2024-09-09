@@ -22,6 +22,10 @@ using System.Net.Mail;
 using System.Net;
 using Application.IServices;
 using System.Text;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Application.Cqrs.Order.Statisticals;
+using System.Linq;
+using Application.Cqrs.Product;
 
 namespace Infrastructure.Repositories;
 internal sealed class OrderRepository : IOrderRepository
@@ -308,8 +312,6 @@ internal sealed class OrderRepository : IOrderRepository
     }
 
 
-
-
     public async Task<Result<bool>> UpdateOrderStatusForStaff(UpdateOrderForStaffCommand request)
     {
 
@@ -324,9 +326,10 @@ internal sealed class OrderRepository : IOrderRepository
             }
             switch (request.OrderStatus)
             {
-                case OrderStatus.Pending:
+                case OrderStatus.AwaitingShipment:
                     exist.ConfirmedDate = DateTime.Now;
-                    exist.OrderStatus = OrderStatus.AwaitingShipment;
+                    exist.StaffId= request.StaffId;
+                    exist.OrderStatus = request.OrderStatus;
                     if (exist != null)
                     {
                         List<OrderDetail> orderDetails = await _context.OrderDetails.AsNoTracking().Where(x => x.OrderId == exist.Id).ToListAsync();
@@ -344,21 +347,21 @@ internal sealed class OrderRepository : IOrderRepository
                                 }
                             }
                         }
-                        
+
                         await SendEmail(exist, orderDetails);
                     }
 
                     orderstatus = "xác nhận. Đang được đóng gói và chờ shipper nhận hàng.";
                     break;
-                case OrderStatus.AwaitingShipment:
+                case OrderStatus.AWaitingPickup:
                     exist.ShippedDate = DateTime.Now;
-                    exist.OrderStatus = OrderStatus.AWaitingPickup;
+                    exist.OrderStatus = request.OrderStatus;
                     orderstatus = "vận chuyển và sẽ giao cho bạn trong thời gian tới.";
 
                     break;
-                case OrderStatus.AWaitingPickup:
+                case OrderStatus.Completed:
                     exist.CompletedDate = DateTime.Now;
-                    exist.OrderStatus = OrderStatus.Completed;
+                    exist.OrderStatus = request.OrderStatus;
                     orderstatus = "giao thành công.";
                     var transaction = from o in _context.Orders
                                       join p in _context.Payments on o.Id equals p.OrderId
@@ -430,42 +433,53 @@ internal sealed class OrderRepository : IOrderRepository
         }
     }
 
-    public async Task<Result<List<OrderDetailVm>>> TopProducts()
+    public async Task<Result<List<OrderDetailVm>>> TopProducts(TopProductQuery request)
     {
         try
         {
-            var topProducts = await (from a in _context.OrderDetails
-                                     join b in _context.Orders on a.OrderId equals b.Id
-                                     join c in _context.ProductDetails on a.ProductDetailId equals c.Id
-                                     join d in _context.Products on c.ProductId equals d.Id
-                                     join p in _context.ProductImages on c.Id equals p.ProductDetailId
-                                     join i in _context.Images on p.ImageId equals i.Id
-                                     join h in _context.Colors on c.ColorId equals h.Id
-                                     join k in _context.Sizes on c.SizeId equals k.Id
-                                     where b.OrderStatus == OrderStatus.Completed
-                                     group new { a, c, d, i, h, k } by d.Id into g 
-                                     select new
-                                     {
-                                         ProductId = g.Key,
-                                         TotalQuantity = g.Sum(x => x.a.Quantity), 
-                                         ProductName = g.Select(x => x.d.Name).FirstOrDefault(),
-                                         SizeNumber = g.Select(x => x.k.SizeNumber).FirstOrDefault(), 
-                                         ColorName = g.Select(x => x.h.Name).FirstOrDefault(),
-                                         ImagePath = g.Select(x => x.i.ImagePath).FirstOrDefault(),
-                                         PaidPrice = g.Select(x => x.a.Price).FirstOrDefault(),
-                                     })
-                                  .OrderByDescending(x => x.TotalQuantity)
-                                  .Take(10)
-                                  .Select(x => new OrderDetailVm
-                                  {
-                                      ProductDetailId = x.ProductId, 
-                                      ProductName = x.ProductName,
-                                      Price = x.PaidPrice,
-                                      Quantity = x.TotalQuantity,
-                                      SizeNumber = x.SizeNumber,
-                                      ColorName = x.ColorName,
-                                      ImagePath = x.ImagePath,
-                                  }).ToListAsync();
+            var query = from a in _context.OrderDetails
+                        join b in _context.Orders on a.OrderId equals b.Id
+                        join c in _context.ProductDetails on a.ProductDetailId equals c.Id
+                        join d in _context.Products on c.ProductId equals d.Id
+                        join p in _context.ProductImages on c.Id equals p.ProductDetailId
+                        join i in _context.Images on p.ImageId equals i.Id
+                        join h in _context.Colors on c.ColorId equals h.Id
+                        join k in _context.Sizes on c.SizeId equals k.Id
+                        where b.OrderStatus == OrderStatus.Completed
+                        select new { a, b, c, d, i, h, k };
+            if (request.Begin != null && request.End != null)
+            {
+                query = query.Where(s => s.b.CreatedOn >= request.Begin && s.b.CreatedOn <= request.End);
+            }
+
+            var topProducts = await query
+                .GroupBy(g => g.c.Id)  
+                .Select(g => new
+                {
+                    OrderId = g.Select(x => x.b.Id).FirstOrDefault(),
+                    OrderDetailId = g.Select(x => x.a.Id).FirstOrDefault(),
+                    ProductDetailId = g.Key,  // Sử dụng ProductDetailId
+                    TotalQuantity = g.Sum(x => x.a.Quantity),
+                    ProductName = g.Select(x => x.d.Name).FirstOrDefault(),
+                    SizeNumber = g.Select(x => x.k.SizeNumber).FirstOrDefault(),
+                    ColorName = g.Select(x => x.h.Name).FirstOrDefault(),
+                    ImagePath = g.Select(x => x.i.ImagePath).FirstOrDefault(),
+                    PaidPrice = g.Select(x => x.a.Price).FirstOrDefault(),
+                })
+                .OrderByDescending(x => x.TotalQuantity)
+                .Take(request.Stock)
+                .Select(x => new OrderDetailVm
+                {
+                    Id = x.OrderDetailId,
+                    OrderId = x.OrderId,
+                    ProductDetailId = x.ProductDetailId,  
+                    ProductName = x.ProductName,
+                    Price = x.PaidPrice,
+                    Quantity = x.TotalQuantity,
+                    SizeNumber = x.SizeNumber,
+                    ColorName = x.ColorName,
+                    ImagePath = x.ImagePath,
+                }).ToListAsync();
 
             return Result<List<OrderDetailVm>>.Success(topProducts);
         }
@@ -475,6 +489,34 @@ internal sealed class OrderRepository : IOrderRepository
         }
     }
 
+    public async Task<Result<List<ProductDetailForStaffVm>>> LowStockProducts()
+    {
+        try
+        {
+            var lowStockProducts = await (from a in _context.Products
+                                          join b in _context.ProductDetails on a.Id equals b.ProductId
+                                          join c in _context.ProductImages on b.Id equals c.ProductDetailId
+                                          join i in _context.Images on c.ImageId equals i.Id
+                                          join h in _context.Colors on b.ColorId equals h.Id
+                                          join k in _context.Sizes on b.SizeId equals k.Id
+                                          where b.Stock <= 10
+                                          select new ProductDetailForStaffVm
+                                          {
+                                              ProductDetailId = b.Id,
+                                              ImageUrl = i.ImagePath,
+                                              ProductName = a.Name,
+                                              Stock = b.Stock,
+                                              SizeNumber=k.SizeNumber,
+                                              ColorName=h.Name,
+                                          }).ToListAsync();
+
+            return Result<List<ProductDetailForStaffVm>>.Success(lowStockProducts);
+        }
+        catch (Exception ex)
+        {
+            return Result<List<ProductDetailForStaffVm>>.Error(ex.Message);
+        }
+    }
 
     public async Task<Result<List<OrderVm>>> Statistical()
     {
@@ -510,7 +552,6 @@ internal sealed class OrderRepository : IOrderRepository
             return Result<List<OrderVm>>.Error(ex.Message);
         }
     }
-
 
 
 

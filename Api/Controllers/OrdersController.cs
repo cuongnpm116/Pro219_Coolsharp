@@ -70,9 +70,14 @@ namespace Api.Controllers
         {
             var result = await _mediator.Send(query);
             return Ok(result);
-        }     
+        }
+        [HttpGet("low-stock-products")]
+        public async Task<IActionResult> LowStockProducts([FromQuery] LowStockProductsQuery query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
 
-      
 
     }
 }

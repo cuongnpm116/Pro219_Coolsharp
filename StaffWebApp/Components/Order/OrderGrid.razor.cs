@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using StaffWebApp.Services.Order;
@@ -11,6 +12,9 @@ namespace StaffWebApp.Components.Order
 {
     public partial class OrderGrid
     {
+
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthStateTask { get; set; } = null;
         [Inject]
         private IOrderService OrderService { get; set; }
         [Inject]
@@ -25,13 +29,20 @@ namespace StaffWebApp.Components.Order
         private OrderPaginationRequest _paginationRequest = new();
         [Parameter]
         public OrderStatus OrderStatus { get; set; }
+        public Guid _staffId;
+        [Parameter] public EventCallback<OrderStatus> OnOrderStatusChanged { get; set; }
+
+
 
         protected override async Task OnInitializedAsync()
         {
+            //AuthenticationState? authState = await AuthStateTask;
+            //_staffId = new(authState.User.Claims.FirstOrDefault(x => x.Type == "userId")?.Value);
             _paginationRequest.OrderStatus = OrderStatus;
             await LoadOrder();
             StateHasChanged();
         }
+
         private async Task LoadOrder()
         {
             var response = await OrderService.GetOrders(_paginationRequest);
@@ -42,6 +53,13 @@ namespace StaffWebApp.Components.Order
                 _lstOrder.Data = response.Value.Data;
             }
         }
+        void OrderDetail(Guid OrderId)
+        {
+            NavigationManager.NavigateTo($"/OrderDetail/{OrderId}");
+        }
+
+        #region Search
+
         protected async override Task OnParametersSetAsync()
         {
             if (!string.IsNullOrEmpty(_paginationRequest.SearchString))
@@ -74,7 +92,9 @@ namespace StaffWebApp.Components.Order
                 StateHasChanged();
             }
         }
+        #endregion
 
+        #region Page
         private async Task OnNextPageClicked()
         {
             if (_lstOrder.HasNext)
@@ -95,31 +115,52 @@ namespace StaffWebApp.Components.Order
                 StateHasChanged();
             }
         }
-        private async Task OnStatusChanged(OrderStatus newStatus)
+        #endregion
+
+        #region Loc
+        private async Task StatusChanged(OrderStatus newStatus)
         {
             _paginationRequest.OrderStatus = newStatus;
             await LoadOrder();
             StateHasChanged();
         }
+        #endregion
 
-        private async Task UpdateOrder(Guid orderId, OrderStatus OrderStatus)
+        #region UpdateOrder
+            private async Task UpdateOrder(Guid orderId, OrderStatus OrderStatus)
         {
-            bool? messageResult = await DialogService.ShowMessageBox("Cảnh báo",
-                                                       "Bạn chắc chắn với thay đổi trạng thái đơn hàng không?",
-                                                       yesText: "Thay đổi",
-                                                       cancelText: "Hủy");
-            if (messageResult == true)
+            bool? result = await DialogService.ShowMessageBox("Cảnh báo",
+                                                              "Bạn có chắc chắn muốn thay đổi trạng thái đơn hàng?",
+                                                              yesText: "Thay đổi",
+                                                              cancelText: "Hủy");
+
+            if (result == true)
             {
-                var updateStatus = new OrderVm
+                var nextStatus = GetNextStatus(OrderStatus);
+                var updateRequest = new OrderVm
                 {
                     Id = orderId,
-                    OrderStatus = OrderStatus,
+                    OrderStatus = nextStatus,
+                    //StaffId= _staffId,
+                    StaffId=Guid.Parse("b48703e5-2bc4-4996-88dd-4369d76fd61d"),
                 };
-                await OrderService.UpdateOrderStatus(updateStatus);
-                Snackbar.Add("Thay đổi trạng thái đơn hàng  thành công", Severity.Success);
-                await LoadOrder();
-                StateHasChanged();
+
+                try
+                {
+                    await OrderService.UpdateOrderStatus(updateRequest);
+                    Snackbar.Add("Thay đổi trạng thái đơn hàng thành công", Severity.Success);
+
+                    // Gọi callback để thông báo trạng thái mới
+                    await OnOrderStatusChanged.InvokeAsync(nextStatus);
+
+                    await LoadOrder();
+                }
+                catch (Exception ex)
+                {
+                    Snackbar.Add($"Thay đổi trạng thái đơn hàng thất bại: {ex.Message}", Severity.Error);
+                }
             }
+
             MudDialog?.Close(DialogResult.Cancel());
         }
 
@@ -133,16 +174,26 @@ namespace StaffWebApp.Components.Order
             {
                 await OrderService.CancelOrderStatus(orderId);
                 Snackbar.Add("Hủy đơn thành công", Severity.Success);
+                // Sau khi hủy, cập nhật lại OrderStatus
+                await OnOrderStatusChanged.InvokeAsync(OrderStatus.Cancelled);
                 await LoadOrder();
                 StateHasChanged();
             }
 
             MudDialog?.Close(DialogResult.Cancel());
         }
-        void OrderDetail(Guid OrderId)
+
+        private OrderStatus GetNextStatus(OrderStatus OrderStatus)
         {
-            NavigationManager.NavigateTo($"/OrderDetail/{OrderId}");
+            return OrderStatus switch
+            {
+                OrderStatus.Pending => OrderStatus.AwaitingShipment,
+                OrderStatus.AwaitingShipment => OrderStatus.AWaitingPickup,
+                OrderStatus.AWaitingPickup => OrderStatus.Completed,
+                _ => OrderStatus
+            };
         }
+        #endregion
 
         private async Task ExportOrders()
         {
@@ -165,5 +216,8 @@ namespace StaffWebApp.Components.Order
                 Snackbar.Add("Xuất ra excel thất bại", Severity.Error);
             }
         }
+    
+
+
     }
 }

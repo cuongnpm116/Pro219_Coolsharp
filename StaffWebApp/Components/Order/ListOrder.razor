@@ -4,36 +4,41 @@
 @using WebAppIntegrated.Enum
 @* @attribute [Authorize(Roles = "admin,staff")] *@
 
-<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Style="margin-top: 30px;">
+<MudTabs @bind-ActivePanelIndex="_selectedTabIndex" Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Style="margin-top: 30px;">
     <MudTabPanel Text="Tất Cả">
-
-        <OrderGrid OrderStatus="OrderStatus.None"></OrderGrid>
-
+        <OrderGrid OrderStatus="OrderStatus.None" OnOrderStatusChanged="HandleOrderStatusChanged"></OrderGrid>
     </MudTabPanel>
     <MudTabPanel Text="Chờ xác nhận">
-
-        <OrderGrid OrderStatus=@OrderStatus.Pending></OrderGrid>
-       
+        <OrderGrid OrderStatus=@OrderStatus.Pending OnOrderStatusChanged="HandleOrderStatusChanged"></OrderGrid>
     </MudTabPanel>
     <MudTabPanel Text="Chờ lấy hàng">
-
-        <OrderGrid OrderStatus=@OrderStatus.AwaitingShipment></OrderGrid>
-
+        <OrderGrid OrderStatus=@OrderStatus.AwaitingShipment OnOrderStatusChanged="HandleOrderStatusChanged"></OrderGrid>
     </MudTabPanel>
     <MudTabPanel Text="Chờ giao hàng">
-
-        <OrderGrid OrderStatus=@OrderStatus.AWaitingPickup></OrderGrid>
-
-    </MudTabPanel> 
+        <OrderGrid OrderStatus=@OrderStatus.AWaitingPickup OnOrderStatusChanged="HandleOrderStatusChanged"></OrderGrid>
+    </MudTabPanel>
     <MudTabPanel Text="Hoàn thành">
-
-        <OrderGrid OrderStatus=@OrderStatus.Completed></OrderGrid>
-
+        <OrderGrid OrderStatus=@OrderStatus.Completed OnOrderStatusChanged="HandleOrderStatusChanged"></OrderGrid>
     </MudTabPanel>
     <MudTabPanel Text="Đã hủy">
-
-        <OrderGrid OrderStatus=@OrderStatus.Cancelled></OrderGrid>
-
+        <OrderGrid OrderStatus=@OrderStatus.Cancelled OnOrderStatusChanged="HandleOrderStatusChanged"></OrderGrid>
     </MudTabPanel>
- 
 </MudTabs>
+
+@code {
+    private int _selectedTabIndex;
+
+    private void HandleOrderStatusChanged(OrderStatus newStatus)
+    {
+        // Cập nhật tab dựa vào trạng thái đơn hàng mới
+        _selectedTabIndex = newStatus switch
+        {
+            OrderStatus.Pending => 1,
+            OrderStatus.AwaitingShipment => 2,
+            OrderStatus.AWaitingPickup => 3,
+            OrderStatus.Completed => 4,
+            OrderStatus.Cancelled => 5,
+            _ => 0
+        };
+    }
+}
