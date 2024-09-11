@@ -1,6 +1,7 @@
 ﻿using Api.Extensions;
 using Application;
 using Infrastructure;
+using Infrastructure.SignalR;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,7 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR(); 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -41,6 +43,7 @@ app.UseCors("eShopApi");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRouting();
+app.MapHub<ShopHub>("/shophub");
 app.MapControllers();
 
 await app.RunAsync();

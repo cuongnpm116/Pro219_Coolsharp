@@ -7,6 +7,7 @@ using WebAppIntegrated.Constants;
 using CustomerWebApp.Components.Carts;
 using CustomerWebApp.Service.Cart;
 using CustomerWebApp.Service.Cart.ViewModel;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace CustomerWebApp.Components.Layout
 {
@@ -21,10 +22,6 @@ namespace CustomerWebApp.Components.Layout
         [Inject]
         private ICartService CartService { get; set; } = null!;
 
-        //[Inject]
-        //private INotificationService NotiService { get; set; } = null!;
-
-        
         [Inject]
         private ISnackbar Snackbar { get; set; } = null!;
 
@@ -32,12 +29,11 @@ namespace CustomerWebApp.Components.Layout
         private CartState CartState { get; set; }
 
 
-        //private HubConnection? _hubConnection;
+        private HubConnection? _hubConnection;
         private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
         private string _username = string.Empty;
         private CartVm cartVm = new();
-       // private List<NotificationVm> _notificationVm = new();
-        //private MarkAsReadRequest _mARrequest = new();
+       
         public Guid UserId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
         private string Search { get; set; } = "";
         public int Quantity;
@@ -45,29 +41,27 @@ namespace CustomerWebApp.Components.Layout
 
         protected override async Task OnInitializedAsync()
         {
-            //AuthenticationState authState = await AuthStateTask;
-            //List<Claim> claims = authState.User.Claims.ToList();
-
-            //if (!authState.User.Identity.IsAuthenticated)
-            //{
-            //    return;
-            //}
-
-            //string stringUserId = authState.User?.Claims.FirstOrDefault(x => x.Type == "userId")!.Value;
-            //if (stringUserId != null)
-            //{
-            //    await SigNalR(claims);
-
-            //}
-            //UserId = new(stringUserId);
-
-            //Result<NavInfo> result = await UserService.GetNavInfo(UserId);
-            //_imageUrl += result.Value.ImageUrl;
-            //_username = result.Value.Username;
-
+            
             await GetQuantityCart();
-            //await GetNotification();
+            _hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("https://localhost:1000/shophub"))
+            .Build();
+
+            _hubConnection.On<string>("ReceiveOrderUpdate", (message) =>
+            {
+                Snackbar.Add($"{message}", Severity.Success);
+                InvokeAsync(StateHasChanged);
+            });
+
+            await _hubConnection.StartAsync();
             CartState.OnChange += StateHasChanged;
+        }
+        public async ValueTask DisposeAsync()
+        {
+            if (_hubConnection is not null)
+            {
+                await _hubConnection.DisposeAsync();
+            }
         }
 
         private async Task GetQuantityCart()
@@ -80,33 +74,6 @@ namespace CustomerWebApp.Components.Layout
             }
         }
 
-        //private async Task GetNotification()
-        //{
-        //    var result = await NotiService.GetNotification(UserId, top);
-        //    if (result.IsSuccess && result.Value != null)
-        //    {
-        //        _notificationVm = result.Value;
-        //    }
-        //}
-
-        //private async Task MarkAsRead(Guid id)
-        //{
-        //    _mARrequest.Id = id;
-
-        //    var result = await NotiService.MarkAsRead(_mARrequest);
-
-        //    if (result.IsSuccess)
-        //    {
-
-        //        var notification = _notificationVm.FirstOrDefault(n => n.Id == id);
-        //        if (notification != null)
-        //        {
-        //            notification.IsRead = true;
-        //        }
-        //        StateHasChanged();
-        //    }
-
-        //}
 
         private bool _isNotificationsVisible;
 

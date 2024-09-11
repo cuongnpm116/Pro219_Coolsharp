@@ -1,16 +1,7 @@
 using CustomerWebApp.Components;
-using CustomerWebApp.Components.Carts;
 using CustomerWebApp.Extensions;
-using CustomerWebApp.Service.Address;
-using CustomerWebApp.Service.Cart;
-using CustomerWebApp.Service.Category;
-using CustomerWebApp.Service.Order;
-using CustomerWebApp.Service.Payment;
-using CustomerWebApp.Service.Product;
-using CustomerWebApp.Service.Voucher;
 using MudBlazor;
 using MudBlazor.Services;
-using WebAppIntegrated.AddressService;
 using WebAppIntegrated.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,19 +19,6 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopRight;
     config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
 });
-
-builder.Services.AddTransient<IVietNamAddressService, VietNamAddressService>();
-
-builder.Services.AddTransient<IProductService, ProductService>();
-builder.Services.AddTransient<ICategoryService, CategoryService>();
-builder.Services.AddTransient<ICartService, CartService>();
-builder.Services.AddTransient<IPaymentService, PaymentService>();
-builder.Services.AddTransient<IOrderService, OrderService>();
-builder.Services.AddTransient<IAddressService, AddressService>();
-builder.Services.AddTransient<IVoucherService, VoucherService>();
-
-builder.Services.AddScoped<CartState>();
-builder.Services.AddScoped<SelectedProductState>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataServices();

@@ -1,0 +1,37 @@
+﻿<MudDialog Style="max-width: 1200px; width: 100%;max-height:800px; height:100%; margin: 0 auto;">
+    <TitleContent>
+        <div class="row" style="margin-top:32px; margin-bottom:16px ;display:flex;justify-content:space-between">
+            <div class="col-8" style="display:flex; align-items: center;">
+                <MudText Typo="Typo.h5">
+                    Chi tiết sản phẩm
+                </MudText>
+            </div>
+        </div>
+    </TitleContent>
+
+    <DialogContent>
+        <MudTable Items="ProductDetails" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>STT</MudTh>
+                <MudTh>Ảnh</MudTh>
+                <MudTh>Giá Bán</MudTh>
+                <MudTh>Giá nhập</MudTh>
+                <MudTh>Số lượng tồn</MudTh>
+                <MudTh>Phân loại</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="STT"> @(ProductDetails.ToList().IndexOf(context) + 1)</MudTd>
+                <MudTd DataLabel="Ảnh">
+                    @foreach (var image in context.Images)
+                    {
+                        <MudImage Src="@image" Width="60" Height="60" Style="margin-right: 5px;" />
+                    }
+                </MudTd>
+                <MudTd>@string.Format("{0:N0} VND", context.Price)</MudTd>
+                <MudTd>@string.Format("{0:N0} VND", context.OriginalPrice)</MudTd>
+                <MudTd>@context.Stock</MudTd>
+                <MudTd>@context.Color, @context.Size</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </DialogContent>
+</MudDialog>

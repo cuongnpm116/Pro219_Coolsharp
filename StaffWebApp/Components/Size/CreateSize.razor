@@ -11,7 +11,7 @@
         <MudSelect T="Status" Label="Trạng Thái" @bind-Value="_sizeVm.Status" Style="margin:25px 0px" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Required="true" RequiredError="Status is required.">
             @foreach (Status status in Enum.GetValues(typeof(Status)))
             {
-                <MudSelectItem Value="status">@EnumUtility.ConvertStatusColorSize(status)</MudSelectItem>
+                <MudSelectItem Value="status">@EnumUtility.ConvertStatus(status)</MudSelectItem>
             }
         </MudSelect>
 

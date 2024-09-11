@@ -13,7 +13,6 @@ builder.Services.AddRazorComponents()
 builder.Services.AddServerSideBlazor()
     .AddCircuitOptions(opts => { opts.DetailedErrors = true; });
 
-builder.Services.AddTransient<IVoucherSevice, VoucherService>();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient(ShopConstants.EShopClient, client =>

@@ -1,5 +1,6 @@
 ﻿using Application.Cqrs.Product;
 using Application.Cqrs.Product.GetProductCustomerAppPaging;
+using Application.Cqrs.Product.GetProductStaffPaging;
 using Application.IRepositories;
 using Application.ValueObjects.Pagination;
 using Common.Utilities;
@@ -11,7 +12,7 @@ using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
-internal sealed class ProductRepository : IProductRepository
+public  class ProductRepository : IProductRepository
 {
     private readonly AppDbContext _context;
     public ProductRepository(AppDbContext context)
@@ -212,5 +213,86 @@ internal sealed class ProductRepository : IProductRepository
         return Result<PaginationResponse<ProductCustomerAppVm>>.Success(result);
 
 
+    }
+
+    public async Task<Result<PaginationResponse<ProductStaffVm>>> GetProductForStaffView(GetProductStaffPagingQuery request)
+    {
+
+        var productsQuery = _context.Products
+            .Include(x=>x.ProductDetails)
+            .ThenInclude(x=>x.Color)
+            .Include(x=>x.ProductDetails)
+            .ThenInclude(x=>x.Size)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(request.CategoryName))
+        {
+            productsQuery = productsQuery.Where(x =>
+                _context.ProductCategories
+                    .Where(pc => pc.ProductId == x.Id)
+                    .Join(_context.Categories,
+                          pc => pc.CategoryId,
+                          c => c.Id,
+                          (pc, c) => c.Name)
+                    .Any(cName => cName.ToLower().Trim() == request.CategoryName.ToLower().Trim())
+            );
+        }
+
+        
+        var productDetailsQuery = _context.ProductDetails.AsQueryable();
+        var totalStock = productDetailsQuery.Sum(pd => pd.Stock);
+        var minPrice = productDetailsQuery.Min(pd => pd.SalePrice);
+
+       var productQuery = productsQuery
+            .Select(x => new ProductStaffVm
+            {
+                Id = x.Id,
+                Name = x.Name,
+                TotalStock = totalStock,
+                MinPrice = minPrice,
+                Status = x.Status,
+                ProductDetails = (from pd in _context.ProductDetails
+                                  join c in _context.Colors on pd.ColorId equals c.Id
+                                  join s in _context.Sizes on pd.SizeId equals s.Id
+                                  join pi in _context.ProductImages on pd.Id equals pi.ProductDetailId into ppi
+                                  from pi in ppi.DefaultIfEmpty()
+                                  join i in _context.Images on pi.ImageId equals i.Id into ii
+                                  from i in ii.DefaultIfEmpty()
+                                  where pd.ProductId == x.Id
+                                  group i by new { pd.Id, pd.Stock, pd.SalePrice, pd.OriginalPrice, c.Name, s.SizeNumber } into g
+                                  select new ProductDetailStaffVm
+                                  {
+                                      Id = g.Key.Id,
+                                      Stock = g.Key.Stock,
+                                      Price = g.Key.SalePrice,
+                                      OriginalPrice = g.Key.OriginalPrice,
+                                      Color = g.Key.Name,
+                                      Size = g.Key.SizeNumber,
+                                      Images = g.Select(img => img.ImagePath).Where(path => path != null).ToList()
+
+                                  }).ToList()
+            });
+
+        if (!string.IsNullOrWhiteSpace(request.SearchString))
+        {
+            var searchString = request.SearchString.ToLower().Trim();
+
+            // Lọc products theo SearchString
+            productQuery = productQuery.Where(p =>
+                p.Name.ToLower().Trim().Contains(searchString) ||
+                p.ProductDetails.Any(d =>
+                    d.Color.ToLower().Trim().Contains(searchString) ||
+                    d.Size.ToString().Contains(searchString))
+            );
+        }
+
+        // Sau cùng gọi ToListAsync() để lấy kết quả cuối cùng
+        
+        var groupedProductQuery = from product in productQuery
+                                  group product by product.Id into g
+                                  select g.FirstOrDefault();
+        var result = await groupedProductQuery.ToPaginatedResponseAsync(request.PageNumber, request.PageSize);
+
+        return Result<PaginationResponse<ProductStaffVm>>.Success(result);
     }
 }

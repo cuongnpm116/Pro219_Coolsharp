@@ -59,10 +59,11 @@ public static class EnumUtility
             _ => "N/A"
         };
     }
-    public static string ConvertStatusColorSize(Status status)
+    public static string ConvertStatus(Status status)
     {
         return status switch
         {
+            Status.None => "Không có",
             Status.Active => "Đang hoạt động",
             Status.InActive => "Không hoạt động",
             Status.Locked => "Khóa hoạt động",

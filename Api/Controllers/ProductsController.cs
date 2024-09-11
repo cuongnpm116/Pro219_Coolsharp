@@ -5,6 +5,7 @@ using Application.Cqrs.Product.GetProductDetailId;
 using Application.Cqrs.Product.GetProductDetailPrice;
 using Application.Cqrs.Product.GetProductDetailStock;
 using Application.Cqrs.Product.GetProductImage;
+using Application.Cqrs.Product.GetProductStaffPaging;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +23,13 @@ namespace Api.Controllers
         }
         [HttpGet("get-product-paging")]
         public async Task<IActionResult> ShowProducts([FromQuery] GetProductCustomerAppPagingQuery query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        [HttpGet("get-product-staff-paging")]
+        public async Task<IActionResult> ShowProductStaffs([FromQuery] GetProductStaffPagingQuery query)
         {
             var result = await _mediator.Send(query);
             return Ok(result);
