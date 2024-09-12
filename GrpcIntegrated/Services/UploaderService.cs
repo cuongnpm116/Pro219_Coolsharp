@@ -1,29 +1,34 @@
-﻿using Common.Consts;
-using Google.Protobuf.WellKnownTypes;
-using Grpc.Core;
+﻿using Grpc.Core;
 using Microsoft.AspNetCore.Hosting;
 using Upload;
 
 namespace GrpcIntegrated.Services;
 public class UploaderService : Uploader.UploaderBase
 {
-    private readonly string _rootPath;
-    private readonly string[] _dir;
+    private readonly string Root;
 
     public UploaderService(IWebHostEnvironment environment)
     {
-        _rootPath = environment.WebRootPath;
-        _dir = [StorageDirectory.ProductContent, StorageDirectory.UserContent, StorageDirectory.AppContent];
+        Root = environment.WebRootPath;
     }
 
-    public override async Task<Empty> UploadFile(IAsyncStreamReader<UploadFileRequest> requestStream, ServerCallContext context)
+    public override async Task<UploadFileResponse> UploadFile(
+        IAsyncStreamReader<UploadFileRequest> requestStream,
+        ServerCallContext context)
     {
-        await requestStream.MoveNext(CancellationToken.None);
-        var initialMessage = requestStream.Current ?? throw new RpcException(new Status(StatusCode.InvalidArgument, "No file uploaded"));
-        string extendDir = initialMessage.ExtendDir ?? string.Empty;
-        string fileName = initialMessage.FileName ?? Path.GetRandomFileName();
-        FileStream writeStream = File.Create(Path.Combine(_rootPath, extendDir, fileName));
-
+        if (!await requestStream.MoveNext())
+        {
+            throw new RpcException(new Status(StatusCode.InvalidArgument, "No data receive"));
+        }
+        var firstMessage = requestStream.Current;
+        string fileExtension = ".bin";
+        if (firstMessage.Metadata != null && !string.IsNullOrWhiteSpace(firstMessage.Metadata.FileExtension))
+        {
+            fileExtension = firstMessage.Metadata.FileExtension;
+        }
+        string newFileName = Path.GetRandomFileName() + fileExtension;
+        string writePath = Path.Combine(Root, firstMessage.Metadata.SpecificDirectory, newFileName);
+        await using FileStream writeStream = File.Create(writePath);
         await foreach (var message in requestStream.ReadAllAsync())
         {
             if (message.Data != null)
@@ -31,6 +36,9 @@ public class UploaderService : Uploader.UploaderBase
                 await writeStream.WriteAsync(message.Data.Memory);
             }
         }
-        return new Empty();
+        return new UploadFileResponse
+        {
+            Id = newFileName
+        };
     }
 }

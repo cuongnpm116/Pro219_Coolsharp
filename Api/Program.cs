@@ -45,7 +45,6 @@ app.UseCors("eShopApi");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGrpcService<HelloService>();
 app.MapGrpcService<UploaderService>();
 
 app.UseRouting();

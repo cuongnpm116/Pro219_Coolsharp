@@ -1,0 +1,54 @@
+﻿@page "/images-by-color"
+@using StaffWebApp.Services.Color.Vms
+@using StaffWebApp.Services.Product.Vms.Create
+
+<div class="d-flex justify-space-between">
+    <MudText>@Color.Name</MudText>
+    @if (!string.IsNullOrEmpty(_msg))
+    {
+        <MudText Color="MudBlazor.Color.Error">@_msg</MudText>
+    }
+</div>
+
+<MudFileUpload @ref=_fileUpload
+               T="IReadOnlyList<IBrowserFile>"
+               OnFilesChanged="OnInputFileChanged"
+               AppendMultipleFiles=true
+               Accept=".jpg, .jpeg, .png, .jfif"
+               MaximumFileCount=99
+               tabindex=-1>
+</MudFileUpload>
+
+<MudPaper Outlined="true" Class="relative rounded-lg border-2 border-dashed pa-4 mud-width-full mud-height-full mt-4">
+    @foreach (var item in Images)
+    {
+        <div style="position: relative; display: inline-block;">
+            <MudImage Src="@item.Binary" Width="150" Height="150" Elevation="25" Class="rounded-lg ma-4" />
+
+            <MudFab OnClick="() => RemoveImage(item)"
+                    Color="MudBlazor.Color.Primary"
+                    StartIcon="@Icons.Material.Filled.Close"
+                    Style="position: absolute; top: 5px; right: 5px;"
+                    Size="Size.Small" />
+        </div>
+    }
+
+    @if (Images.Count < 5)
+    {
+        <MudButton OnClick="OpenFilePickerAsync"
+                   Style="width: 150px; height: 150px;"
+                   Variant="Variant.Filled"
+                   Color="MudBlazor.Color.Transparent">
+            <MudIcon Icon="@Icons.Material.Filled.Add" />
+        </MudButton>
+    }
+    else
+    {
+        <MudButton OnClick="ClearImages"
+                   Style="height:150px; width:150px"
+                   Variant="Variant.Filled"
+                   Color="MudBlazor.Color.Error">
+            <MudIcon Icon="@Icons.Material.Filled.Remove" />
+        </MudButton>
+    }
+</MudPaper>

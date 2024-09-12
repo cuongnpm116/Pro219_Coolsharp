@@ -1,4 +1,5 @@
-﻿using Application.Cqrs.Product.GetFeaturedProduct;
+﻿using Application.Cqrs.Product.Create;
+using Application.Cqrs.Product.GetFeaturedProduct;
 using Application.Cqrs.Product.GetProductCustomerAppPaging;
 using Application.Cqrs.Product.GetProductDetail;
 using Application.Cqrs.Product.GetProductDetailId;
@@ -70,6 +71,13 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> FeaturedProduct([FromQuery] GetFeaturedProductQuery query)
     {
         var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    [HttpPost("create-product")]
+    public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
+    {
+        var result = await _mediator.Send(command);
         return Ok(result);
     }
 }

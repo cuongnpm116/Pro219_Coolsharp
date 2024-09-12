@@ -1,4 +1,5 @@
 ﻿using Application.Cqrs.Product;
+using Application.Cqrs.Product.Create;
 using Application.Cqrs.Product.GetProductCustomerAppPaging;
 using Application.ValueObjects.Pagination;
 using Domain.Primitives;
@@ -13,4 +14,5 @@ public interface IProductRepository
     Task<Result<Guid>> GetProductDetailId(Guid productId, Guid colorId, Guid sizeId);
     Result<List<ProductCustomerAppVm>> GetFeaturedProducts();
     Result<Dictionary<Guid, List<string>>> GetDetailImage(Guid productId);
+    Task<bool> CreateProductAsync(CreateProductCommand request);
 }

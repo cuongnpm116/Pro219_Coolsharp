@@ -1,4 +1,5 @@
 ﻿using Application.Cqrs.Product;
+using Application.Cqrs.Product.Create;
 using Application.Cqrs.Product.GetProductCustomerAppPaging;
 using Application.IRepositories;
 using Application.ValueObjects.Pagination;
@@ -16,6 +17,27 @@ internal sealed class ProductRepository : IProductRepository
     public ProductRepository(AppDbContext context)
     {
         _context = context;
+    }
+
+    public async Task<bool> CreateProductAsync(CreateProductCommand request)
+    {
+        Product newProduct = new(request.Name);
+        await _context.Products.AddAsync(newProduct);
+        await _context.ProductCategories.AddRangeAsync(
+            request.CategoryIds.Select(x => new ProductCategory(x, newProduct.Id)));
+        await _context.Images.AddRangeAsync(request.Images.Select(x => new Image(x.Id, x.Path)));
+        await _context.ProductDetails.AddRangeAsync(
+            request.Details.Select(x => new ProductDetail(
+                x.Id,
+                newProduct.Id,
+                x.SizeId,
+                x.ColorId,
+                x.Stock,
+                x.Price,
+                x.OriginalPrice)));
+        await _context.ProductImages.AddRangeAsync(
+            request.DetailImages.Select(x => new ProductImage(x.ProductDetailId, x.ImageId)));
+        return true;
     }
 
     public Result<Dictionary<Guid, List<string>>> GetDetailImage(Guid productId)
