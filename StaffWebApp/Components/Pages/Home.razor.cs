@@ -20,6 +20,8 @@ public partial class Home
     private OrderPaginationRequest _paginationRequest = new();
     private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
 
+
+
     protected override async Task OnInitializedAsync()
     {
         await Statistical();
@@ -85,14 +87,38 @@ public partial class Home
 
     #region BarChart
 
-    public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-    public List<ChartSeries> Series = new List<ChartSeries>();
+    private DateTime? BeginDate;
+    private DateTime? EndDate;
+    private string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+    private List<ChartSeries> Series = new List<ChartSeries>();
+    private double[] data;
+    private string[] labels;
+    private async Task BeginOnchand(DateTime? newBegin)
+    {
+        BeginDate = newBegin;
+        await BarChart();
+        await PieChart();
+        StateHasChanged();
+    }
+
+    private async Task EndOnchand(DateTime? newBegin)
+    {
+        EndDate = newBegin;
+        await BarChart();
+        await PieChart();
+        StateHasChanged();
+    }
+
     private async Task BarChart()
     {
         var response = await OrderService.Statistical();
         if (response != null && response.Value != null)
         {
             var orderList = response.Value;
+            if (BeginDate.HasValue && EndDate.HasValue)
+            {
+                orderList = orderList.Where(o => o.CompletedDate >= BeginDate.Value && o.CompletedDate <= EndDate.Value).ToList();
+            }
             var monthlyRevenue = orderList
                 .Where(order => order.OrderStatus == OrderStatus.Completed && order.CompletedDate.HasValue) 
                 .GroupBy(order => new { order.CompletedDate.Value.Year, order.CompletedDate.Value.Month })
@@ -125,15 +151,17 @@ public partial class Home
     }
 
 
-
-    private double[] data;
-    private string[] labels;
     private async Task PieChart()
     {
         var response = await OrderService.Statistical();
         if (response.Value != null)
         {
-            var orderList = response.Value;         
+            var orderList = response.Value;
+            if (BeginDate.HasValue && EndDate.HasValue)
+            {
+                orderList = orderList.Where(o => o.CompletedDate >= BeginDate.Value && o.CompletedDate <= EndDate.Value).ToList();
+            }
+
             var statusCounts = orderList
                 .GroupBy(o => o.OrderStatus)
                 .Select(g => new { Status = EnumUtility.ConvertOrderStatus(g.Key), Count = g.Count() })

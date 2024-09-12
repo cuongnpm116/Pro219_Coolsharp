@@ -253,9 +253,7 @@ internal sealed class OrderRepository : IOrderRepository
         {
             return Result<bool>.Invalid("customer không tồn tại");
         }
-
         string subject = "Thông tin đơn hàng của bạn từ shop CoolSharp";
-
         // Đọc nội dung của file template email
         string filePath = Path.Combine("wwwroot", "content-email", "SendEmail.html");
         if (!File.Exists(filePath))
@@ -263,7 +261,6 @@ internal sealed class OrderRepository : IOrderRepository
             return Result<bool>.Invalid("file không tồn tại");
         }
         var body = await File.ReadAllTextAsync(filePath);
-
         // Thay thế nội dung động vào template
         var cultureInfo = new CultureInfo("vi-VN");
         body = body.Replace("{CustomerName}", $"{customer.LastName} {customer.FirstName}")
@@ -279,19 +276,25 @@ internal sealed class OrderRepository : IOrderRepository
         int stt = 1;
         foreach (var item in orderDetails)
         {
-            var productDetail = await _context.ProductDetails.Include(pd => pd.Product)
+            var productDetail = await _context.ProductDetails
+                .Include(pd => pd.Product)
+                .Include(pd => pd.Size)
+                .Include(pd => pd.Color)
                 .FirstOrDefaultAsync(x => x.Id == item.ProductDetailId);
 
             if (productDetail != null)
             {
                 var productName = productDetail?.Product?.Name;
+                var sizeNumber = productDetail?.Size?.SizeNumber;
+                var colorName = productDetail?.Color?.Name;
                 productRows.Append($@"
                 <tr>
                     <td style=""color:#636363;border:1px solid #e5e5e5;padding:12px;text-align:left;vertical-align:middle;font-family:'Helvetica Neue',Helvetica,Roboto,Arial,sans-serif;word-wrap:break-word"">
                         {stt}
                     </td>
                     <td style=""color:#636363;border:1px solid #e5e5e5;padding:12px;text-align:left;vertical-align:middle;font-family:'Helvetica Neue',Helvetica,Roboto,Arial,sans-serif;word-wrap:break-word"">
-                        {productName}
+                       {productName} <br>
+                       <strong>Màu:</strong> {colorName} - <strong>Size:</strong> {sizeNumber}                    
                     </td>
                     <td style=""color:#636363;border:1px solid #e5e5e5;padding:12px;text-align:left;vertical-align:middle;font-family:'Helvetica Neue',Helvetica,Roboto,Arial,sans-serif"">
                         {item.Quantity}
@@ -326,9 +329,9 @@ internal sealed class OrderRepository : IOrderRepository
             }
             switch (request.OrderStatus)
             {
-                case OrderStatus.Pending:
+                case OrderStatus.AwaitingShipment:
                     exist.ConfirmedDate = DateTime.Now;
-                    exist.OrderStatus = request.OrderStatus;
+                    exist.OrderStatus = OrderStatus.AwaitingShipment;
                     if (exist != null)
                     {
                         List<OrderDetail> orderDetails = await _context.OrderDetails.AsNoTracking().Where(x => x.OrderId == exist.Id).ToListAsync();
@@ -352,16 +355,13 @@ internal sealed class OrderRepository : IOrderRepository
 
 
                     break;
-                case OrderStatus.AwaitingShipment:
+                case OrderStatus.AWaitingPickup:
                     exist.ShippedDate = DateTime.Now;
-                    exist.OrderStatus = request.OrderStatus;
-                    break;
-                case OrderStatus.AWaitingPickup:              
-                    exist.OrderStatus = request.OrderStatus;
+                    exist.OrderStatus = OrderStatus.AWaitingPickup;
                     break;
                 case OrderStatus.Completed:
                     exist.CompletedDate = DateTime.Now;
-                    exist.OrderStatus = request.OrderStatus;
+                    exist.OrderStatus = OrderStatus.Completed;
                     var transaction = from o in _context.Orders
                                       join p in _context.Payments on o.Id equals p.OrderId
                                       where o.Id == exist.Id
@@ -369,8 +369,9 @@ internal sealed class OrderRepository : IOrderRepository
                     Payment? payment = await transaction.FirstOrDefaultAsync();
                     payment.Status = PaymentStatus.Completed;
                     _context.Payments.Update(payment);
+                    orderstatus = $"Đơn hàng {exist.OrderCode} đã giao thành công.";
                     break;
-
+        
             }
 
             _context.Orders.Update(exist);
@@ -530,9 +531,6 @@ internal sealed class OrderRepository : IOrderRepository
                                     ShipAddressDetail = a.ShipAddressDetail,
 
                                 }).ToListAsync();
-
-
-
             return Result<List<OrderVm>>.Success(orders);
         }
         catch (Exception ex)
@@ -540,6 +538,7 @@ internal sealed class OrderRepository : IOrderRepository
             return Result<List<OrderVm>>.Error(ex.Message);
         }
     }
+
 
 
 

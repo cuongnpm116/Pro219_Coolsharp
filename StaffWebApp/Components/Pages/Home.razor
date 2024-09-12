@@ -146,12 +146,32 @@
     <MudItem xs="12">
         <MudText Typo="Typo.h5" Align="Align.Center">Biểu đồ</MudText>
     </MudItem>
-
+    <MudGrid Justify="Justify.Center">
+        <MudItem xs="6" sm="4" md="4">
+            <MudTextField T="DateTime?"
+                          Format="yyyy-MM-dd"
+                          Value="BeginDate"
+                          Label="Ngày bắt đầu"
+                          ValueChanged="BeginOnchand"
+                          InputType="InputType.Date"
+                          FullWidth="true" />
+        </MudItem>
+        <MudItem xs="6" sm="4" md="4">
+            <MudTextField T="DateTime?"
+                          Format="yyyy-MM-dd"
+                          Value="EndDate"
+                          Label="Ngày Kết Thúc"
+                          ValueChanged="EndOnchand"
+                          InputType="InputType.Date"
+                          FullWidth="true" />
+        </MudItem>
+    </MudGrid>
+   
     <MudItem xs="12">
         <MudGrid>
             <MudItem xs="6">
                 <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels"
-                          YAxisTicks="100" Width="100%" Height="350px"></MudChart>
+                          YAxisTicks="1000" Width="100%" Height="350px"></MudChart>
             </MudItem>
             <MudItem xs="6">
                 <MudPaper Class="pa-4">
@@ -169,26 +189,26 @@
         @if (_lstOrderDetail != null)
         {
             <div class="border_box-shadow" style="padding: 20px; width: 100%;">
-                <MudText Typo="Typo.h5" Class="text-center" Style="margin-bottom: 30px;">
+                <MudText Typo="Typo.h5" Align="Align.Center" Style="margin-bottom: 30px;">
                     Top sản phẩm bán chạy
                 </MudText>
                 <MudGrid Style="margin-top:30px" Spacing="3">
                     <MudItem xs="6" sm="4" md="4">
                         <MudTextField T="DateTime?"
-                                      Format="s"
+                                      Format="yyyy-MM-dd"
                                       Value="_paginationRequest.Begin"
                                       Label="Ngày bắt đầu"
                                       ValueChanged="OnBeginDateChanged"
-                                      InputType="InputType.DateTimeLocal"
+                                      InputType="InputType.Date"
                                       FullWidth="true" />
                     </MudItem>
                     <MudItem xs="6" sm="4" md="4">
                         <MudTextField T="DateTime?"
-                                      Format="s"
+                                      Format="yyyy-MM-dd"
                                       Value="_paginationRequest.End"
                                       Label="Ngày Kết Thúc"
                                       ValueChanged="OnEndDateChanged"
-                                      InputType="InputType.DateTimeLocal"
+                                      InputType="InputType.Date"
                                       FullWidth="true" />
                     </MudItem>
                     <MudItem xs="12" sm="4" md="4">
@@ -241,7 +261,7 @@
         @if (_lstProductDetail != null)
         {
             <div class="border_box-shadow">
-                <MudText Typo="Typo.h6" Class="text-center" Style="margin-block: 35px;">
+                <MudText Typo="Typo.h6" Align="Align.Center" Style="margin-block: 35px;">
                     Sản phẩm sắp hết hàng
                 </MudText>
                 <MudTable Items="@_lstProductDetail" Hover="true" Dense="true">
