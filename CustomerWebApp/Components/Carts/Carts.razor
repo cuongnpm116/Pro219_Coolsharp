@@ -51,7 +51,7 @@ else
                 <MudTd DataLabel="Name" Style="max-width:300px!important">
                     <div style="display:flex;max-width:280px">
                         <MudLink Href="@($"/productdetail/{context.ProductId}")" Style="text-decoration:none">
-                            <MudImage Src="@context.ImagePath" Width="60" Height="60" alt="Image" />
+                            <MudImage Src="@($"{_imageUrl}{context.ImagePath}")" Width="60" Height="60" alt="Image" />
                         </MudLink>
                         <MudLink Href="@($"/productdetail/{context.ProductId}")" Style="text-decoration:none">
                             <MudText Class="product-name" Style="font-weight: bold;color:black" title="@context.ProductName">

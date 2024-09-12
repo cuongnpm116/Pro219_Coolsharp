@@ -15,7 +15,7 @@ public class VoucherService : IVoucherSevice
         _httpClient = httpClientFactory.CreateClient(ShopConstants.EShopClient);
     }
     public async Task<Result<bool>> AddVoucher(AddVoucherRequest request)
-    {
+        {
         var response = await _httpClient.PostAsJsonAsync("/api/Vouchers/create-voucher", request);
 
         var result = new Result<bool>();

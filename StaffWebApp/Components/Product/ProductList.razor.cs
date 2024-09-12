@@ -41,7 +41,11 @@ public partial class ProductList
     protected override async Task OnInitializedAsync()
     {
         var result = await CategoryService.Categories();
-        _categoryVms = result.Value;
+        if (result.Value != null)
+        {
+            _categoryVms = result.Value;
+        }
+        
         await ListProduct();
         StateHasChanged();
     }
@@ -78,22 +82,7 @@ public partial class ProductList
             await ListProduct();
         }
     }
-    //private async Task OpenUpdateDialog(Guid Id, Guid ProductId, string Name)
-    //{
-    //    var parameter = new DialogParameters
-    //    {
-    //        { "Id", Id },
-    //        { "ProductId", ProductId },
-    //        { "ProductName", Name }
-    //    };
-
-    //    var dialog = DialogService.Show<UpdateProductDetail>("", parameter);
-    //    var result = await dialog.Result;
-    //    if (Convert.ToBoolean(result.Data))
-    //    {
-    //        await ListProduct();
-    //    }
-    //}
+   
 
     private async Task ListProduct()
     {

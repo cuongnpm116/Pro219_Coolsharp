@@ -21,12 +21,11 @@ public class ProductService : IProductService
     }
     public async Task<Result<PaginationResponse<ProductVm>>> ShowProduct(ProductPaginationRequest request)
     {
-        var url = _baseUrl + "get-product-staff-paging?";
+        var url = _baseUrl + $"/get-product-staff-paging?PageNumber={request.PageNumber}&PageSize={request.PageSize}";
         if (!string.IsNullOrEmpty(request.CategoryName))
         {
-            url += $"CategoryName={Uri.EscapeDataString(request.CategoryName)}";
+            url += $"&CategoryName={Uri.EscapeDataString(request.CategoryName)}";
         }
-        url += $"&PageNumber={request.PageNumber}&PageSize={request.PageSize}";
 
         if (!string.IsNullOrEmpty(request.SearchString))
         {

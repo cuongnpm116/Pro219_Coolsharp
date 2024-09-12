@@ -13,7 +13,6 @@ public class AppDbContext : DbContext, IUnitOfWork
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
-
     private const string ConnectionString = "Server=localhost\\SQLEXPRESS;Database=Pro219_eShop;Trusted_Connection=True;TrustServerCertificate=true;";
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

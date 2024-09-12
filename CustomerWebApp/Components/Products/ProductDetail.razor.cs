@@ -31,7 +31,7 @@ public partial class ProductDetail
 
     [Parameter]
     public Guid ProductId { get; set; }
-    private const string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
+    private const string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
     private AddCartRequest _addCartRequest = new();
     private CartVm _cartVm = new();
 

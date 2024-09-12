@@ -25,7 +25,7 @@ public partial class Carts
 
     public Guid UserId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
     private bool selectAllChecked = false;
-    private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
+    private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
     private bool IsDisable { get; set; } = true;
     private CartVm _cartVm = new();
     private CartItemVm _cartDto = new();

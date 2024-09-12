@@ -29,21 +29,21 @@ public class ProductsController : ControllerBase
         return Ok(result);
     }
 
-        [HttpGet("get-product-staff-paging")]
-        public async Task<IActionResult> ShowProductStaffs([FromQuery] GetProductStaffPagingQuery query)
-        {
-            var result = await _mediator.Send(query);
-            return Ok(result);
-        }
+    [HttpGet("get-product-staff-paging")]
+    public async Task<IActionResult> ShowProductStaffs([FromQuery] GetProductStaffPagingQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
 
-        [HttpGet("show-productDetail/{productId}")]
-        public async Task<IActionResult> ShowProductDetail(Guid productId)
-        {
-            GetProductDetailQuery query = new GetProductDetailQuery();
-            query.ProductId = productId;
-            var result = await _mediator.Send(query);
-            return Ok(result);
-        }
+    [HttpGet("show-productDetail/{productId}")]
+    public async Task<IActionResult> ShowProductDetail(Guid productId)
+    {
+        GetProductDetailQuery query = new GetProductDetailQuery();
+        query.ProductId = productId;
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
 
     [HttpGet("get-productdetail-price")]
     public async Task<IActionResult> GetProductDetailPrice([FromQuery] GetProductDetailPriceQuery query)

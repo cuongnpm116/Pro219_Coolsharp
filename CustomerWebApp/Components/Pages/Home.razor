@@ -73,7 +73,7 @@
             <MudItem xs="12" sm="6" md="4" lg="3">
                 <MudCard>
                     <MudLink Href="@($"/productdetail/{item.ProductId}")" Underline="Underline.None">
-                        <MudCardMedia Image="@item.ImageUrl"
+                        <MudCardMedia Image="@($"{_imageUrl}{item.ImageUrl}")"
                                       Height="200" />
                     </MudLink>
                     <MudLink Href="@($"/productdetail/{item.ProductId}")" Underline="Underline.None">
@@ -98,7 +98,7 @@
     private IProductService ProductService { get; set; }
 
     private ProductVm _product = new();
-    private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
+    private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
     private List<ProductVm> _lstProduct = new();
 
     private Transition transition = Transition.Slide;

@@ -25,7 +25,7 @@ public partial class Products
     private PaginationResponse<ProductVm> _lstProduct = new();
 
     private ProductPaginationRequest _pagingnationRequest = new();
-    private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
+    private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
 
     //private CategoryVm category = new();
     private List<CategoryVm> _categories = new();

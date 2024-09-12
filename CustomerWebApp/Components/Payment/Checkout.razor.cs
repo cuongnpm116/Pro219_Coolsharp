@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.WebUtilities;
 using MudBlazor;
 using Newtonsoft.Json;
+using WebAppIntegrated.Constants;
 
 namespace CustomerWebApp.Components.Payment;
 
@@ -46,7 +47,7 @@ public partial class Checkout
     public decimal totalPriceProduct;
     public decimal reducedAmount = 0;
     public decimal totalPayment;
-    //private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
+    private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
     //public decimal totalPrice;
     public Guid CustomerId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
     public Guid OrderId;

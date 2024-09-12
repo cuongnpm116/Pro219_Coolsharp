@@ -31,7 +31,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCorsPolicy();
 builder.Services.AddJwtAuthentication(builder.Configuration);
-builder.Services.AddInfrastructure().AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration).AddApplication();
 
 var app = builder.Build();
 

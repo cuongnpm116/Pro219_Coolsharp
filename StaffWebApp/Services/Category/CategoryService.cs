@@ -19,7 +19,7 @@ public class CategoryService : ICategoryService
 
     public async Task<Result<List<CategoryVm>>> Categories()
     {
-        var result = await _httpClient.GetFromJsonAsync<Result<List<CategoryVm>>>("/api/categories");
+        Result<List<CategoryVm>>? result = await _httpClient.GetFromJsonAsync<Result<List<CategoryVm>>>("/api/categories");
         return result;
     }
 

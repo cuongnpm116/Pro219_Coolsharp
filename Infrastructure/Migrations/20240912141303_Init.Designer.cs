@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240904200729_Initial")]
-    partial class Initial
+    [Migration("20240912141303_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -347,9 +347,6 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("PaidDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
 
@@ -368,7 +365,8 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("OrderId");
+                    b.HasIndex("OrderId")
+                        .IsUnique();
 
                     b.ToTable("Payments");
                 });
@@ -598,12 +596,12 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d"),
-                            CreatedOn = new DateTime(2024, 9, 5, 3, 7, 28, 657, DateTimeKind.Local).AddTicks(1429),
+                            CreatedOn = new DateTime(2024, 9, 12, 21, 13, 2, 334, DateTimeKind.Local).AddTicks(6323),
                             DateOfBirth = new DateTime(2003, 11, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DeletedOn = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "sohardz01@gmail.com",
                             FirstName = "Nguyễn",
-                            HashedPassword = "8724539C8BBD0BCC1AF10BE479DF20CCC6D89B7B194EC6D0C4E86B667C993948:19383E3868D8655CAE427430FCA14F09:50000:SHA256",
+                            HashedPassword = "C4DF37679108365A1C5F314E3C386C042A76F92A10325D2B168672F96CA07C58:E7836B87F902BEF7FFDB8BDAB40DE54D:50000:SHA256",
                             ImageUrl = "default-profile.png",
                             IsDeleted = false,
                             LastName = "Cương",
@@ -635,7 +633,7 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("daa23fe3-194a-4026-9d4b-d1be0190ab82"),
+                            Id = new Guid("6a7b0ccc-24d5-486b-8c7d-47d7af623fdf"),
                             RoleId = new Guid("0fc1d27c-f6c4-4011-8d3c-4d33b2703369"),
                             StaffId = new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d")
                         });
@@ -781,9 +779,9 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Order", "Order")
-                        .WithMany("Payments")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .WithOne("Payment")
+                        .HasForeignKey("Domain.Entities.Payment", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Customer");
@@ -910,7 +908,7 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("OrderDetails");
 
-                    b.Navigation("Payments");
+                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>

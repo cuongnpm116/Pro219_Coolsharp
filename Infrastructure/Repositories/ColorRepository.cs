@@ -86,12 +86,14 @@ internal sealed class ColorRepository : IColorRepository
     public async Task<Result<PaginationResponse<ColorVm>>> GetColors(GetColorsQuery request)
     {
         var query = from a in _context.Colors
+                    where a.Status != Status.Deleted
                     select new ColorVm
                     {
                         Id = a.Id,
                         Name = a.Name,
                         Status = a.Status,
                     };
+
 
         if (!string.IsNullOrEmpty(request.SearchString))
         {
