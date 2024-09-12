@@ -62,9 +62,9 @@
                 <MudTd DataLabel="OrderCode">@context.OrderCode</MudTd>
                 <MudTd DataLabel="OrderCode">@context.PhoneNumber</MudTd>
                 <MudTd DataLabel="TotalPrice">@string.Format("{0:#,##0}", context.TotalPrice)</MudTd>
-                <MudTd DataLabel="CreatedOn">@context.CreatedOn</MudTd>            
-                <MudTd DataLabel="PaymentmMthods">@context.PaymentMethod</MudTd>
-                <MudTd>@context.PaymentStatus</MudTd>
+                <MudTd DataLabel="CreatedOn">@context.CreatedOn</MudTd>
+                <MudTd DataLabel="PaymentmMthods">@EnumUtility.ConvertPaymentMethod(context.PaymentMethod)</MudTd>
+                <MudTd>@EnumUtility.ConvertPaymentStatus(context.PaymentStatus)</MudTd>
                 <MudTd DataLabel="Status"> @EnumUtility.ConvertOrderStatus(context.OrderStatus)</MudTd>
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.Search" @onclick="() => OrderDetail(context.Id)" Title="Chi tiết Order" Color="Color.Error" />

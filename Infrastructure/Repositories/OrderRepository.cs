@@ -356,7 +356,10 @@ internal sealed class OrderRepository : IOrderRepository
                     exist.ShippedDate = DateTime.Now;
                     exist.OrderStatus = request.OrderStatus;
                     break;
-                case OrderStatus.AWaitingPickup:
+                case OrderStatus.AWaitingPickup:              
+                    exist.OrderStatus = request.OrderStatus;
+                    break;
+                case OrderStatus.Completed:
                     exist.CompletedDate = DateTime.Now;
                     exist.OrderStatus = request.OrderStatus;
                     var transaction = from o in _context.Orders

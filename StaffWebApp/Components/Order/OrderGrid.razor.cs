@@ -127,7 +127,7 @@ namespace StaffWebApp.Components.Order
         #endregion
 
         #region UpdateOrder
-            private async Task UpdateOrder(Guid orderId, OrderStatus OrderStatus)
+        private async Task UpdateOrder(Guid orderId, OrderStatus OrderStatus)
         {
             bool? result = await DialogService.ShowMessageBox("Cảnh báo",
                                                               "Bạn có chắc chắn muốn thay đổi trạng thái đơn hàng?",
@@ -197,8 +197,7 @@ namespace StaffWebApp.Components.Order
             {
                 OrderStatus.Pending => OrderStatus.AwaitingShipment,
                 OrderStatus.AwaitingShipment => OrderStatus.AWaitingPickup,
-                OrderStatus.AWaitingPickup => OrderStatus.Completed,
-                _ => OrderStatus
+                OrderStatus.AWaitingPickup => OrderStatus.Completed,               
             };
         }
         #endregion
