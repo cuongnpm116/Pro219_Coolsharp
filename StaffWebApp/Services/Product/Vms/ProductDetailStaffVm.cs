@@ -1,6 +1,6 @@
 ﻿namespace StaffWebApp.Services.Product.Vms;
 
-public class ProductDetailVm
+public class ProductDetailStaffVm
 {
     public Guid Id { get; set; }
     public decimal Price { set; get; }

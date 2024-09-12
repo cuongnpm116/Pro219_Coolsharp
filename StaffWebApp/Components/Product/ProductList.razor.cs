@@ -1,8 +1,8 @@
 ﻿using System.Reflection.Metadata;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using StaffWebApp.Service.Category;
-using StaffWebApp.Service.Category.ViewModel;
+using StaffWebApp.Services.Category;
+using StaffWebApp.Services.Category.ViewModel;
 using StaffWebApp.Services.Order.Vms;
 using StaffWebApp.Services.Product;
 using StaffWebApp.Services.Product.Requests;

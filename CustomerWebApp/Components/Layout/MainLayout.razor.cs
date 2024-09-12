@@ -5,9 +5,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 using WebAppIntegrated.Constants;
-using CustomerWebApp.Components.Carts;
-using CustomerWebApp.Service.Cart;
-using CustomerWebApp.Service.Cart.ViewModel;
 using Microsoft.AspNetCore.SignalR.Client;
 
 public partial class MainLayout
@@ -21,47 +18,47 @@ public partial class MainLayout
     [Inject]
     private ICartService CartService { get; set; } = null!;
 
-        [Inject]
-        private ISnackbar Snackbar { get; set; } = null!;
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
 
     [Inject]
     private CartState CartState { get; set; }
 
 
-        private HubConnection? _hubConnection;
-        private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
-        private string _username = string.Empty;
-        private CartVm cartVm = new();
-       
-        public Guid UserId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
-        private string Search { get; set; } = "";
-        public int Quantity;
-        public int top = 5;
+    private HubConnection? _hubConnection;
+    private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
+    private string _username = string.Empty;
+    private CartVm cartVm = new();
 
-        protected override async Task OnInitializedAsync()
+    public Guid UserId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
+    private string Search { get; set; } = "";
+    public int Quantity;
+    public int top = 5;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await GetQuantityCart();
+        _hubConnection = new HubConnectionBuilder()
+        .WithUrl(Navigation.ToAbsoluteUri("https://localhost:1000/shophub"))
+        .Build();
+
+        _hubConnection.On<string>("ReceiveOrderUpdate", (message) =>
         {
-            
-            await GetQuantityCart();
-            _hubConnection = new HubConnectionBuilder()
-            .WithUrl(Navigation.ToAbsoluteUri("https://localhost:1000/shophub"))
-            .Build();
+            Snackbar.Add($"{message}", Severity.Success);
+            InvokeAsync(StateHasChanged);
+        });
 
-            _hubConnection.On<string>("ReceiveOrderUpdate", (message) =>
-            {
-                Snackbar.Add($"{message}", Severity.Success);
-                InvokeAsync(StateHasChanged);
-            });
-
-            await _hubConnection.StartAsync();
-            CartState.OnChange += StateHasChanged;
-        }
-        public async ValueTask DisposeAsync()
+        await _hubConnection.StartAsync();
+        CartState.OnChange += StateHasChanged;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_hubConnection is not null)
         {
-            if (_hubConnection is not null)
-            {
-                await _hubConnection.DisposeAsync();
-            }
+            await _hubConnection.DisposeAsync();
         }
+    }
 
     private async Task GetQuantityCart()
     {

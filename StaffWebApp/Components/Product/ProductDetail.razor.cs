@@ -9,7 +9,7 @@ public partial class ProductDetail
     [CascadingParameter] 
     MudDialogInstance MudDialog { get; set; }
     [Parameter] 
-    public List<ProductDetailVm> ProductDetails { get; set; }
+    public List<ProductDetailStaffVm> ProductDetails { get; set; }
     [Parameter]
     public Guid ProductId { get; set; }
 

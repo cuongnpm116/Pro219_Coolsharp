@@ -17,9 +17,6 @@ using Domain.Primitives;
 using Infrastructure.Context;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
-using Application.IServices;
-using System.Text;
 using Infrastructure.SignalR;
 
 namespace Infrastructure.Repositories;
