@@ -40,11 +40,13 @@ internal sealed class RoleRepository : IRoleRepository
         var roleQueryable = _context.Roles.AsNoTracking();
         if (!string.IsNullOrWhiteSpace(query.SearchString))
         {
-            roleQueryable = roleQueryable.Where(x => x.Name.ToLower().Contains(query.SearchString.ToLower())
-            || x.Code.Contains(query.SearchString.ToLower()));
+            roleQueryable = roleQueryable
+                .Where(x => x.Name.ToLower().Contains(query.SearchString.ToLower())
+                || x.Code.Contains(query.SearchString.ToLower()));
         }
-        return await roleQueryable.Select(x => new RoleVm(x.Id, x.Code, x.Name))
+        var result = await roleQueryable.Select(x => new RoleVm(x.Id, x.Code, x.Name))
                 .ToPaginatedResponseAsync(query.PageNumber, query.PageSize);
+        return result;
     }
 
     public async Task<bool> UpdateRole(UpdateRoleCommand command)

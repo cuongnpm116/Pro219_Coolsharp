@@ -1,19 +1,19 @@
-﻿using CustomerWebApp.Service.Order;
+﻿using CustomerWebApp.Components.Address;
+using CustomerWebApp.Service.Address;
+using CustomerWebApp.Service.Address.ViewModel;
+using CustomerWebApp.Service.Cart.ViewModel;
+using CustomerWebApp.Service.Order;
+using CustomerWebApp.Service.Order.Dtos;
+using CustomerWebApp.Service.Order.ViewModel;
 using CustomerWebApp.Service.Payment;
-using Microsoft.AspNetCore.Components.Authorization;
+using CustomerWebApp.Service.Payment.Dtos;
+using CustomerWebApp.Service.Voucher;
+using CustomerWebApp.Service.Voucher.ViewModel;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.WebUtilities;
 using MudBlazor;
 using Newtonsoft.Json;
-using CustomerWebApp.Service.Address;
-using CustomerWebApp.Components.Address;
-using CustomerWebApp.Service.Voucher;
-using CustomerWebApp.Service.Address.ViewModel;
-using CustomerWebApp.Service.Cart.ViewModel;
-using CustomerWebApp.Service.Order.Dtos;
-using CustomerWebApp.Service.Order.ViewModel;
-using CustomerWebApp.Service.Payment.Dtos;
-using CustomerWebApp.Service.Voucher.ViewModel;
 
 namespace CustomerWebApp.Components.Payment;
 
@@ -141,7 +141,7 @@ public partial class Checkout
 
         totalPayment = totalPriceProduct - reducedAmount;
     }
-    
+
     #endregion
     protected override async Task OnInitializedAsync()
     {
@@ -238,7 +238,7 @@ public partial class Checkout
         {
             Snackbar.Add("Mua hàng không thành công! Vui lòng thử lại.", Severity.Warning);
         }
-        
+
     }
 
     private async Task CreatePayment()

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240902091225_add_table_Voucher")]
-    partial class add_table_Voucher
+    [Migration("20240904200729_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -111,10 +111,6 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -133,6 +129,10 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -219,29 +219,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Images");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Notification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
-
-                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>
@@ -621,13 +598,13 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d"),
-                            CreatedOn = new DateTime(2024, 9, 2, 16, 12, 24, 394, DateTimeKind.Local).AddTicks(9059),
+                            CreatedOn = new DateTime(2024, 9, 5, 3, 7, 28, 657, DateTimeKind.Local).AddTicks(1429),
                             DateOfBirth = new DateTime(2003, 11, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DeletedOn = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "sohardz01@gmail.com",
                             FirstName = "Nguyễn",
-                            HashedPassword = "5FE6B5461374B2208E72B16B7F1479A0B38384FAD8D985D7F08D3E9F5DC72C8C:19782C09C7B32946C3DA6C5E9A4BD754:50000:SHA256",
-                            ImageUrl = "default.png",
+                            HashedPassword = "8724539C8BBD0BCC1AF10BE479DF20CCC6D89B7B194EC6D0C4E86B667C993948:19383E3868D8655CAE427430FCA14F09:50000:SHA256",
+                            ImageUrl = "default-profile.png",
                             IsDeleted = false,
                             LastName = "Cương",
                             Status = 1,
@@ -658,7 +635,7 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("b76ee838-b63e-4a2c-baee-10da718e3c39"),
+                            Id = new Guid("daa23fe3-194a-4026-9d4b-d1be0190ab82"),
                             RoleId = new Guid("0fc1d27c-f6c4-4011-8d3c-4d33b2703369"),
                             StaffId = new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d")
                         });
@@ -674,6 +651,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal?>("DiscountAmount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("DiscountCondition")
@@ -752,17 +730,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Cart");
 
                     b.Navigation("ProductDetail");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Notification", b =>
-                {
-                    b.HasOne("Domain.Entities.Customer", "Customer")
-                        .WithMany("Notifications")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>
@@ -928,8 +895,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Addresses");
 
                     b.Navigation("Cart");
-
-                    b.Navigation("Notifications");
 
                     b.Navigation("Orders");
 

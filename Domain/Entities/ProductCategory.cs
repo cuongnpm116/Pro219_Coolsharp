@@ -3,6 +3,16 @@
 namespace Domain.Entities;
 public class ProductCategory
 {
+    public ProductCategory()
+    {
+    }
+
+    public ProductCategory(Guid categoryId, Guid productId)
+    {
+        CategoryId = categoryId;
+        ProductId = productId;
+    }
+
     public Guid Id { get; set; }
 
     public Guid CategoryId { get; set; }

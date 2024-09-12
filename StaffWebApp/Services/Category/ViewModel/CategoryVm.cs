@@ -1,4 +1,4 @@
-﻿namespace StaffWebApp.Service.Category.ViewModel;
+﻿namespace StaffWebApp.Services.Category.ViewModel;
 
 public class CategoryVm
 {

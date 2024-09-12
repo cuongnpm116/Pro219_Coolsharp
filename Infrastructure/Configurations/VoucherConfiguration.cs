@@ -1,6 +1,6 @@
 ﻿using Domain.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Configurations;
 
@@ -17,8 +17,13 @@ internal sealed class VoucherConfiguration : IEntityTypeConfiguration<Voucher>
         builder.Property(x => x.VoucherCode).IsRequired()
             .HasColumnType("varchar")
             .HasMaxLength(256);
+
         builder.Property(pd => pd.DiscountCondition).IsRequired()
             .HasPrecision(18, 2);
+
+        builder.Property(x => x.DiscountAmount)
+            .HasPrecision(18, 2);
+
         builder.Property(pd => pd.Stock).IsRequired();
     }
 }

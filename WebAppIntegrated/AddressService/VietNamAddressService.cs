@@ -1,5 +1,4 @@
 ﻿using System.Net.Http.Json;
-using WebAppIntegrated.ApiResponse;
 using WebAppIntegrated.Constants;
 
 namespace WebAppIntegrated.AddressService;

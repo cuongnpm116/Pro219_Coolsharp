@@ -26,7 +26,7 @@ internal class GetListCategoryQueryHandler : IRequestHandler<GetListCategoryQuer
 
             return Result<List<CategoryVm>>.Success(categories.ToList());
 
-            
+
         }
         catch (Exception ex)
         {

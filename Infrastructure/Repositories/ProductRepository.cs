@@ -1,9 +1,9 @@
 ﻿using Application.Cqrs.Product;
+using Application.Cqrs.Product.Create;
 using Application.Cqrs.Product.GetProductCustomerAppPaging;
 using Application.Cqrs.Product.GetProductStaffPaging;
 using Application.IRepositories;
 using Application.ValueObjects.Pagination;
-using Common.Utilities;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Primitives;
@@ -18,6 +18,27 @@ public  class ProductRepository : IProductRepository
     public ProductRepository(AppDbContext context)
     {
         _context = context;
+    }
+
+    public async Task<bool> CreateProductAsync(CreateProductCommand request)
+    {
+        Product newProduct = new(request.Name);
+        await _context.Products.AddAsync(newProduct);
+        await _context.ProductCategories.AddRangeAsync(
+            request.CategoryIds.Select(x => new ProductCategory(x, newProduct.Id)));
+        await _context.Images.AddRangeAsync(request.Images.Select(x => new Image(x.Id, x.Path)));
+        await _context.ProductDetails.AddRangeAsync(
+            request.Details.Select(x => new ProductDetail(
+                x.Id,
+                newProduct.Id,
+                x.SizeId,
+                x.ColorId,
+                x.Stock,
+                x.Price,
+                x.OriginalPrice)));
+        await _context.ProductImages.AddRangeAsync(
+            request.DetailImages.Select(x => new ProductImage(x.ProductDetailId, x.ImageId)));
+        return true;
     }
 
     public Result<Dictionary<Guid, List<string>>> GetDetailImage(Guid productId)
@@ -46,7 +67,7 @@ public  class ProductRepository : IProductRepository
                     orderby p.Name descending
                     select new { p.Id, p.Name, i.ImagePath };
 
-        
+
         var groupedProductQuery = query.AsEnumerable()
                                        .GroupBy(product => product.Id)
                                        .Select(g => g.FirstOrDefault());
@@ -64,10 +85,10 @@ public  class ProductRepository : IProductRepository
 
     public async Task<Result<ProductDetailVm>> GetProductDetailForShowOnCustomerApp(Guid productId)
     {
-       
+
         var query = from p in _context.Products.AsNoTracking()
                     join pd in _context.ProductDetails.AsNoTracking() on p.Id equals pd.ProductId
-                    where pd.ProductId == productId 
+                    where pd.ProductId == productId
                     select new { pd, p };
 
         Dictionary<Guid, string> colorsDictionary = [];
@@ -118,19 +139,19 @@ public  class ProductRepository : IProductRepository
             return Result<Guid>.Error("Không có sẵn sản phẩm này.");
         }
 
-       
+
         return Result<Guid>.Success(detail.Id);
     }
 
     public async Task<Result<ProductPriceVm>> GetProductDetailPrice(Guid productId, Guid colorId, Guid sizeId)
     {
         var detail = await (from pd in _context.ProductDetails.AsNoTracking()
-                                        
-                                        where pd.ProductId == productId && pd.ColorId == colorId && pd.SizeId == sizeId
-                                        select new ProductPriceVm
-                                        {
-                                            Price = pd.SalePrice,
-                                        }).FirstOrDefaultAsync();
+
+                            where pd.ProductId == productId && pd.ColorId == colorId && pd.SizeId == sizeId
+                            select new ProductPriceVm
+                            {
+                                Price = pd.SalePrice,
+                            }).FirstOrDefaultAsync();
         if (detail == null)
         {
             return Result<ProductPriceVm>.Invalid("Không tồn tại sản phẩm.");
@@ -162,11 +183,11 @@ public  class ProductRepository : IProductRepository
 
         if (request.CategoryIds is not null && request.CategoryIds.Count > 0)
         {
-                productIds = await _context.ProductCategories
-                .Where(pc => request.CategoryIds.Contains(pc.CategoryId))
-                .Select(pc => pc.Product.Id)
-                .Distinct()
-                .ToListAsync();
+            productIds = await _context.ProductCategories
+            .Where(pc => request.CategoryIds.Contains(pc.CategoryId))
+            .Select(pc => pc.Product.Id)
+            .Distinct()
+            .ToListAsync();
 
         }
 

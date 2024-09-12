@@ -18,5 +18,5 @@ public interface IOrderRepository
     Task<Result<bool>> CancelOrderForStaff(CancelOrderForStaffCommand request, CancellationToken token);
     Task<Result<List<OrderVm>>> Statistical();
     Task<Result<List<OrderDetailVm>>> TopProducts();
-    
+
 }

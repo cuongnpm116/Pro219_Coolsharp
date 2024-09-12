@@ -1,6 +1,4 @@
-﻿using WebAppIntegrated.ApiResponse;
-
-namespace WebAppIntegrated.AddressService;
+﻿namespace WebAppIntegrated.AddressService;
 public interface IVietNamAddressService
 {
     Task<IEnumerable<ProvinceVm>> GetProvinceListAsync();

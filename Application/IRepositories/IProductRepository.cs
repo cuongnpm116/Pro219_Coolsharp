@@ -1,4 +1,5 @@
 ﻿using Application.Cqrs.Product;
+using Application.Cqrs.Product.Create;
 using Application.Cqrs.Product.GetProductCustomerAppPaging;
 using Application.Cqrs.Product.GetProductStaffPaging;
 using Application.ValueObjects.Pagination;
@@ -16,4 +17,5 @@ public interface IProductRepository
     Result<Dictionary<Guid, List<string>>> GetDetailImage(Guid productId);
     //staff
     Task<Result<PaginationResponse<ProductStaffVm>>> GetProductForStaffView(GetProductStaffPagingQuery request);
+    Task<bool> CreateProductAsync(CreateProductCommand request);
 }

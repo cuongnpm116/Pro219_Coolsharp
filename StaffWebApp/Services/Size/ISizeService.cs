@@ -11,4 +11,5 @@ public interface ISizeService
     Task<Result<SizeVm>> GetSizeById(Guid id);
     Task<Result<bool>> CreateSize(CreateSizeRequest request);
     Task<Result<bool>> UpdateSize(UpdateSizeRequest request);
+    Task<IEnumerable<SizeForSelectVm>> GetSizeForSelectVms();
 }

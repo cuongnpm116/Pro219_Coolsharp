@@ -1,5 +1,6 @@
 ﻿using Api.Extensions;
 using Application;
+using GrpcIntegrated.Services;
 using Infrastructure;
 using Infrastructure.SignalR;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -21,6 +22,8 @@ builder.WebHost.ConfigureKestrel(options =>
     });
 });
 
+builder.Services.AddGrpc();
+
 builder.Services.AddControllers();
 builder.Services.AddSignalR(); 
 builder.Services.AddEndpointsApiExplorer();
@@ -39,9 +42,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+
 app.UseCors("eShopApi");
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGrpcService<UploaderService>();
+
 app.UseRouting();
 app.MapHub<ShopHub>("/shophub");
 app.MapControllers();

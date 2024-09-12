@@ -1,6 +1,4 @@
-﻿using Domain.Enums;
-
-namespace Application.Cqrs.Order;
+﻿namespace Application.Cqrs.Order;
 
 public class OrderDetailVm
 {

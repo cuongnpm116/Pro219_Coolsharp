@@ -44,7 +44,7 @@ public class CartService : ICartService
             var responseBody = await response.Content.ReadFromJsonAsync<Result<bool>>();
             result = responseBody;
         }
-        
+
         return result;
     }
 
