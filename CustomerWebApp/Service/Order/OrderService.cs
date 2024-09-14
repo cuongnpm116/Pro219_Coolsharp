@@ -1,6 +1,5 @@
 ﻿using CustomerWebApp.Service.Order.Dtos;
 using CustomerWebApp.Service.Order.ViewModel;
-using System.Net.Http;
 using WebAppIntegrated.ApiResponse;
 using WebAppIntegrated.Constants;
 
@@ -15,7 +14,7 @@ public class OrderService : IOrderService
     }
     public async Task<Result<OrderWithPaymentVm>> CreateOrder(CreateOrderRequest request)
     {
-        
+
         var response = await _httpClient.PostAsJsonAsync("/api/orders/create-order", request);
 
         var result = new Result<OrderWithPaymentVm>();

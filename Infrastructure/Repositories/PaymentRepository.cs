@@ -31,7 +31,7 @@ internal sealed class PaymentRepository : IPaymentRepository
             OrderId = order.Id,
             Amount = command.Amount,
             PaymentDate = command.PaymentDate,
-            
+
             Status = (PaymentStatus)command.PaymentStatus,
             StatusCode = command.StatusCode,
         };

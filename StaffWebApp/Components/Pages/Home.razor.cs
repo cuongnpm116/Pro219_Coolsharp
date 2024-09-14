@@ -16,7 +16,7 @@ public partial class Home
     private IOrderService OrderService { get; set; }
     private List<OrderVm> _Statistical = new();
     private List<OrderDetailVm> _lstOrderDetail = new();
-    private List<ProductDetailVm> _lstProductDetail = new();
+    private List<ProductDetailInOrderVm> _lstProductDetail = new();
     private OrderPaginationRequest _paginationRequest = new();
     private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
 

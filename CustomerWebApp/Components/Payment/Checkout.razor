@@ -28,7 +28,7 @@
 
                         <MudTd DataLabel="Name" Style="max-width:300px!important">
                             <div style="display:flex;max-width:280px">
-                                <MudImage Src="@context.ImagePath" Width="60" Height="60" alt="Image" />
+                                <MudImage Src="@($"{_imageUrl}{context.ImagePath}")" Width="60" Height="60" alt="Image" />
                                 <MudText Class="product-name" Style="font-weight: bold;color:black" title="@context.ProductName">
                                     @context.ProductName
                                 </MudText>

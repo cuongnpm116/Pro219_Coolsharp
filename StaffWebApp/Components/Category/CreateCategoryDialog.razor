@@ -1,0 +1,20 @@
+﻿@using StaffWebApp.Services.Category
+
+<MudDialog>
+    <TitleContent>
+        <MudIcon Icon="@Icons.Material.Filled.Add"></MudIcon>
+        @DialogInstance.Title
+    </TitleContent>
+
+    <DialogContent>
+        <MudTextField @bind-Value="_categoryName"
+                      OnlyValidateIfDirty=true
+                      Validation="new Func<string, Task<string>>(ValidateCategoryName)">
+        </MudTextField>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="() => DialogInstance.Cancel()">Hủy</MudButton>
+        <MudButton OnClick="async () => await OnAddButtonClick()">Thêm</MudButton>
+    </DialogActions>
+</MudDialog>

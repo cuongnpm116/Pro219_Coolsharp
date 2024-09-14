@@ -7,7 +7,7 @@ public static class EnumUtility
         {
             Status.Active => "Hoạt động",
             Status.InActive => "Ngừng hoạt động",
-            Status.Locked => "Bị khóa",
+            Status.Locked => "Khóa",
             Status.Deleted => "Nghỉ việc",
             Status.None => "Không đề cập",
             _ => "N/A"
@@ -24,6 +24,7 @@ public static class EnumUtility
             _ => "N/A"
         };
     }
+
     public static string ConvertOrderStatus(OrderStatus OrderStatus)
     {
         return OrderStatus switch
@@ -59,17 +60,16 @@ public static class EnumUtility
             _ => "N/A"
         };
     }
-    public static string ConvertStatusColorSize(Status status)
+    public static string ConvertStatus(Status status)
     {
         return status switch
         {
+            Status.None => "Không có",
             Status.Active => "Đang hoạt động",
-            Status.InActive => "Không hoạt động",
-            Status.Locked => "Khóa hoạt động",
+            Status.InActive => "Ngừng hoạt động",
+            Status.Locked => "Khóa",
             Status.Deleted => "Đã xóa",
             _ => "N/A"
         };
     }
-
-
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -7,7 +8,7 @@
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,7 +19,6 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<byte>(type: "tinyint", nullable: false)
                 },
                 constraints: table =>
@@ -32,6 +32,7 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -137,6 +138,28 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Vouchers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DiscountCondition = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    VoucherCode = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
+                    Stock = table.Column<int>(type: "int", nullable: false),
+                    StartedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FinishedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DiscountPercent = table.Column<int>(type: "int", nullable: true),
+                    DiscountAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Vouchers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Addresses",
                 columns: table => new
                 {
@@ -172,26 +195,6 @@ namespace Infrastructure.Migrations
                     table.PrimaryKey("PK_Carts", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Carts_Customers_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Customers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Notifications",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsRead = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Notifications", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Notifications_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
                         principalColumn: "Id",
@@ -260,6 +263,31 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "StaffRoles",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StaffId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StaffRoles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StaffRoles_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StaffRoles_Staffs_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staffs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Orders",
                 columns: table => new
                 {
@@ -270,6 +298,7 @@ namespace Infrastructure.Migrations
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     StaffId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    VoucherId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     OrderCode = table.Column<string>(type: "varchar(max)", nullable: false),
                     ConfirmedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ShippedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -294,31 +323,11 @@ namespace Infrastructure.Migrations
                         column: x => x.StaffId,
                         principalTable: "Staffs",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "StaffRoles",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StaffId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StaffRoles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_StaffRoles_Roles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Roles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_StaffRoles_Staffs_StaffId",
-                        column: x => x.StaffId,
-                        principalTable: "Staffs",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Orders_Vouchers_VoucherId",
+                        column: x => x.VoucherId,
+                        principalTable: "Vouchers",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -411,7 +420,6 @@ namespace Infrastructure.Migrations
                     StatusCode = table.Column<string>(type: "varchar(128)", nullable: false),
                     PaymentMethod = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PaidDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -427,7 +435,8 @@ namespace Infrastructure.Migrations
                         name: "FK_Payments_Orders_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Orders",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -442,12 +451,12 @@ namespace Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "Staffs",
                 columns: new[] { "Id", "CreateBy", "CreatedOn", "DateOfBirth", "DeletedBy", "DeletedOn", "Email", "FirstName", "HashedPassword", "ImageUrl", "IsDeleted", "LastName", "Status", "Username" },
-                values: new object[] { new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d"), null, new DateTime(2024, 8, 30, 5, 46, 34, 892, DateTimeKind.Local).AddTicks(6354), new DateTime(2003, 11, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "sohardz01@gmail.com", "Nguyễn", "0C661030EF7376B1374F1740DE44C9B35F315E9C36481EE67B7AB06C299ADA06:CA75327244E713F685BA56EA033E5467:50000:SHA256", "default.png", false, "Cương", 1, "admin" });
+                values: new object[] { new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d"), null, new DateTime(2024, 9, 12, 21, 13, 2, 334, DateTimeKind.Local).AddTicks(6323), new DateTime(2003, 11, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "sohardz01@gmail.com", "Nguyễn", "C4DF37679108365A1C5F314E3C386C042A76F92A10325D2B168672F96CA07C58:E7836B87F902BEF7FFDB8BDAB40DE54D:50000:SHA256", "default-profile.png", false, "Cương", 1, "admin" });
 
             migrationBuilder.InsertData(
                 table: "StaffRoles",
                 columns: new[] { "Id", "RoleId", "StaffId" },
-                values: new object[] { new Guid("b3492b52-34ba-448c-a775-91465ea1e6fd"), new Guid("0fc1d27c-f6c4-4011-8d3c-4d33b2703369"), new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d") });
+                values: new object[] { new Guid("6a7b0ccc-24d5-486b-8c7d-47d7af623fdf"), new Guid("0fc1d27c-f6c4-4011-8d3c-4d33b2703369"), new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d") });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Addresses_CustomerId",
@@ -483,11 +492,6 @@ namespace Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Notifications_CustomerId",
-                table: "Notifications",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_OrderId",
                 table: "OrderDetails",
                 column: "OrderId");
@@ -513,6 +517,11 @@ namespace Infrastructure.Migrations
                 column: "StaffId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Orders_VoucherId",
+                table: "Orders",
+                column: "VoucherId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Payments_CustomerId",
                 table: "Payments",
                 column: "CustomerId");
@@ -520,7 +529,8 @@ namespace Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_OrderId",
                 table: "Payments",
-                column: "OrderId");
+                column: "OrderId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductCategories_CategoryId",
@@ -590,9 +600,6 @@ namespace Infrastructure.Migrations
                 name: "CartItems");
 
             migrationBuilder.DropTable(
-                name: "Notifications");
-
-            migrationBuilder.DropTable(
                 name: "OrderDetails");
 
             migrationBuilder.DropTable(
@@ -630,6 +637,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Staffs");
+
+            migrationBuilder.DropTable(
+                name: "Vouchers");
 
             migrationBuilder.DropTable(
                 name: "Colors");

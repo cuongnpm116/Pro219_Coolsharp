@@ -1,6 +1,6 @@
 ﻿namespace StaffWebApp.Services.Order.Vms;
 
-public class ProductDetailVm
+public class ProductDetailInOrderVm
 {
     public Guid ProductDetailId { get; set; }
     public string ProductName { get; set; }

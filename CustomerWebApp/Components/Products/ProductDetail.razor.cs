@@ -1,13 +1,13 @@
 ﻿using CustomerWebApp.Components.Carts;
 using CustomerWebApp.Service.Cart;
-using CustomerWebApp.Service.Product;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components;
-using MudBlazor;
-using WebAppIntegrated.Constants;
 using CustomerWebApp.Service.Cart.Dtos;
 using CustomerWebApp.Service.Cart.ViewModel;
+using CustomerWebApp.Service.Product;
 using CustomerWebApp.Service.Product.ViewModel;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+using MudBlazor;
+using WebAppIntegrated.Constants;
 
 namespace CustomerWebApp.Components.Products;
 
@@ -31,7 +31,7 @@ public partial class ProductDetail
 
     [Parameter]
     public Guid ProductId { get; set; }
-    private const string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
+    private const string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
     private AddCartRequest _addCartRequest = new();
     private CartVm _cartVm = new();
 
@@ -126,7 +126,7 @@ public partial class ProductDetail
         }
         StateHasChanged();
     }
-    
+
     private async Task UpdateStock()
     {
         if (ColorId != Guid.Empty && SizeId != Guid.Empty)
@@ -192,7 +192,7 @@ public partial class ProductDetail
     protected override async Task OnInitializedAsync()
     {
         await ProductDetailVm();
-        OnInitImage() ;
+        OnInitImage();
         await FeaturedProduct();
         await Images();
 
@@ -205,7 +205,7 @@ public partial class ProductDetail
         get => _addCartRequest.Quantity;
         set
         {
-            if (value > 0) 
+            if (value > 0)
             {
                 _addCartRequest.Quantity = value;
             }

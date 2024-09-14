@@ -1,7 +1,6 @@
 ﻿using Application.Cqrs.Cart;
 using Application.Cqrs.Cart.AddCart;
 using Application.Cqrs.Cart.UpdateCart;
-using Domain.Entities;
 using Domain.Primitives;
 
 namespace Application.IRepositories;

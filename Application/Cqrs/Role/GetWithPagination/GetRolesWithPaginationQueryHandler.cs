@@ -14,7 +14,9 @@ internal sealed class GetRolesWithPaginationQueryHandler
         _roleRepository = roleRepository;
     }
 
-    public async Task<Result> Handle(GetRolesWithPaginationQuery request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(
+        GetRolesWithPaginationQuery request,
+        CancellationToken cancellationToken)
     {
         try
         {

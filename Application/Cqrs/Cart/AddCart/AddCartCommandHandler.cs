@@ -24,7 +24,7 @@ internal sealed class AddCartCommandHandler : IRequestHandler<AddCartCommand, Re
         catch (Exception ex)
         {
             return Result<bool>.Error(ex.Message);
-            
+
         }
     }
 }

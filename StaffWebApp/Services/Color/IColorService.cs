@@ -3,13 +3,13 @@ using StaffWebApp.Services.Color.Vms;
 using WebAppIntegrated.ApiResponse;
 using WebAppIntegrated.Pagination;
 
-namespace StaffWebApp.Services.Color
+namespace StaffWebApp.Services.Color;
+
+public interface IColorService
 {
-    public interface IColorService
-    {
-        Task<Result<PaginationResponse<ColorVm>>> GetColorsWithPagination(ColorPaginationRequest request);
-        Task<Result<ColorVm>> GetColorById(Guid id);
-        Task<Result<bool>> CreateColor(CreateColorRequest request);
-        Task<Result<bool>> UpdateColor(UpdateColorRequest request);
-    }
+    Task<Result<PaginationResponse<ColorVm>>> GetColorsWithPagination(ColorPaginationRequest request);
+    Task<Result<ColorVm>> GetColorById(Guid id);
+    Task<Result<bool>> CreateColor(CreateColorRequest request);
+    Task<Result<bool>> UpdateColor(UpdateColorRequest request);
+    Task<IEnumerable<ColorForSelectVm>> GetColorForSelectVms();
 }

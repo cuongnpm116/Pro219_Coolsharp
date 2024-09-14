@@ -2,6 +2,6 @@
 
 namespace StaffWebApp.Services.Size.Requests;
 
-public class SizePaginationRequest: PaginationRequest
+public class SizePaginationRequest : PaginationRequest
 {
 }

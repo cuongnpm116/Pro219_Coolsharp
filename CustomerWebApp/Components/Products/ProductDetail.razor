@@ -17,7 +17,7 @@
 
                 <MudGrid>
                     <MudItem xs="12">
-                        <MudImage Src="@defaultImage" Alt="Image" Height="300" Width="439" Fluid="true" />
+                        <MudImage Src="@($"{_imageUrl}{defaultImage}")" Alt="Image" Height="300" Width="439" Fluid="true" />
                     </MudItem>
                     <MudItem xs="12">
                         <MudGrid Justify="Justify.SpaceBetween">
@@ -36,7 +36,7 @@
                                         var index = ImagePaths.IndexOf(imageUrl);
                                         <MudItem xs="2">
                                             <div class="d-flex justify-content-center align-items-center" style="height:100%">
-                                                <MudImage Src="@imageUrl"
+                                                <MudImage Src="@($"{_imageUrl}{imageUrl}")"
                                                           Alt="Image"
                                                           Height="120"
                                                           Width="130"

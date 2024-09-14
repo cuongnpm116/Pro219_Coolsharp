@@ -1,9 +1,9 @@
-﻿using Application.Cqrs.Voucher.AddVoucher;
+﻿using Application.Cqrs.Voucher;
+using Application.Cqrs.Voucher.AddVoucher;
 using Application.Cqrs.Voucher.GetVoucherPaging;
-using Application.Cqrs.Voucher;
-using Domain.Primitives;
-using Application.ValueObjects.Pagination;
 using Application.Cqrs.Voucher.UpdateVoucher;
+using Application.ValueObjects.Pagination;
+using Domain.Primitives;
 
 namespace Application.IRepositories;
 

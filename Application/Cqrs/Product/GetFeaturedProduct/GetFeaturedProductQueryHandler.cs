@@ -12,12 +12,12 @@ internal sealed class GetFeaturedProductQueryHandler : IRequestHandler<GetFeatur
     {
         _productRepository = productRepository;
     }
-    public async  Task<Result> Handle(GetFeaturedProductQuery request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(GetFeaturedProductQuery request, CancellationToken cancellationToken)
     {
         try
         {
             await Task.Delay(1, cancellationToken);
-            var result =  _productRepository.GetFeaturedProducts();
+            var result = _productRepository.GetFeaturedProducts();
             return result;
         }
         catch (Exception ex)

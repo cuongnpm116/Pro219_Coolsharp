@@ -1,7 +1,6 @@
 ﻿
 
 using Application.IRepositories;
-using Application.ValueObjects.Pagination;
 using Domain.Primitives;
 using MediatR;
 

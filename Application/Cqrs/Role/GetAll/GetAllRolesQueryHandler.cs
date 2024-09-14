@@ -1,9 +1,8 @@
-﻿using Application.Cqrs.Role.GetAll;
-using Application.IRepositories;
+﻿using Application.IRepositories;
 using Domain.Primitives;
 using MediatR;
 
-namespace Application.Cqrs.Role.GetRoles;
+namespace Application.Cqrs.Role.GetAll;
 internal sealed class GetAllRolesQueryHandler : IRequestHandler<GetAllRolesQuery, Result>
 {
     private readonly IRoleRepository _roleRepository;

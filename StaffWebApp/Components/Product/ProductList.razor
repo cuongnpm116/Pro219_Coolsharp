@@ -1,0 +1,110 @@
+﻿@page "/products/product-staffapp"
+@using WebAppIntegrated.Enum
+
+<head>
+    <style>
+        .table-row:hover {
+            background-color: #f5f5f5;
+        }
+
+        .table-row {
+            display: table-row;
+            text-decoration: none !important;
+            color: inherit;
+        }
+
+        .border-box-shadow {
+            margin-top: 16px;
+            margin-bottom: 32px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            background-color: #fff;
+        }
+
+    </style>
+</head>
+<MudContainer>
+
+    <div class="row" style="margin-top:32px; margin-bottom:32px ;display:flex;justify-content:space-between">
+        <div class="col-8" style="display:flex; align-items: center;">
+            <MudText Typo="Typo.h5">
+                Danh sách sản phẩm
+            </MudText>
+        </div>
+    </div>
+    <MudGrid>
+        <MudItem xs="6" Style="display:flex">
+            <MudTextField @bind-Value="SearchString"
+                          Label="Tìm kiếm"
+                          Adornment="@((SearchString != null && SearchString.Length > 0) ? Adornment.End : Adornment.Start)"
+                          Variant="Variant.Outlined"
+                          AdornmentIcon="@((SearchString != null && SearchString.Length > 0) ? @Icons.Material.Filled.Close : Icons.Material.Filled.Search)"
+                          IconSize="Size.Medium"
+                          Class="mr-5"
+                          @onkeyup="Search"
+                          OnAdornmentClick="ClearSearch"
+                          Style="max-width:450px; width: 100%; max-height:56px; height:100%;">
+            </MudTextField>
+            <MudSelect T="string"
+                       Label="Lọc theo danh mục"
+                       @bind-Value="FilterCategory"
+                       Variant="Variant.Filled"
+                       Placeholder="Chọn danh mục"
+                       Dense="true"
+                       Margin="Margin.Dense"
+                       SelectedValuesChanged="()=>Search()"
+                       Style="max-width:250px; width: 100%; max-height:56px; height:100%; margin-top:5px;">
+
+                <MudSelectItem T="string" Value="_emptyString">Tất cả danh mục</MudSelectItem>
+                @foreach (var category in _categoryVms)
+                {
+                    <MudSelectItem T="string" Value="@category.CategoryName">@category.CategoryName</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="6" Style="text-align:end;">
+            <MudFab Class="px-3" Style="margin-right:10px;"
+                    Color="Color.Primary" Label="Thêm mới" StartIcon="@Icons.Material.Filled.Add" OnClick="()=> AddNew()">
+            </MudFab>
+        </MudItem>
+    </MudGrid>
+    <div class="border-box-shadow">
+
+
+        <MudTable Items="@_lstProduct?.Data" Hover="true" Breakpoint="Breakpoint.Sm" Striped="true">
+            <HeaderContent>
+                <MudTh>Tên</MudTh>
+                <MudTh>Số lượng</MudTh>
+                <MudTh>Trạng thái</MudTh>
+                <MudTh>Hành động</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Tên">@context.Name</MudTd>
+                <MudTd DataLabel="Số lượng">@context.TotalStock</MudTd>
+                <MudTd DataLabel="Trạng thái">
+                    <MudChip T="string" Variant="Variant.Outlined" Color="Color.Warning">
+                        @EnumUtility.ConvertStatus(context.Status)
+                    </MudChip>
+                </MudTd>
+                <MudTd>
+                    <MudButton Variant="Variant.Outlined"
+                               Size="Size.Small"
+                               OnClick="() => OpenProductDetail(context.Id)">
+                       Chi tiết
+                    </MudButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+        <MudContainer style="display: flex; flex-direction: column; align-items: center;margin-top:16px">
+            <div style="display:flex; justify-content:center; align-items: center; height:32px;">
+                <MudIconButton Size="@Size.Large" Icon="@Icons.Material.Filled.NavigateBefore" Disabled="_pagingnationRequest.PageNumber == 1" OnClick="OnPageChangedPrevious"></MudIconButton>
+                <MudText>@_pagingnationRequest.PageNumber</MudText>
+                <MudIconButton Size="@Size.Large" Icon="@Icons.Material.Filled.NavigateNext" Disabled="!_lstProduct.HasNext" OnClick="OnPageChangedNext"></MudIconButton>
+            </div>
+        </MudContainer>
+
+    </div>
+
+</MudContainer>

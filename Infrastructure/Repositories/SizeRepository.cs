@@ -1,10 +1,12 @@
 ﻿using Application.Cqrs.Size;
 using Application.Cqrs.Size.Create;
 using Application.Cqrs.Size.Get;
+using Application.Cqrs.Size.GetForSelect;
 using Application.Cqrs.Size.Update;
 using Application.IRepositories;
 using Application.ValueObjects.Pagination;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Primitives;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +63,7 @@ internal sealed class SizeRepository : ISizeRepository
             return Result<SizeVm>.Error(ex.Message);
         }
     }
+
     public async Task<Result<PaginationResponse<SizeVm>>> GetSizes(GetSizesQuery request)
     {
         var query = from a in _context.Sizes
@@ -110,5 +113,13 @@ internal sealed class SizeRepository : ISizeRepository
         {
             return Result<bool>.Error(ex.Message);
         }
+    }
+
+    public async Task<IReadOnlyList<SizeForSelectVm>> GetSizeForSelectVms()
+    {
+        var sizeQuery = from s in _context.Sizes
+                        where s.Status == Status.Active
+                        select new SizeForSelectVm(s.Id, s.SizeNumber);
+        return await sizeQuery.ToListAsync();
     }
 }

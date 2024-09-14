@@ -100,7 +100,7 @@ internal sealed class AddressRepository : IAddressRepository
 
         return Result<AddressVm>.Success(vm);
     }
-    
+
     public async Task<Result<AddressVm>> GetDefaultAddressVm(Guid customerId, CancellationToken cancellationToken)
     {
         Address? exist = await GetDefaultAddress(customerId, cancellationToken);
@@ -136,7 +136,7 @@ internal sealed class AddressRepository : IAddressRepository
             Detail = request.Detail,
             IsDefault = request.IsDefault,
             CustomerId = request.CreatedBy,
-           
+
         };
 
         var existingAddresses = await _context.Addresses
@@ -167,7 +167,7 @@ internal sealed class AddressRepository : IAddressRepository
         Address? exist = await GetAddressById(request.Id, cancellationToken);
         if (exist is null)
         {
-            return Result<bool>.Invalid( "Người dùng không tồn tại");
+            return Result<bool>.Invalid("Người dùng không tồn tại");
         }
 
         bool isModified = false;
@@ -256,11 +256,11 @@ internal sealed class AddressRepository : IAddressRepository
         Address? exist = await GetAddressById(request.AddressId, cancellationToken);
         if (exist is null)
         {
-            return Result<bool>.Invalid( "Địa chỉ không tồn tại");
+            return Result<bool>.Invalid("Địa chỉ không tồn tại");
         }
         if (exist.IsDefault)
         {
-            return Result<bool>.Invalid( "Không thể xóa địa chỉ mặc định");
+            return Result<bool>.Invalid("Không thể xóa địa chỉ mặc định");
         }
 
         _context.Addresses.Remove(exist);

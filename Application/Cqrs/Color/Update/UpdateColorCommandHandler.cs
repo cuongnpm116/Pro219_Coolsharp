@@ -1,9 +1,8 @@
-﻿using Application.Cqrs.Color.Update;
-using Application.IRepositories;
+﻿using Application.IRepositories;
 using Domain.Primitives;
 using MediatR;
 
-namespace Application.Cqrs.ColorUpdate;
+namespace Application.Cqrs.Color.Update;
 internal sealed class UpdateColorCommandHandler : IRequestHandler<UpdateColorCommand, Result>
 {
     private readonly IColorRepository _colorRepository;

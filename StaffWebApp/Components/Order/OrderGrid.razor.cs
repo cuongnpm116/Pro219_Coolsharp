@@ -32,20 +32,15 @@ namespace StaffWebApp.Components.Order
         public Guid _staffId;
         [Parameter] public EventCallback<OrderStatus> OnOrderStatusChanged { get; set; }
 
-
-
-        protected override async Task OnInitializedAsync()
-        {
-            //AuthenticationState? authState = await AuthStateTask;
-            //_staffId = new(authState.User.Claims.FirstOrDefault(x => x.Type == "userId")?.Value);
-            _paginationRequest.OrderStatus = OrderStatus;
-            await LoadOrder();
-            StateHasChanged();
-        }
-
-        private async Task LoadOrder()
-        {
-            var response = await OrderService.GetOrders(_paginationRequest);
+    protected override async Task OnInitializedAsync()
+    {
+        _paginationRequest.OrderStatus = OrderStatus;
+        await LoadOrder();
+        StateHasChanged();
+    }
+    private async Task LoadOrder()
+    {
+        var response = await OrderService.GetOrders(_paginationRequest);
 
             if (response.Value != null)
             {
@@ -69,7 +64,7 @@ namespace StaffWebApp.Components.Order
                 StateHasChanged();
             }
 
-        }
+    }
 
         private async Task HandleKeyPress(KeyboardEventArgs e)
         {
@@ -105,10 +100,10 @@ namespace StaffWebApp.Components.Order
             }
         }
 
-        private async Task OnPreviousPageClicked()
+    private async Task OnPreviousPageClicked()
+    {
+        if (_lstOrder.PageNumber > 0)
         {
-            if (_lstOrder.PageNumber > 0)
-            {
 
                 _paginationRequest.PageNumber--;
                 await LoadOrder();
@@ -202,15 +197,15 @@ namespace StaffWebApp.Components.Order
         }
         #endregion
 
-        private async Task ExportOrders()
+    private async Task ExportOrders()
+    {
+        // Code xuất dữ liệu
+        try
         {
-            // Code xuất dữ liệu
-            try
+            bool success = await OrderService.ExportOrdersToExcel(_paginationRequest);
+            if (success == true)
             {
-                bool success = await OrderService.ExportOrdersToExcel(_paginationRequest);
-                if (success == true)
-                {
-                    Snackbar.Add("Xuất ra excel thành công", Severity.Success);
+                Snackbar.Add("Xuất ra excel thành công", Severity.Success);
 
                 }
                 else

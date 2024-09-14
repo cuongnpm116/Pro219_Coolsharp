@@ -16,6 +16,7 @@ public partial class ListColor
     private IDialogService DialogService { get; set; }
     [Inject]
     private ISnackbar Snackbar { get; set; }
+
     [CascadingParameter]
     private MudDialogInstance? MudDialog { get; set; }
     private PaginationResponse<ColorVm> _lstColor = new();

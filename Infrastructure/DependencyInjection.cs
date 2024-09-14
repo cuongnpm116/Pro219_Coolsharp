@@ -4,15 +4,19 @@ using Application.IServices;
 using Infrastructure.Context;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VietNamAddress.Models;
 using VietNamAddress.Repos;
-
 namespace Infrastructure;
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
     {
+
+        services.AddDbContext<AppDbContext>(
+            opts => opts.UseSqlServer(config.GetConnectionString("Default")));
         services.AddDbContext<AppDbContext>();
         services.AddDbContext<VietNamAddressContext>();
 

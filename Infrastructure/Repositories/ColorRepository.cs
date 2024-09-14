@@ -1,10 +1,12 @@
 ﻿using Application.Cqrs.Color;
 using Application.Cqrs.Color.Create;
 using Application.Cqrs.Color.Get;
+using Application.Cqrs.Color.GetForSelect;
 using Application.Cqrs.Color.Update;
 using Application.IRepositories;
 using Application.ValueObjects.Pagination;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Primitives;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -83,12 +85,14 @@ internal sealed class ColorRepository : IColorRepository
     public async Task<Result<PaginationResponse<ColorVm>>> GetColors(GetColorsQuery request)
     {
         var query = from a in _context.Colors
+                    where a.Status != Status.Deleted
                     select new ColorVm
                     {
                         Id = a.Id,
                         Name = a.Name,
                         Status = a.Status,
                     };
+
 
         if (!string.IsNullOrEmpty(request.SearchString))
         {
@@ -110,5 +114,13 @@ internal sealed class ColorRepository : IColorRepository
         };
 
         return Result<PaginationResponse<ColorVm>>.Success(result);
+    }
+
+    public async Task<IReadOnlyList<ColorForSelectVm>> GetColorForSelectVms()
+    {
+        var colorQuery = from c in _context.Colors
+                         where c.Status == Status.Active
+                         select new ColorForSelectVm(c.Id, c.Name);
+        return await colorQuery.ToListAsync();
     }
 }

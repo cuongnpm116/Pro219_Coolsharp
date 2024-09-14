@@ -1,24 +1,24 @@
 ﻿using StaffWebApp.Services.Color.Requests;
 using StaffWebApp.Services.Color.Vms;
 using WebAppIntegrated.ApiResponse;
+using WebAppIntegrated.Constants;
 using WebAppIntegrated.Pagination;
 
 namespace StaffWebApp.Services.Color;
 
 public class ColorService : IColorService
 {
-    private const string apiUrl = "/api/Colors";
-    private readonly IHttpClientFactory _httpClientFactory;
+    private const string _baseUrl = "/api/Colors";
+    private readonly HttpClient _client;
 
-    public ColorService(IHttpClientFactory httpClientFactory)
+    public ColorService(IHttpClientFactory _httpClientFactory)
     {
-        _httpClientFactory = httpClientFactory;
+        _client = _httpClientFactory.CreateClient(ShopConstants.EShopClient);
     }
 
     public async Task<Result<bool>> CreateColor(CreateColorRequest request)
     {
-        var httpClient = _httpClientFactory.CreateClient("eShopApi");
-        var response = await httpClient.PostAsJsonAsync(apiUrl, request);
+        var response = await _client.PostAsJsonAsync(_baseUrl, request);
         var result = new Result<bool>();
 
         if (response.IsSuccessStatusCode)
@@ -51,23 +51,21 @@ public class ColorService : IColorService
 
     public async Task<Result<ColorVm>> GetColorById(Guid id)
     {
-        var httpClient = _httpClientFactory.CreateClient("eShopApi");
-        var response = await httpClient.GetFromJsonAsync<Result<ColorVm>>(apiUrl + $"/GetColorById?Id={id}");
+        var response = await _client.GetFromJsonAsync<Result<ColorVm>>(_baseUrl + $"/GetColorById?Id={id}");
         return response;
     }
 
     public async Task<Result<PaginationResponse<ColorVm>>> GetColorsWithPagination(ColorPaginationRequest request)
     {
 
-        var httpClient = _httpClientFactory.CreateClient("eShopApi");
-        var url = apiUrl + $"?PageNumber={request.PageNumber}&PageSize={request.PageSize}";
+        var url = _baseUrl + $"?PageNumber={request.PageNumber}&PageSize={request.PageSize}";
 
         if (!string.IsNullOrEmpty(request.SearchString))
         {
             url += $"&SearchString={Uri.EscapeDataString(request.SearchString)}";
         }
 
-        var result = await httpClient.GetFromJsonAsync<Result<PaginationResponse<ColorVm>>>(url);
+        var result = await _client.GetFromJsonAsync<Result<PaginationResponse<ColorVm>>>(url);
         return result;
     }
 
@@ -75,8 +73,7 @@ public class ColorService : IColorService
 
     public async Task<Result<bool>> UpdateColor(UpdateColorRequest request)
     {
-        var httpClient = _httpClientFactory.CreateClient("eShopApi");
-        var response = await httpClient.PutAsJsonAsync(apiUrl, request);
+        var response = await _client.PutAsJsonAsync(_baseUrl, request);
 
         var result = new Result<bool>();
 
@@ -105,5 +102,17 @@ public class ColorService : IColorService
         }
 
         return result;
+    }
+
+    public async Task<IEnumerable<ColorForSelectVm>> GetColorForSelectVms()
+    {
+        string finalUrl = _baseUrl + "/color-for-select";
+        var apiRes = await _client.GetAsync(finalUrl);
+        if (apiRes.IsSuccessStatusCode)
+        {
+            var result = await apiRes.Content.ReadFromJsonAsync<IEnumerable<ColorForSelectVm>>() ?? [];
+            return result;
+        }
+        return [];
     }
 }

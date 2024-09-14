@@ -1,11 +1,13 @@
-﻿using Application.Cqrs.Cart;
+﻿using System.Globalization;
+using System.Text;
+using Application.Cqrs.Cart;
 using Application.Cqrs.Order;
 using Application.Cqrs.Order.CancelOrder;
 using Application.Cqrs.Order.CreateOrder;
 using Application.Cqrs.Order.Get;
 using Application.Cqrs.Order.UpdateOrder;
-using Application.Cqrs.Payment;
 using Application.IRepositories;
+using Application.IServices;
 using Application.ValueObjects.Email;
 using Application.ValueObjects.Pagination;
 using Common.Utilities;
@@ -13,7 +15,6 @@ using Domain.Entities;
 using Domain.Enums;
 using Domain.Primitives;
 using Infrastructure.Context;
-using MailKit.Search;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Asn1.X509;
@@ -31,11 +32,13 @@ namespace Infrastructure.Repositories;
 internal sealed class OrderRepository : IOrderRepository
 {
     private readonly AppDbContext _context;
+    private readonly IHubContext<ShopHub> _hubContext;
     private readonly IEmailService _emailService;
-    public OrderRepository(AppDbContext context, IEmailService emailService)
+    public OrderRepository(AppDbContext context, IEmailService emailService, IHubContext<ShopHub> hubContext)
     {
         _context = context;
         _emailService = emailService;
+        _hubContext = hubContext;
     }
     public async Task<Result<OrderWithPaymentVm>> AddOrder(CreateOrderCommand request)
     {
@@ -136,7 +139,7 @@ internal sealed class OrderRepository : IOrderRepository
                         CompletedDate = a.CompletedDate,
                         PaymentStatus = c.Status,
                         PaymentMethod = c.PaymentMethod,
-                        TotalPrice = orderGroup.Sum(d => d.Price * d.Quantity),
+                        TotalPrice = a.TotalPrice,
                         OrderStatus = a.OrderStatus,
                         Note = a.Note,
                         StaffId = a.StaffId,
@@ -155,7 +158,7 @@ internal sealed class OrderRepository : IOrderRepository
         // Tìm kiếm
         if (!string.IsNullOrEmpty(request.SearchString))
         {
-            query = query.Where(x => x.PhoneNumber.Contains(request.SearchString));         
+            query = query.Where(x => x.PhoneNumber.Contains(request.SearchString));
         }
 
         var paginatedQuery = query
@@ -248,6 +251,13 @@ internal sealed class OrderRepository : IOrderRepository
     private async Task<Result> SendEmail(Order order, List<OrderDetail> orderDetails)
     {
         var customer = _context.Customers.FirstOrDefault(x => x.Id == order.CustomerId);
+        decimal totalPriceProduct = 0; // tổng tiền sản phẩm
+        decimal reduceAmount = 0; // số tiền giamr từ voucher
+        foreach (var item in orderDetails)
+        {
+            totalPriceProduct += (item.Price * item.Quantity);
+        }
+        reduceAmount = totalPriceProduct - order.TotalPrice;// thêm if nếu có voucher trong order
         var payment = await _context.Payments.AsNoTracking().FirstOrDefaultAsync(x => x.OrderId == order.Id);
         if (customer == null)
         {
@@ -265,12 +275,27 @@ internal sealed class OrderRepository : IOrderRepository
         var cultureInfo = new CultureInfo("vi-VN");
         body = body.Replace("{CustomerName}", $"{customer.LastName} {customer.FirstName}")
                    .Replace("{OrderCode}", order.OrderCode)
-                   .Replace("{PaymentMethod}",payment.PaymentMethod.ToString())
+                   .Replace("{PaymentMethod}", payment.PaymentMethod.ToString())
                    .Replace("{TotalPrice}", order.TotalPrice.ToString("C", cultureInfo))
                    .Replace("{ShipAddress}", order.ShipAddress)
                    .Replace("{ShipAddressDetail}", order.ShipAddressDetail)
                    .Replace("{PhoneNumber}", order.PhoneNumber)
                    .Replace("{EmailAddress}", customer.EmailAddress);
+        if (order.Voucher !=null)
+        {
+            body = body.Replace("{VoucherRowStyle}", "")
+                .Replace("{VoucherCodeRowStyle}", "")
+                .Replace("{ReduceAmount}", reduceAmount.ToString("C", cultureInfo))
+                .Replace("{VoucherCode}", order.Voucher.VoucherCode);
+        }
+        else
+        {
+            // Xóa phần liên quan đến voucher nếu không có voucher
+            body = body.Replace("{VoucherRowStyle}", "display: none;")
+               .Replace("{VoucherCodeRowStyle}", "display: none;")
+               .Replace("{ReduceAmount}", "")
+               .Replace("{VoucherCode}", "");
+        }
 
         var productRows = new StringBuilder();
         int stt = 1;
@@ -320,7 +345,10 @@ internal sealed class OrderRepository : IOrderRepository
     {
         try
         {
-            Order? exist = await _context.Orders.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id);
+            Order? exist = await _context.Orders
+                            .Include(x=>x.Voucher)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(x => x.Id == request.Id);
             string orderstatus = "";
 
             if (exist == null)
@@ -351,13 +379,15 @@ internal sealed class OrderRepository : IOrderRepository
                         }
 
                         await SendEmail(exist, orderDetails);
+                        orderstatus = $"Đơn hàng {exist.OrderCode} đã được xác nhận. Đang được đóng gói và chờ shipper nhận hàng.";
                     }
 
-
+                   
                     break;
                 case OrderStatus.AWaitingPickup:
                     exist.ShippedDate = DateTime.Now;
                     exist.OrderStatus = OrderStatus.AWaitingPickup;
+                    orderstatus = $"Đơn hàng {exist.OrderCode} đang được vận chuyển. Shipper sẽ giao cho bạn trong thời gian sớm nhất.";
                     break;
                 case OrderStatus.Completed:
                     exist.CompletedDate = DateTime.Now;
@@ -375,7 +405,7 @@ internal sealed class OrderRepository : IOrderRepository
             }
 
             _context.Orders.Update(exist);
-
+            
             return Result<bool>.Success(true);
         }
         catch (Exception ex)
@@ -384,7 +414,7 @@ internal sealed class OrderRepository : IOrderRepository
         }
     }
 
-    public async  Task<Result<bool>> CancelOrderForStaff(CancelOrderForStaffCommand request, CancellationToken token)
+    public async Task<Result<bool>> CancelOrderForStaff(CancelOrderForStaffCommand request, CancellationToken token)
     {
         try
         {

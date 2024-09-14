@@ -79,7 +79,7 @@ public class ProductService : IProductService
         {
             url += $"&MaxPrice={request.MaxPrice.Value}";
         }
-        
+
         var result = await _httpClient.GetFromJsonAsync<Result<PaginationResponse<ProductVm>>>(url);
 
         return result;
