@@ -79,11 +79,11 @@ public class OrderService : IOrderService
         var result = await httpClient.GetFromJsonAsync<Result<List<OrderDetailVm>>>(url);
         return result;
     }
-    public async Task<Result<List<ProductDetailVm>>> LowStockProducts()
+    public async Task<Result<List<ProductDetailInOrderVm>>> LowStockProducts()
     {
         var httpClient = _httpClientFactory.CreateClient("eShopApi");
         var url = apiUrl + $"/low-stock-products";
-        var result = await httpClient.GetFromJsonAsync<Result<List<ProductDetailVm>>>(url);
+        var result = await httpClient.GetFromJsonAsync<Result<List<ProductDetailInOrderVm>>>(url);
         return result;
     }
     public async Task<Result<List<OrderVm>>> Statistical()

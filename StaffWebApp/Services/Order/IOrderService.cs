@@ -13,7 +13,7 @@ public interface IOrderService
     Task UpdateOrderStatus(OrderVm request);
     Task CancelOrderStatus(Guid orderId);
     Task<Result<List<OrderDetailVm>>> TopProducts(OrderPaginationRequest request);
-    Task<Result<List<ProductDetailVm>>> LowStockProducts();
+    Task<Result<List<ProductDetailInOrderVm>>> LowStockProducts();
     Task<Result<List<OrderVm>>> Statistical();
     Task<string> PrintOrder(Guid orderId);
     Task<bool> ExportOrdersToExcel(OrderPaginationRequest request);

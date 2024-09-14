@@ -27,6 +27,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Application.Cqrs.Order.Statisticals;
 using System.Linq;
 using Application.Cqrs.Product;
+using Infrastructure.SignalR;
 
 namespace Infrastructure.Repositories;
 internal sealed class OrderRepository : IOrderRepository
@@ -281,7 +282,7 @@ internal sealed class OrderRepository : IOrderRepository
                    .Replace("{ShipAddressDetail}", order.ShipAddressDetail)
                    .Replace("{PhoneNumber}", order.PhoneNumber)
                    .Replace("{EmailAddress}", customer.EmailAddress);
-        if (order.Voucher !=null)
+        if (order.Voucher != null)
         {
             body = body.Replace("{VoucherRowStyle}", "")
                 .Replace("{VoucherCodeRowStyle}", "")
@@ -346,7 +347,7 @@ internal sealed class OrderRepository : IOrderRepository
         try
         {
             Order? exist = await _context.Orders
-                            .Include(x=>x.Voucher)
+                            .Include(x => x.Voucher)
                             .AsNoTracking()
                             .FirstOrDefaultAsync(x => x.Id == request.Id);
             string orderstatus = "";
@@ -382,7 +383,7 @@ internal sealed class OrderRepository : IOrderRepository
                         orderstatus = $"Đơn hàng {exist.OrderCode} đã được xác nhận. Đang được đóng gói và chờ shipper nhận hàng.";
                     }
 
-                   
+
                     break;
                 case OrderStatus.AWaitingPickup:
                     exist.ShippedDate = DateTime.Now;
@@ -401,11 +402,12 @@ internal sealed class OrderRepository : IOrderRepository
                     _context.Payments.Update(payment);
                     orderstatus = $"Đơn hàng {exist.OrderCode} đã giao thành công.";
                     break;
-        
+
             }
 
             _context.Orders.Update(exist);
-            
+            await _hubContext.Clients.All.SendAsync("ReceiveOrderUpdate", orderstatus);
+
             return Result<bool>.Success(true);
         }
         catch (Exception ex)
@@ -472,7 +474,7 @@ internal sealed class OrderRepository : IOrderRepository
             }
 
             var topProducts = await query
-                .GroupBy(g => g.c.Id)  
+                .GroupBy(g => g.c.Id)
                 .Select(g => new
                 {
                     OrderId = g.Select(x => x.b.Id).FirstOrDefault(),
@@ -491,7 +493,7 @@ internal sealed class OrderRepository : IOrderRepository
                 {
                     Id = x.OrderDetailId,
                     OrderId = x.OrderId,
-                    ProductDetailId = x.ProductDetailId,  
+                    ProductDetailId = x.ProductDetailId,
                     ProductName = x.ProductName,
                     Price = x.PaidPrice,
                     Quantity = x.TotalQuantity,
@@ -525,8 +527,8 @@ internal sealed class OrderRepository : IOrderRepository
                                               ImageUrl = i.ImagePath,
                                               ProductName = a.Name,
                                               Stock = b.Stock,
-                                              SizeNumber=k.SizeNumber,
-                                              ColorName=h.Name,
+                                              SizeNumber = k.SizeNumber,
+                                              ColorName = h.Name,
                                           }).ToListAsync();
 
             return Result<List<ProductDetailForStaffVm>>.Success(lowStockProducts);
