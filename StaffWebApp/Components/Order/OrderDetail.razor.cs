@@ -27,7 +27,7 @@ public partial class OrderDetail
     [Parameter]
     public string OrderId { get; set; }
     public Guid _usreId;
-    private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
+    private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
     protected override async Task OnInitializedAsync()
     {
         //AuthenticationState? authState = await AuthStateTask;
