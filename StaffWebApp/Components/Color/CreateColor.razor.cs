@@ -48,10 +48,7 @@ public partial class CreateColor
         {
             if (Id == Guid.Empty)
             {
-
-
                 _createRequest.Name = _colorVm.Name;
-                _createRequest.Status = _colorVm.Status;
                 var result = await ColorService.CreateColor(_createRequest);
                 success = result.Value;
                 Snackbar.Add($"{result.Message}", Severity.Success);

@@ -4,5 +4,5 @@ using MediatR;
 
 namespace Application.Cqrs.Order.UpdateOrder;
 
-public record UpdateOrderForStaffCommand(Guid Id, OrderStatus OrderStatus) : IRequest<Result>;
+public record UpdateOrderForStaffCommand(Guid Id,Guid StaffId, OrderStatus OrderStatus) : IRequest<Result>;
 

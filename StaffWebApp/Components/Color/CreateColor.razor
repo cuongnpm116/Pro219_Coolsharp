@@ -6,21 +6,17 @@
     </TitleContent>
 
     <DialogContent>
-        <MudTextField Class="my-2" T="string" @bind-Value="_colorVm.Name" Label="Tên màu" Required="true"></MudTextField>
-
-        <MudSelect T="Status"
-                   Label="Trạng Thái"
-                   @bind-Value="_colorVm.Status"
-                   Style="margin:25px 0px"
-                   Variant="Variant.Outlined"
-                   AnchorOrigin="Origin.BottomCenter"
-                   Required="true"
-                   RequiredError="Status is required.">
-            @foreach (Status status in Enum.GetValues(typeof(Status)))
-            {
-                <MudSelectItem Value="status">@EnumUtility.ConvertStatus(status)</MudSelectItem>
-            }
-        </MudSelect>
+        <MudTextField Class="margin" T="string" @bind-Value="_colorVm.Name" Label="Tên màu" Required="true"></MudTextField>
+        @if (Id != Guid.Empty)
+        {
+            <MudSelect T="Status" Label="Trạng Thái" @bind-Value="_colorVm.Status" Style="margin:25px 0px" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Required="true" RequiredError="Status is required.">
+                @foreach (Status status in Enum.GetValues(typeof(Status)))
+                {
+                    <MudSelectItem Value="status">@EnumUtility.ConvertStatus(status)</MudSelectItem>
+                }
+            </MudSelect>
+        }
+ 
 
     </DialogContent>
     <DialogActions>

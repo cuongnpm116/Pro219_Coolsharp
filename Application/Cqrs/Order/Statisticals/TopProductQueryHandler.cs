@@ -16,7 +16,7 @@ internal sealed class TopProductQueryHandler : IRequestHandler<TopProductQuery, 
     {
         try
         {
-            var result = await _orderRepository.TopProducts();
+            var result = await _orderRepository.TopProducts(request);
             return result;
         }
         catch (Exception ex)

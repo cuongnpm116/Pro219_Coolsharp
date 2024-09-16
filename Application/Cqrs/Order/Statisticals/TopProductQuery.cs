@@ -3,4 +3,9 @@ using MediatR;
 
 namespace Application.Cqrs.Order.Statisticals;
 
-public record TopProductQuery : IRequest<Result<List<OrderDetailVm>>>;
+public class TopProductQuery : IRequest<Result<List<OrderDetailVm>>>
+{
+    public int Stock { get; set; }
+    public DateTime? Begin { get; set; }
+    public DateTime? End { get; set; }
+}

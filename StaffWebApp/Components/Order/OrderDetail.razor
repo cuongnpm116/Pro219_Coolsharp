@@ -126,7 +126,12 @@
 
             <RowTemplate>
                 <MudTd DataLabel="STT"> @(_lstOrderDetail.ToList().IndexOf(context) + 1)</MudTd>
-                <MudTd>@context.ProductName</MudTd>
+                <MudTd align="left">
+                    <MudText Typo="Typo.body1">@context.ProductName</MudText>
+                    <MudText Typo="Typo.caption" Class="text-muted">
+                        Màu: @context.ColorName - Size: @context.SizeNumber
+                    </MudText>
+                </MudTd>
                 <MudImage Src="@($"{_imageUrl}{context.ImagePath}")" Width="60" Height="60" alt="Image" />
                 <MudTd>@context.Quantity</MudTd>
                 <MudTd>@string.Format("{0:#,##0}", context.Price)</MudTd>
