@@ -41,8 +41,8 @@ internal sealed class RoleRepository : IRoleRepository
         if (!string.IsNullOrWhiteSpace(query.SearchString))
         {
             roleQueryable = roleQueryable
-                .Where(x => x.Name.ToLower().Contains(query.SearchString.ToLower())
-                || x.Code.Contains(query.SearchString.ToLower()));
+                .Where(x => x.Name.Contains(query.SearchString, StringComparison.CurrentCultureIgnoreCase)
+                || x.Code.Contains(query.SearchString, StringComparison.CurrentCultureIgnoreCase));
         }
         var result = await roleQueryable.Select(x => new RoleVm(x.Id, x.Code, x.Name))
                 .ToPaginatedResponseAsync(query.PageNumber, query.PageSize);
@@ -61,5 +61,21 @@ internal sealed class RoleRepository : IRoleRepository
         exist.Name = command.Name;
         _context.Roles.Update(exist);
         return true;
+    }
+
+    public async Task<bool> CreateRole(string code, string name)
+    {
+        await _context.Roles.AddAsync(new(code, name));
+        return true;
+    }
+
+    public async Task<bool> IsUniqueCode(string code)
+    {
+        return await _context.Roles.AnyAsync(x => x.Code == code);
+    }
+
+    public async Task<bool> IsUniqueName(string name)
+    {
+        return await _context.Roles.AnyAsync(x => x.Name == name);
     }
 }

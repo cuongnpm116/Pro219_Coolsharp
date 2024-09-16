@@ -1,7 +1,6 @@
 using MudBlazor.Services;
 using StaffWebApp.Components;
 using StaffWebApp.Extensions;
-using StaffWebApp.Services.Voucher;
 using WebAppIntegrated.Constants;
 
 var builder = WebApplication.CreateBuilder(args);

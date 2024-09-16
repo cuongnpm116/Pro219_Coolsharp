@@ -1,12 +1,16 @@
 ﻿using Application.Cqrs.Product.Create;
 using Application.Cqrs.Product.GetFeaturedProduct;
+using Application.Cqrs.Product.GetInfo;
 using Application.Cqrs.Product.GetProductCustomerAppPaging;
 using Application.Cqrs.Product.GetProductDetail;
 using Application.Cqrs.Product.GetProductDetailId;
 using Application.Cqrs.Product.GetProductDetailPrice;
+using Application.Cqrs.Product.GetProductDetailsForStaff;
 using Application.Cqrs.Product.GetProductDetailStock;
+using Application.Cqrs.Product.GetProductForStaff;
 using Application.Cqrs.Product.GetProductImage;
-using Application.Cqrs.Product.GetProductStaffPaging;
+using Application.Cqrs.Product.UpdateProductDetail;
+using Application.Cqrs.Product.UpdateProductInfo;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,15 +26,9 @@ public class ProductsController : ControllerBase
     {
         _mediator = mediator;
     }
+
     [HttpGet("get-product-paging")]
     public async Task<IActionResult> ShowProducts([FromQuery] GetProductCustomerAppPagingQuery query)
-    {
-        var result = await _mediator.Send(query);
-        return Ok(result);
-    }
-
-    [HttpGet("get-product-staff-paging")]
-    public async Task<IActionResult> ShowProductStaffs([FromQuery] GetProductStaffPagingQuery query)
     {
         var result = await _mediator.Send(query);
         return Ok(result);
@@ -39,8 +37,10 @@ public class ProductsController : ControllerBase
     [HttpGet("show-productDetail/{productId}")]
     public async Task<IActionResult> ShowProductDetail(Guid productId)
     {
-        GetProductDetailQuery query = new GetProductDetailQuery();
-        query.ProductId = productId;
+        GetProductDetailQuery query = new()
+        {
+            ProductId = productId
+        };
         var result = await _mediator.Send(query);
         return Ok(result);
     }
@@ -69,8 +69,10 @@ public class ProductsController : ControllerBase
     [HttpGet("detail-image")]
     public async Task<IActionResult> GetDetailImage([FromQuery] Guid productId)
     {
-        GetProductImageQuery query = new();
-        query.ProductId = productId;
+        GetProductImageQuery query = new()
+        {
+            ProductId = productId
+        };
         var result = await _mediator.Send(query);
         return Ok(result);
     }
@@ -87,5 +89,41 @@ public class ProductsController : ControllerBase
     {
         var result = await _mediator.Send(command);
         return Ok(result);
+    }
+
+    [HttpGet("get-product-info")]
+    public async Task<IActionResult> GetProductInfo([FromQuery] Guid productId)
+    {
+        var result = await _mediator.Send(new GetProductInfoQuery(productId));
+        return Ok(result);
+    }
+
+    [HttpGet("get-product-for-staff")]
+    public async Task<IActionResult> GetProductForStaff([FromQuery] GetProductForStaffPaginationQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(result.Value);
+    }
+
+    [HttpPut("update-info")]
+    public async Task<IActionResult> UpdateProductInfo([FromBody] UpdateProductInfoCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result.Value);
+    }
+
+    [HttpGet("get-details-for-staff")]
+    public async Task<IActionResult> GetProductDetailsForStaff([FromQuery] Guid productId)
+    {
+        GetProductDetailsForStaffQuery query = new(productId);
+        var result = await _mediator.Send(query);
+        return Ok(result.Value);
+    }
+
+    [HttpPut("update-detail")]
+    public async Task<IActionResult> UpdateProductDetail([FromBody] UpdateProductDetailCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result.Value);
     }
 }

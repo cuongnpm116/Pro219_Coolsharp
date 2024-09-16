@@ -5,8 +5,8 @@ using StaffWebApp.Services.Product;
 using StaffWebApp.Services.Role;
 using StaffWebApp.Services.Size;
 using StaffWebApp.Services.Staff;
-using WebAppIntegrated.Grpc;
 using StaffWebApp.Services.Voucher;
+using WebAppIntegrated.Grpc;
 
 namespace StaffWebApp.Extensions;
 

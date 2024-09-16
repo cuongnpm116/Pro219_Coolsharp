@@ -1,0 +1,95 @@
+﻿@page "/list-product"
+@using StaffWebApp.Components.Pages
+@using StaffWebApp.Components.Product.Update
+@using StaffWebApp.Services.Product
+@using StaffWebApp.Services.Product.Requests
+@using StaffWebApp.Services.Product.Vms
+@using WebAppIntegrated.Pagination
+
+<MudContainer>
+    <MudTable Items="_paginatedProduct.Data">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Danh sách sản phẩm</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_request.SearchString"
+                          Placeholder="Search"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium"
+                          Class="mt-0">
+            </MudTextField>
+            <MudButton OnClick="async () => await OnOpenCreateProductClick()" Color="Color.Primary">Thêm sản phẩm</MudButton>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>Stt</MudTh>
+            <MudTh>Tên</MudTh>
+            <MudTh>Danh mục</MudTh>
+            <MudTh>Tổng số lượng</MudTh>
+            <MudTh>Hành động</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@(_paginatedProduct.Data.ToList().IndexOf(context) + 1)</MudTd>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@string.Join(", ", context.Categories)</MudTd>
+            <MudTd>@context.TotalStock</MudTd>
+            <MudTd>
+                <MudButton OnClick="async () => await ShowDetails(context.Id, context.Name)">Chi tiết</MudButton>
+                <MudButton OnClick="async () => await ShowUpdateProductInfoDialog(context.Id, context.Name)">Sửa thông tin chung</MudButton>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <Pagination HasNext="_paginatedProduct.HasNext" />
+        </PagerContent>
+    </MudTable>
+</MudContainer>
+
+
+@code {
+    [Inject]
+    private IProductService ProductService { get; set; } = null!;
+
+    [Inject]
+    private IDialogService DialogService { get; set; } = null!;
+
+    private GetProductPaginationRequest _request = new();
+    private PaginationResponse<ProductVm> _paginatedProduct = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetProducts();
+    }
+
+    private async Task GetProducts()
+    {
+        _paginatedProduct = await ProductService.GetProducts(_request);
+    }
+
+    private async Task ShowUpdateProductInfoDialog(Guid productId, string productName)
+    {
+        var dialogOptions = new DialogOptions { MaxWidth = MaxWidth.Large };
+        var parameters = new DialogParameters();
+        parameters.Add("ProductId", productId);
+        var dialog = DialogService.Show<UpdateProductInfoForm>($"Sửa thông tin chung cho {productName}", parameters, dialogOptions);
+        var result = await dialog.Result;
+        if (result is not null && !result.Canceled)
+        {
+            await GetProducts();
+        }
+    }
+
+    private async Task ShowDetails(Guid id, string name)
+    {
+        var dialogOptions = new DialogOptions { MaxWidth = MaxWidth.Large };
+        var parameters = new DialogParameters();
+        parameters.Add("ProductId", id);
+        var dialog = DialogService.Show<ListProductDetail>($"Chi tiết sản phẩm {name}", parameters, dialogOptions);
+        var result = await dialog.Result;
+        if (result is not null && !result.Canceled)
+        {
+            await GetProducts();
+        }
+    }
+
+    private async Task OnOpenCreateProductClick()
+    { }
+}

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using StaffWebApp.Services.Voucher;
-using StaffWebApp.Services.Voucher.Dtos;
+using StaffWebApp.Services.Voucher.Requests;
 using StaffWebApp.Services.Voucher.ViewModel;
 using WebAppIntegrated.Pagination;
 

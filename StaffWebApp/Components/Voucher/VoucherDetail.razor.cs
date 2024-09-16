@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using StaffWebApp.Services.Voucher;
-using StaffWebApp.Services.Voucher.Dtos;
+using StaffWebApp.Services.Voucher.Requests;
 using StaffWebApp.Services.Voucher.ViewModel;
 
 namespace StaffWebApp.Components.Voucher;

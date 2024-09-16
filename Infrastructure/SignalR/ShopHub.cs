@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Security.Claims;
 
@@ -7,7 +6,7 @@ namespace Infrastructure.SignalR;
 
 public class ShopHub : Hub
 {
-    public async Task SendOrderUpdate( string message)
+    public async Task SendOrderUpdate(string message)
     {
         // Gửi thông báo cập nhật đơn hàng tới tất cả các client đang kết nối
         await Clients.All.SendAsync("ReceiveOrderUpdate", message);

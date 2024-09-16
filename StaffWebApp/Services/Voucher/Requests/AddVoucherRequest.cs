@@ -1,4 +1,4 @@
-﻿namespace StaffWebApp.Services.Voucher.Dtos;
+﻿namespace StaffWebApp.Services.Voucher.Requests;
 
 public class AddVoucherRequest
 {

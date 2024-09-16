@@ -1,0 +1,26 @@
+﻿@using StaffWebApp.Services.Category.ViewModel
+
+<MudForm @ref=_form Model="_product" Validation="_validator.ValidateValue" ValidationDelay="0">
+
+    <MudTextField @bind-Value=_product.Name
+                  For="() => _product.Name"
+                  Required
+                  Label="Tên sản phẩm">
+    </MudTextField>
+
+    <MudSelect T="CategoryVm"
+               @ref=_categorySelect
+               SelectedValues="_product.Categories"
+               SelectedValuesChanged="async (IEnumerable<CategoryVm> selected) => await CategorySelectionChanged(selected)"
+               MultiSelection
+               ToStringFunc="(CategoryVm vm) => vm.CategoryName"
+               For="() => _product._validateCategories"
+               Immediate
+               Label="Danh mục">
+        @foreach (var category in Categories)
+        {
+            <MudSelectItem Value="category">@category.CategoryName</MudSelectItem>
+        }
+    </MudSelect>
+
+</MudForm>

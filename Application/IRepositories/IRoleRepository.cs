@@ -11,4 +11,7 @@ public interface IRoleRepository
     Task<IReadOnlyList<RoleVmForGetAll>> GetAllRoles();
     Task<PaginationResponse<RoleVm>> GetRolesWithPagination(GetRolesWithPaginationQuery query);
     Task<bool> UpdateRole(UpdateRoleCommand command);
+    Task<bool> CreateRole(string code, string name);
+    Task<bool> IsUniqueCode(string code);
+    Task<bool> IsUniqueName(string name);
 }

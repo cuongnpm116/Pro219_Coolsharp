@@ -251,7 +251,7 @@ public partial class Checkout
         _paymentRequest.Amount = totalPayment;
         _paymentRequest.PaymentStatus = 1;
         await PaymentService.CreatePayment(_paymentRequest);
-        
+
     }
 
     private async Task GetDefaultAddress()

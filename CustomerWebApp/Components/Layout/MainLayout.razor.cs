@@ -3,9 +3,9 @@ using CustomerWebApp.Service.Cart;
 using CustomerWebApp.Service.Cart.ViewModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
 using WebAppIntegrated.Constants;
-using Microsoft.AspNetCore.SignalR.Client;
 
 namespace CustomerWebApp.Components.Layout;
 public partial class MainLayout
@@ -82,7 +82,7 @@ public partial class MainLayout
     {
         _isNotificationsVisible = false;
     }
-   
+
 
     public void Dispose()
     {

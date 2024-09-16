@@ -1,4 +1,4 @@
-﻿using StaffWebApp.Services.Voucher.Dtos;
+﻿using StaffWebApp.Services.Voucher.Requests;
 using StaffWebApp.Services.Voucher.ViewModel;
 using WebAppIntegrated.ApiResponse;
 using WebAppIntegrated.Pagination;

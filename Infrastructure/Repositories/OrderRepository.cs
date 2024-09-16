@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Text;
-using Application.Cqrs.Cart;
+﻿using Application.Cqrs.Cart;
 using Application.Cqrs.Order;
 using Application.Cqrs.Order.CancelOrder;
 using Application.Cqrs.Order.CreateOrder;
@@ -15,9 +13,11 @@ using Domain.Entities;
 using Domain.Enums;
 using Domain.Primitives;
 using Infrastructure.Context;
+using Infrastructure.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Infrastructure.SignalR;
+using System.Globalization;
+using System.Text;
 
 namespace Infrastructure.Repositories;
 internal sealed class OrderRepository : IOrderRepository
@@ -275,7 +275,7 @@ internal sealed class OrderRepository : IOrderRepository
                    .Replace("{ShipAddressDetail}", order.ShipAddressDetail)
                    .Replace("{PhoneNumber}", order.PhoneNumber)
                    .Replace("{EmailAddress}", customer.EmailAddress);
-        if (order.Voucher !=null)
+        if (order.Voucher != null)
         {
             body = body.Replace("{VoucherRowStyle}", "")
                 .Replace("{VoucherCodeRowStyle}", "")
@@ -333,7 +333,7 @@ internal sealed class OrderRepository : IOrderRepository
         try
         {
             Order? exist = await _context.Orders
-                            .Include(x=>x.Voucher)
+                            .Include(x => x.Voucher)
                             .AsNoTracking()
                             .FirstOrDefaultAsync(x => x.Id == request.Id);
             string orderstatus = "";

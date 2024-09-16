@@ -6,4 +6,14 @@ public class Role
     public string Name { get; set; } = string.Empty;
 
     public virtual ICollection<StaffRole>? StaffRoles { get; set; }
+
+    public Role()
+    {
+    }
+
+    public Role(string code, string name)
+    {
+        Code = code;
+        Name = name;
+    }
 }

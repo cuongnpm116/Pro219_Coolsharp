@@ -1,7 +1,7 @@
-﻿using System.Reflection;
-using Application.Behaviors;
+﻿using Application.Behaviors;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace Application;
 public static class DependencyInjection

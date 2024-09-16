@@ -1,7 +1,7 @@
-﻿using System.Text;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using StaffWebApp.Services.Role.Requests;
 using StaffWebApp.Services.Role.Vms;
+using System.Text;
 using WebAppIntegrated.ApiResponse;
 using WebAppIntegrated.Constants;
 using WebAppIntegrated.Pagination;
@@ -15,6 +15,36 @@ public class RoleService : IRoleService
     public RoleService(IHttpClientFactory httpClientFactory)
     {
         _client = httpClientFactory.CreateClient(ShopConstants.EShopClient);
+    }
+
+    public async Task<bool> CheckUniqueRoleCode(string code)
+    {
+        // trick để không bị 400 khi code == string.Empty
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return false;
+        }
+        string finalUrl = _baseUrl + $"/check-unique-role-code?code={code}";
+        bool result = await _client.GetFromJsonAsync<bool>(finalUrl);
+        return result;
+    }
+
+    public async Task<bool> CheckUniqueRoleName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return false;
+        }
+        string finalUrl = _baseUrl + $"/check-unique-role-name?name={name}";
+        bool result = await _client.GetFromJsonAsync<bool>(finalUrl);
+        return result;
+    }
+
+    public async Task<bool> CreateRole(CreateRoleRequest request)
+    {
+        string finalUrl = _baseUrl + "/create-role";
+        var apiRes = await _client.PostAsJsonAsync(finalUrl, request);
+        return await apiRes.Content.ReadFromJsonAsync<bool>();
     }
 
     public Task<Result<List<Guid>>> GetRoleIdsByStaffId(Guid staffId)

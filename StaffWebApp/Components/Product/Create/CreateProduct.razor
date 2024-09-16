@@ -1,35 +1,36 @@
 ﻿@page "/create-product"
 
-<ProductInfoForm @ref=_productInfoForm>
-</ProductInfoForm>
+<CreateProductInfoForm @ref=_productInfoForm Categories="_availableCategories">
+</CreateProductInfoForm>
 
 <MudPaper Elevation="0">
     <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddProductDetail">
         Thêm chi tiết
     </MudButton>
-
-    <MudButton>
+    <MudButton OnClick="() => OpenAddCategoryDialogClick()">
+        Thêm danh mục
+    </MudButton>
+    <MudButton OnClick="() => OpenAddColorDialogClick()">
         Thêm màu
     </MudButton>
-    <MudButton>
+    <MudButton OnClick="() => OpenAddSizeDialogClick()">
         Thêm kích cỡ
     </MudButton>
 </MudPaper>
 
 @foreach (var item in _productDetailForms.Keys)
 {
-    <ProductDetailForm @ref=_productDetailForms[item]
-                       ProductDetail="item"
-                       Colors="AvailableColors"
-                       Sizes="AvailableSizes"
-                       OnColorChanged="HandleColorSelectedEvent"
-                       OnDetailRemove="RemoveProductDetail" />
+    <CreateProductDetailForm @ref=_productDetailForms[item]
+                             ProductDetail="item"
+                             Colors="_availableColors"
+                             Sizes="_availableSizes"
+                             OnColorChanged="HandleColorSelectedEvent"
+                             OnDetailRemove="RemoveProductDetail" />
 }
 
 @foreach (var item in _imagesByColorForms.Keys)
 {
-    <ImagesByColorForm @ref=_imagesByColorForms[item] Color="item" />
+    <CreateImagesByColorForm @ref=_imagesByColorForms[item] Color="item" />
 }
 
 <MudButton OnClick="AddProduct">Thêm sản phẩm</MudButton>
-<MudButton OnClick="CheckData" Color="Color.Warning">check</MudButton>

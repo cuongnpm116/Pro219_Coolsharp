@@ -25,7 +25,7 @@ builder.WebHost.ConfigureKestrel(options =>
 builder.Services.AddGrpc();
 
 builder.Services.AddControllers();
-builder.Services.AddSignalR(); 
+builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

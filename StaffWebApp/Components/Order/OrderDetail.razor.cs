@@ -32,7 +32,7 @@ public partial class OrderDetail
     {
         //AuthenticationState? authState = await AuthStateTask;
         //_usreId = new(authState.User.Claims.FirstOrDefault(x => x.Type == "userId")?.Value);
-        
+
         await LoadOrder();
         if (orderVm.VoucherCode != "N/A")
         {

@@ -1,0 +1,224 @@
+﻿@using StaffWebApp.Services.Color
+@using StaffWebApp.Services.Color.Vms
+@using StaffWebApp.Services.Product
+@using StaffWebApp.Services.Size
+@using StaffWebApp.Services.Size.Vms
+
+<MudDialog>
+    <TitleContent>
+        @DialogInstance.Title
+    </TitleContent>
+
+    <DialogContent>
+        <MudTable Items="_details"
+                  Hover
+                  CanCancelEdit
+                  @bind-SelectedItem="_selectedDetail"
+                  CommitEditTooltip="Cập nhật"
+                  OnCommitEditClick="@(() => Snackbar.Add("Cập nhật chi tiết thành công"))"
+                  RowEditPreview="EditDetail"
+                  RowEditCancel="SetToOriginalValue"
+                  RowEditCommit="async (object detail) => await UpdateDetail(detail)"
+                  CommitEditIcon="@Icons.Material.Filled.Edit"
+                  IsEditRowSwitchingBlocked="false"
+                  EditTrigger="TableEditTrigger.RowClick">
+            <HeaderContent>
+                <MudTh>Stt</MudTh>
+                <MudTh>Phân loại</MudTh>
+                <MudTh>Giá nhập</MudTh>
+                <MudTh>Giá bán</MudTh>
+                <MudTh>Số lượng</MudTh>
+                <MudTh>Hành động</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@(_details.ToList().IndexOf(context) + 1)</MudTd>
+                <MudTd>@GetClassification(context.Color.Name, context.Size.SizeNumber)</MudTd>
+                <MudTd>@context.OriginalPrice</MudTd>
+                <MudTd>@context.Price</MudTd>
+                <MudTd>@context.Stock</MudTd>
+                <MudTd>
+                    <MudButton>Xóa</MudButton>
+                </MudTd>
+            </RowTemplate>
+            <RowEditingTemplate>
+                <MudTd>
+                    <MudAutocomplete T="ColorForSelectVm"
+                                     Value="context.Color"
+                                     ValueChanged=" (ColorForSelectVm vm) => ChangeColor(vm)"
+                                     SearchFunc="SearchColors"
+                                     MaxItems="_colors.Count()"
+                                     ToStringFunc="(ColorForSelectVm vm) => vm is null ? string.Empty : vm.Name"
+                                     For="() => context.Color"
+                                     Immediate
+                                     OnlyValidateIfDirty
+                                     Required
+                                     Label="Màu" />
+                </MudTd>
+                <MudTd>
+                    <MudAutocomplete T="SizeForSelectVm"
+                                     @bind-Value=context.Size
+                                     SearchFunc="SearchSizes"
+                                     MaxItems="_sizes.Count()"
+                                     ToStringFunc="(SizeForSelectVm vm) => vm is null ? string.Empty : vm.SizeNumber.ToString()"
+                                     For="() => context.Size"
+                                     Immediate
+                                     OnlyValidateIfDirty
+                                     Required
+                                     Label="Kích cỡ" />
+                </MudTd>
+                <MudTd>
+                    <MudTextField @bind-Value=context.OriginalPrice
+                                  For="() => context.OriginalPrice"
+                                  Required
+                                  RequiredError="Hãy nhập giá trị cho giá nhập">
+                    </MudTextField>
+                </MudTd>
+                <MudTd>
+                    <MudTextField @bind-Value=context.Price
+                                  For="() => context.Price"
+                                  Required
+                                  RequiredError="Hãy nhập giá trị cho giá nhập">
+                    </MudTextField>
+                </MudTd>
+                <MudTd>
+                    <MudTextField @bind-Value=context.Stock
+                                  For="() => context.Stock"
+                                  Required
+                                  RequiredError="Hãy nhập giá trị cho giá nhập">
+                    </MudTextField>
+                </MudTd>
+            </RowEditingTemplate>
+            <EditButtonContent Context="button">
+                <MudButton OnClick="button.ButtonAction"
+                           Icon="@Icons.Material.Filled.Edit"
+                           Color="Color.Primary"
+                           Size="Size.Small">
+                </MudButton>
+            </EditButtonContent>
+        </MudTable>
+    </DialogContent>
+
+    <DialogActions>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+
+    [Inject]
+    private IProductService ProductService { get; set; } = null!;
+
+    [Inject]
+    private IColorService ColorService { get; set; } = null!;
+
+    [Inject]
+    private ISizeService SizeService { get; set; } = null!;
+
+    [CascadingParameter]
+    public MudDialogInstance DialogInstance { get; set; } = null!;
+
+    [Parameter]
+    public Guid ProductId { get; set; }
+
+    private IEnumerable<ColorForSelectVm> _colors = [];
+    private IEnumerable<SizeForSelectVm> _sizes = [];
+    private IEnumerable<DetailVm> _details = [];
+
+    private DetailVm _selectedDetail;
+    private DetailVm _backupDetail;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetColor();
+        await GetSize();
+        await GetDetails();
+    }
+
+    private async Task GetDetails()
+    {
+        _details = await ProductService.GetDetails(ProductId);
+    }
+
+    private async Task GetColor()
+    {
+        var colors = await ColorService.GetColorForSelectVms();
+        _colors = colors;
+    }
+
+    private async Task GetSize()
+    {
+        var sizes = await SizeService.GetSizeForSelectVms();
+        _sizes = sizes;
+    }
+
+    private string GetClassification(string colorName, int sizeNumber)
+    {
+        return colorName + ", " + sizeNumber;
+    }
+
+    private async Task UpdateDetail(object detail)
+    {
+        bool result = await ProductService.UpdateDetailAsync(detail as DetailVm);
+        if (result)
+        {
+            _selectedDetail = null;
+            await GetDetails();
+        }
+    }
+
+    private void EditDetail(object detail)
+    {
+        _selectedDetail = detail as DetailVm;
+        _backupDetail = new DetailVm
+            {
+                Id = _selectedDetail.Id,
+                Size = _selectedDetail.Size,
+                Color = _selectedDetail.Color,
+                OriginalPrice = _selectedDetail.OriginalPrice,
+                Price = _selectedDetail.Price,
+                Stock = _selectedDetail.Stock
+            };
+    }
+
+    private void SetToOriginalValue(object item)
+    {
+        var detail = item as DetailVm;
+        detail.Size = _backupDetail.Size;
+        detail.Color = _backupDetail.Color;
+        detail.OriginalPrice = _backupDetail.OriginalPrice;
+        detail.Price = _backupDetail.Price;
+        detail.Stock = _backupDetail.Stock;
+    }
+
+    private void ChangeColor(ColorForSelectVm color)
+    {
+        _selectedDetail.Color = color;
+    }
+
+    private void OnStockLoseFocus()
+    {
+        if (_selectedDetail.Stock < 0)
+        {
+            _selectedDetail.Stock = 0;
+        }
+    }
+
+    private async Task<IEnumerable<ColorForSelectVm>> SearchColors(string value, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return await Task.FromResult(_colors);
+        }
+        return await Task.FromResult(_colors.Where(x => x.Name.Contains(value, StringComparison.CurrentCultureIgnoreCase)));
+    }
+
+    private async Task<IEnumerable<SizeForSelectVm>> SearchSizes(string value, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return await Task.FromResult(_sizes);
+        }
+        return await Task.FromResult(_sizes.Where(x => x.SizeNumber.ToString().Contains(value)));
+    }
+}

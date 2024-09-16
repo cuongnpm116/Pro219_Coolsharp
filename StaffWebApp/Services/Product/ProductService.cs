@@ -1,7 +1,11 @@
-﻿using StaffWebApp.Services.Product.Requests;
-using StaffWebApp.Services.Product.Vms.Create;
+﻿using Newtonsoft.Json;
+using StaffWebApp.Services.Product.Dtos;
+using StaffWebApp.Services.Product.Requests;
+using StaffWebApp.Services.Product.Requests.Create;
+using StaffWebApp.Services.Product.Requests.Update;
 using StaffWebApp.Services.Product.Vms;
-using WebAppIntegrated.ApiResponse;
+using StaffWebApp.Services.Product.Vms.Create;
+using System.Text;
 using WebAppIntegrated.Constants;
 using WebAppIntegrated.Grpc;
 using WebAppIntegrated.Pagination;
@@ -19,22 +23,6 @@ public class ProductService : IProductService
         _client = httpClientFactory.CreateClient(ShopConstants.EShopClient);
         _grpcService = grpcService;
     }
-    public async Task<Result<PaginationResponse<ProductVm>>> ShowProduct(ProductPaginationRequest request)
-    {
-        var url = _baseUrl + $"/get-product-staff-paging?PageNumber={request.PageNumber}&PageSize={request.PageSize}";
-        if (!string.IsNullOrEmpty(request.CategoryName))
-        {
-            url += $"&CategoryName={Uri.EscapeDataString(request.CategoryName)}";
-        }
-
-        if (!string.IsNullOrEmpty(request.SearchString))
-        {
-            url += $"&SearchString={Uri.EscapeDataString(request.SearchString)}";
-        }
-
-        var result = await _client.GetFromJsonAsync<Result<PaginationResponse<ProductVm>>>(url);
-        return result;
-    }
 
     public async Task<bool> CreateProductAsync(
         ProductInfoVm info,
@@ -42,7 +30,7 @@ public class ProductService : IProductService
         Dictionary<Guid, List<ImageVm>> imagesByColor)
     {
         // 1. tạo createImageRequest
-        Dictionary<Guid, List<CreateImageRequest>> imagesNameByColor = [];
+        Dictionary<Guid, List<ImageDto>> imagesNameByColor = [];
         foreach (var key in imagesByColor.Keys)
         {
             imagesNameByColor.Add(key, []);
@@ -54,11 +42,11 @@ public class ProductService : IProductService
         }
 
         // 2. tạo trung gian theo màu
-        List<CreateProductDetailRequest> productDetailRequests = [];
+        List<ProductDetailDto> productDetailRequests = [];
         List<CreateProductImageRequest> productImageRequests = [];
         foreach (ProductDetailVm detail in details)
         {
-            CreateProductDetailRequest deatilRequest = new(
+            ProductDetailDto deatilRequest = new(
                 detail.Id,
                 detail.Color.Id,
                 detail.Size.Id,
@@ -66,7 +54,7 @@ public class ProductService : IProductService
                 detail.Price,
                 detail.OriginalPrice);
             productDetailRequests.Add(deatilRequest);
-            List<CreateImageRequest> imageByColor = imagesNameByColor[detail.Color.Id];
+            List<ImageDto> imageByColor = imagesNameByColor[detail.Color.Id];
             foreach (var item in imageByColor)
             {
                 CreateProductImageRequest productImageRequest = new(detail.Id, item.Id);
@@ -85,5 +73,73 @@ public class ProductService : IProductService
         string finalUrl = $"{_baseUrl}/create-product";
         var apiRes = await _client.PostAsJsonAsync(finalUrl, request);
         return apiRes.IsSuccessStatusCode;
+    }
+
+    public async Task<ProductInfoDto> GetProductInfo(Guid productId)
+    {
+        string finalUrl = _baseUrl + $"/get-product-info?productid={productId}";
+        var apiRes = await _client.GetFromJsonAsync<ProductInfoDto>(finalUrl);
+        return apiRes;
+    }
+
+    public async Task<PaginationResponse<ProductVm>> GetProducts(GetProductPaginationRequest request)
+    {
+        StringBuilder urlBuilder = new(_baseUrl);
+        urlBuilder.Append("/get-product-for-staff");
+
+        urlBuilder.Append($"?pageNumber={request.PageNumber}&pageSize={request.PageSize}");
+
+        if (!string.IsNullOrEmpty(request.SearchString))
+        {
+            urlBuilder.Append($"&searchString={Uri.EscapeDataString(request.SearchString)}");
+        }
+
+        if (!string.IsNullOrEmpty(request.CategoryId))
+        {
+            urlBuilder.Append($"&categoryId={Uri.EscapeDataString(request.CategoryId)}");
+        }
+
+        string finalUrl = urlBuilder.ToString();
+
+        var apiRes = await _client.GetFromJsonAsync<PaginationResponse<ProductVm>>(finalUrl);
+        return apiRes;
+    }
+
+    public async Task<bool> UpdateProductInfoAsync(Guid productId, ProductInfoVm info)
+    {
+        UpdateProductInfoRequest request = new(
+            productId,
+            info.Name,
+            info.Categories.Select(x => x.CategoryId));
+
+        string finalUrl = $"{_baseUrl}/update-info";
+        var apiRes = await _client.PutAsJsonAsync(finalUrl, request);
+        string content = await apiRes.Content.ReadAsStringAsync();
+        bool value = JsonConvert.DeserializeObject<bool>(content);
+        return value;
+    }
+
+    public async Task<IEnumerable<DetailVm>> GetDetails(Guid productId)
+    {
+        string finalUrl = _baseUrl + $"/get-details-for-staff?productid={productId}";
+        var apiRes = await _client.GetFromJsonAsync<IEnumerable<DetailVm>>(finalUrl);
+        return apiRes;
+    }
+
+    public async Task<bool> UpdateDetailAsync(DetailVm detail)
+    {
+        UpdateProductDetailRequest request = new(
+            detail.Id,
+            detail.Price,
+            detail.OriginalPrice,
+            detail.Stock,
+            detail.Color.Id,
+            detail.Size.Id);
+
+        string finalUrl = $"{_baseUrl}/update-detail";
+        var apiRes = await _client.PutAsJsonAsync(finalUrl, request);
+        string content = await apiRes.Content.ReadAsStringAsync();
+        bool value = JsonConvert.DeserializeObject<bool>(content);
+        return value;
     }
 }

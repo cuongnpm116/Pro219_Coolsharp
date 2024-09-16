@@ -85,7 +85,7 @@ public class OrderService : IOrderService
     {
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
-        
+
         var order = await GetOrderDetais(orderId);
         decimal _totalPrice = 0;
         var orderDetails = order.Value.Details;

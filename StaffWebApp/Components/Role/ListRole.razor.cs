@@ -14,6 +14,9 @@ public partial class ListRole
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
 
+    [Inject]
+    private IDialogService DialogService { get; set; } = null!;
+
     private PaginationResponse<RoleVm> _paginatedRoles = new();
     private GetRolesWithPaginationRequest _request = new();
 
@@ -29,6 +32,21 @@ public partial class ListRole
     {
         var result = await RoleService.GetRolesWithPagination(_request);
         _paginatedRoles = result.Value;
+    }
+
+    private async Task OpenCreateRoleDialog()
+    {
+        DialogOptions options = new()
+        {
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true,
+        };
+        var dialog = await DialogService.ShowAsync<CreateRoleDialog>("Tạo mới vai trò", options);
+        var result = await dialog.Result;
+        if (result is not null && !result.Canceled)
+        {
+            await LoadData();
+        }
     }
 
     private async Task UpdateRole(object role)

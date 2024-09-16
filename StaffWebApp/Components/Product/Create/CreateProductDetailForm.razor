@@ -1,0 +1,39 @@
+﻿@using StaffWebApp.Services.Color.Vms
+@using StaffWebApp.Services.Size.Vms
+
+<MudForm @ref=_form Model="ProductDetail" Validation="_validator.ValidateValue">
+    <MudPaper Class="pa-4 my-2 d-flex flex-row">
+        <MudAutocomplete T="ColorForSelectVm"
+                         Value="ProductDetail.Color"
+                         ValueChanged="async (ColorForSelectVm vm) => await ChangeColor(vm)"
+                         SearchFunc="SearchColors"
+                         MaxItems="Colors.Count()"
+                         ToStringFunc="(ColorForSelectVm vm) => vm is null ? string.Empty : vm.Name"
+                         For="() => ProductDetail.Color"
+                         Immediate
+                         OnlyValidateIfDirty
+                         Required
+                         Label="Màu" />
+
+        <MudAutocomplete T="SizeForSelectVm"
+                         @bind-Value=ProductDetail.Size
+                         SearchFunc="SearchSizes"
+                         MaxItems="Sizes.Count()"
+                         ToStringFunc="(SizeForSelectVm vm) => vm is null ? string.Empty : vm.SizeNumber.ToString()"
+                         For="() => ProductDetail.Size"
+                         Immediate
+                         OnlyValidateIfDirty
+                         Required
+                         Label="Kích cỡ" />
+
+        <MudTextField @bind-Value=ProductDetail.Stock For="() => ProductDetail.Stock" OnlyValidateIfDirty OnBlur="OnStockLoseFocus" Label="Số lượng"></MudTextField>
+
+        <MudTextField @bind-Value=ProductDetail.OriginalPrice For="() => ProductDetail.OriginalPrice" Label="Giá gốc"></MudTextField>
+
+        <MudTextField @bind-Value=ProductDetail.Price For="() => ProductDetail.Price" OnlyValidateIfDirty Label="Giá bán"></MudTextField>
+
+        <MudButton OnClick="async () => await RemoveDetailClick()" Variant="Variant.Filled" Color="MudBlazor.Color.Error">
+            <MudIcon Icon="@Icons.Material.Filled.Remove" />
+        </MudButton>
+    </MudPaper>
+</MudForm>

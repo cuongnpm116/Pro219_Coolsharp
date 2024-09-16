@@ -7,7 +7,7 @@ public class OrderVm
     public Guid Id { get; set; }
     public Guid? CustomerId { get; set; }
     public Guid? StaffId { get; set; }
-    public string VoucherCode { get; set; } 
+    public string VoucherCode { get; set; }
     public string OrderCode { get; set; } = string.Empty;
     public DateTime? CreatedOn { get; set; }
     public DateTime? ConfirmedDate { get; set; }

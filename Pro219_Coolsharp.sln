@@ -31,7 +31,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcIntegrated", "GrpcIntegrated\GrpcIntegrated.csproj", "{AA7455B2-042D-40F2-A49A-10791234D618}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcIntegrated", "GrpcIntegrated\GrpcIntegrated.csproj", "{AA7455B2-042D-40F2-A49A-10791234D618}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTest", "UnitTest\UnitTest.csproj", "{4973B1EE-3717-4F48-A92B-4111622AF3FB}"
 EndProject
