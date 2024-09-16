@@ -72,25 +72,25 @@ public class OrdersController : ControllerBase
 
 
 
-        [HttpGet("statistical")]
-        public async Task<IActionResult> TimeBasedData([FromQuery] StatisticalQuery query)
-        {
-            var result = await _mediator.Send(query);
-            return Ok(result);
-        }
-   
-        [HttpGet("top-products")]
-        public async Task<IActionResult> TopProducts([FromQuery] TopProductQuery query)
-        {
-            var result = await _mediator.Send(query);
-            return Ok(result);
-        }
-        [HttpGet("low-stock-products")]
-        public async Task<IActionResult> LowStockProducts([FromQuery] LowStockProductsQuery query)
-        {
-            var result = await _mediator.Send(query);
-            return Ok(result);
-        }
+    [HttpGet("statistical")]
+    public async Task<IActionResult> TimeBasedData([FromQuery] StatisticalQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    [HttpGet("top-products")]
+    public async Task<IActionResult> TopProducts([FromQuery] TopProductQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+    [HttpGet("low-stock-products")]
+    public async Task<IActionResult> LowStockProducts([FromQuery] LowStockProductsQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
 
 
 }

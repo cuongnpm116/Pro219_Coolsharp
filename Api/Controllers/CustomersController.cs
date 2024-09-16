@@ -1,9 +1,7 @@
-﻿using Application.Cqrs.Cart.GetCart;
-using Application.Cqrs.Customer.GetCustomer;
+﻿using Application.Cqrs.Customer.GetCustomer;
 using Application.Cqrs.Customer.UpdateAvatar;
 using Application.Cqrs.Customer.UpdateProfile;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;

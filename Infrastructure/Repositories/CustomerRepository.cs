@@ -14,7 +14,7 @@ internal sealed class CustomerRepository : ICustomerRepository
 {
     private readonly AppDbContext _context;
     private readonly IStorageService _storageService;
-    
+
     public CustomerRepository(AppDbContext context, IStorageService storageService)
     {
         _context = context;

@@ -1,7 +1,6 @@
 ﻿using CustomerWebApp.Service.Order.Dtos;
 using CustomerWebApp.Service.Order.ViewModel;
 using Newtonsoft.Json;
-using System.Net.Http;
 using System.Text;
 using WebAppIntegrated.ApiResponse;
 using WebAppIntegrated.Constants;
@@ -52,14 +51,14 @@ public class OrderService : IOrderService
 
     public async Task<Result<PaginationResponse<OrderVm>>> GetOrdersForCustomerWithPagination(GetOrdersWithPaginationRequest request)
     {
-        
+
         StringBuilder sb = new(StartUrl);
 
         sb.Append("get-orders-for-customer?");
         sb.Append($"customerid={request.CustomerId}&");
         sb.Append($"pagesize={request.PageSize}&");
         sb.Append($"pagenumber={request.PageNumber}&");
-        sb.Append($"searchstring={request.SearchString}&"); 
+        sb.Append($"searchstring={request.SearchString}&");
         sb.Append($"orderstatus={request.OrderStatus}");
 
         var result = await _httpClient.GetFromJsonAsync<Result<PaginationResponse<OrderVm>>>(sb.ToString());

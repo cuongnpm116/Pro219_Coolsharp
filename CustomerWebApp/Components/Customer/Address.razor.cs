@@ -1,10 +1,10 @@
 ﻿using CustomerWebApp.Components.Address;
-using CustomerWebApp.Service.Address.ViewModel;
 using CustomerWebApp.Service.Address;
+using CustomerWebApp.Service.Address.Dtos;
+using CustomerWebApp.Service.Address.ViewModel;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using WebAppIntegrated.AddressService;
-using CustomerWebApp.Service.Address.Dtos;
 
 namespace CustomerWebApp.Components.Customer;
 

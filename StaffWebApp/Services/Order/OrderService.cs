@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using OfficeOpenXml;
 using StaffWebApp.Services.Order.Requests;
 using StaffWebApp.Services.Order.Vms;
-using System.Net.Http;
 using WebAppIntegrated.ApiResponse;
 using WebAppIntegrated.Constants;
 using WebAppIntegrated.Enum;
@@ -25,7 +24,7 @@ public class OrderService : IOrderService
 
     public async Task<Result<PaginationResponse<OrderVm>>> GetOrders(OrderPaginationRequest request)
     {
-        
+
         //var url = $"/api/Orders/get-orders-for-Staff?PageNumber={request.PageNumber}&PageSize={request.PageSize}";
         var url = apiUrl + $"/get-orders-for-Staff?";
         if (request.OrderStatus != null)
@@ -48,14 +47,14 @@ public class OrderService : IOrderService
 
     public async Task<Result<OrderVm>> GetOrderDetais(Guid orderId)
     {
-        
+
         var response = await _httpClient.GetFromJsonAsync<Result<OrderVm>>(apiUrl + $"/get-order-detail-staff?orderId={orderId}");
         return response;
     }
 
     public async Task UpdateOrderStatus(OrderVm request)
     {
-        
+
         var response = await _httpClient.PutAsJsonAsync(apiUrl + $"/update-order-status-staff", request);
         response.EnsureSuccessStatusCode();
     }
@@ -69,7 +68,6 @@ public class OrderService : IOrderService
     }
     public async Task<Result<List<OrderDetailVm>>> TopProducts(OrderPaginationRequest request)
     {
-        var httpClient = _httpClientFactory.CreateClient("eShopApi");
         string url = apiUrl + $"/top-products?Stock={request.Stock}";
         if (request.Begin.HasValue)
         {
@@ -79,19 +77,19 @@ public class OrderService : IOrderService
         {
             url += $"&End={Uri.EscapeDataString(request.End.ToString())}";
         }
-        var result = await httpClient.GetFromJsonAsync<Result<List<OrderDetailVm>>>(url);
+
+        var result = await _httpClient.GetFromJsonAsync<Result<List<OrderDetailVm>>>(url);
         return result;
     }
     public async Task<Result<List<ProductDetailInOrderVm>>> LowStockProducts()
     {
-        var httpClient = _httpClientFactory.CreateClient("eShopApi");
         var url = apiUrl + $"/low-stock-products";
-        var result = await httpClient.GetFromJsonAsync<Result<List<ProductDetailInOrderVm>>>(url);
+        var result = await _httpClient.GetFromJsonAsync<Result<List<ProductDetailInOrderVm>>>(url);
         return result;
     }
     public async Task<Result<List<OrderVm>>> Statistical()
     {
-        
+
         string url = apiUrl + $"/statistical";
         var result = await _httpClient.GetFromJsonAsync<Result<List<OrderVm>>>(url);
         return result;
@@ -358,5 +356,5 @@ public class OrderService : IOrderService
         }
     }
 
-    
+
 }

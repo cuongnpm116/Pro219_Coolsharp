@@ -3,6 +3,8 @@ using Application.Cqrs.Order;
 using Application.Cqrs.Order.CancelOrder;
 using Application.Cqrs.Order.CreateOrder;
 using Application.Cqrs.Order.Get;
+using Application.Cqrs.Order.GetOrderForCustomer;
+using Application.Cqrs.Order.Statisticals;
 using Application.Cqrs.Order.UpdateOrder;
 using Application.IRepositories;
 using Application.IServices;
@@ -13,24 +15,12 @@ using Domain.Entities;
 using Domain.Enums;
 using Domain.Primitives;
 using Infrastructure.Context;
+using Infrastructure.Extensions;
 using Infrastructure.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Asn1.X509;
-using System.Globalization;
-using System.Net.Mail;
-using System.Net;
-using Application.IServices;
-using System.Text;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using Application.Cqrs.Order.Statisticals;
-using System.Linq;
-using Application.Cqrs.Product;
-using Infrastructure.SignalR;
 using System.Globalization;
 using System.Text;
-using Application.Cqrs.Order.GetOrderForCustomer;
-using Infrastructure.Extensions;
 
 namespace Infrastructure.Repositories;
 internal sealed class OrderRepository : IOrderRepository
@@ -490,7 +480,7 @@ internal sealed class OrderRepository : IOrderRepository
                 .Where(x => x.OrderId == exist.Id)
                 .ToListAsync();
 
-           
+
             exist.OrderStatus = OrderStatus.Cancelled;
             exist.ModifiedBy = request.ModifiedBy != Guid.Empty ? request.ModifiedBy : Guid.Empty;
             exist.ModifiedOn = DateTime.Now;

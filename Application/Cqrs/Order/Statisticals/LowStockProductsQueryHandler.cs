@@ -1,7 +1,4 @@
-﻿
-
-using Application.Cqrs.Product;
-using Application.IRepositories;
+﻿using Application.IRepositories;
 using Domain.Primitives;
 using MediatR;
 

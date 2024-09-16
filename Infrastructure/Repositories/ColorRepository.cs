@@ -28,7 +28,7 @@ internal sealed class ColorRepository : IColorRepository
             var color = new Color
             {
                 Id = Guid.NewGuid(),
-                Name = request.Name,               
+                Name = request.Name,
             };
 
             await _context.Colors.AddAsync(color);

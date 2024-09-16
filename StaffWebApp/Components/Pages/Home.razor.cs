@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using Org.BouncyCastle.Asn1.Ocsp;
 using StaffWebApp.Services.Order;
 using StaffWebApp.Services.Order.Requests;
 using StaffWebApp.Services.Order.Vms;
 using WebAppIntegrated.Constants;
 using WebAppIntegrated.Enum;
-using static MudBlazor.CategoryTypes;
 
 namespace StaffWebApp.Components.Pages;
 
@@ -19,8 +17,6 @@ public partial class Home
     private List<ProductDetailInOrderVm> _lstProductDetail = new();
     private OrderPaginationRequest _paginationRequest = new();
     private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
-
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -120,7 +116,7 @@ public partial class Home
                 orderList = orderList.Where(o => o.CompletedDate >= BeginDate.Value && o.CompletedDate <= EndDate.Value).ToList();
             }
             var monthlyRevenue = orderList
-                .Where(order => order.OrderStatus == OrderStatus.Completed && order.CompletedDate.HasValue) 
+                .Where(order => order.OrderStatus == OrderStatus.Completed && order.CompletedDate.HasValue)
                 .GroupBy(order => new { order.CompletedDate.Value.Year, order.CompletedDate.Value.Month })
                 .Select(group => new
                 {

@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Cqrs.Order.GetOrderForCustomer;
 
-public class GetOrderForCustomerQuery : PaginationRequest ,IRequest<Result>
+public class GetOrderForCustomerQuery : PaginationRequest, IRequest<Result>
 {
     public Guid CustomerId { get; set; }
     public OrderStatus OrderStatus { get; set; }

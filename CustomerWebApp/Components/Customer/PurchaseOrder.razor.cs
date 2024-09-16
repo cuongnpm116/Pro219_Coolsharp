@@ -27,19 +27,19 @@ public partial class PurchaseOrder
     };
     private PaginationResponse<OrderVm> _paginatedOrders = new();
     private IReadOnlyList<OrderDetailVm> _orderDetail;
-   
+
     protected override async Task OnInitializedAsync()
     {
         _request.CustomerId = CustomerId;
         await GetOrders();
     }
-    private Guid? _expandedOrderId; 
+    private Guid? _expandedOrderId;
     private async Task OnOrderRowClick(TableRowClickEventArgs<OrderVm> args)
     {
         if (_expandedOrderId == args.Item.Id)
         {
-            _expandedOrderId = null; 
-            _orderDetail = null; 
+            _expandedOrderId = null;
+            _orderDetail = null;
         }
         else
         {
@@ -47,7 +47,7 @@ public partial class PurchaseOrder
             if (result.Value != null)
             {
                 _orderDetail = result.Value;
-                _expandedOrderId = args.Item.Id; 
+                _expandedOrderId = args.Item.Id;
             }
         }
     }

@@ -32,15 +32,15 @@ namespace StaffWebApp.Components.Order
         public Guid _staffId;
         [Parameter] public EventCallback<OrderStatus> OnOrderStatusChanged { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        _paginationRequest.OrderStatus = OrderStatus;
-        await LoadOrder();
-        StateHasChanged();
-    }
-    private async Task LoadOrder()
-    {
-        var response = await OrderService.GetOrders(_paginationRequest);
+        protected override async Task OnInitializedAsync()
+        {
+            _paginationRequest.OrderStatus = OrderStatus;
+            await LoadOrder();
+            StateHasChanged();
+        }
+        private async Task LoadOrder()
+        {
+            var response = await OrderService.GetOrders(_paginationRequest);
 
             if (response.Value != null)
             {
@@ -64,7 +64,7 @@ namespace StaffWebApp.Components.Order
                 StateHasChanged();
             }
 
-    }
+        }
 
         private async Task HandleKeyPress(KeyboardEventArgs e)
         {
@@ -100,10 +100,10 @@ namespace StaffWebApp.Components.Order
             }
         }
 
-    private async Task OnPreviousPageClicked()
-    {
-        if (_lstOrder.PageNumber > 0)
+        private async Task OnPreviousPageClicked()
         {
+            if (_lstOrder.PageNumber > 0)
+            {
 
                 _paginationRequest.PageNumber--;
                 await LoadOrder();
@@ -136,7 +136,7 @@ namespace StaffWebApp.Components.Order
                     Id = orderId,
                     OrderStatus = nextStatus,
                     //StaffId= _staffId,
-                    StaffId=Guid.Parse("bcf83d3e-bc97-4813-8e2c-96fd34863ea8"),
+                    StaffId = Guid.Parse("bcf83d3e-bc97-4813-8e2c-96fd34863ea8"),
                 };
                 try
                 {
@@ -160,30 +160,22 @@ namespace StaffWebApp.Components.Order
 
         protected async Task CancelOrder(Guid orderId)
         {
+            CancelOrderRequest cancelOrder = new();
+            cancelOrder.OrderId = orderId;
+            cancelOrder.ModifiedBy = Guid.Empty;
             bool? messageResult = await DialogService.ShowMessageBox("Cảnh báo",
                                                    "Bạn chắc chắn hủy đơn hàng không?",
                                                    yesText: "Xóa",
                                                    cancelText: "Hủy");
             if (messageResult == true)
             {
-                try
-                {
-                    await OrderService.CancelOrderStatus(orderId);
-                    Snackbar.Add("Hủy đơn thành công", Severity.Success);
-                    await OnOrderStatusChanged.InvokeAsync(OrderStatus.Cancelled);
-                    await LoadOrder();
-                    StateHasChanged();
-                }
-                catch (Exception ex)
-                {
-
-                    Snackbar.Add($"Hủy đơn hàng thất bại. Vui lòng thử lại !", Severity.Error);
-                }
-                finally 
-                {
-                    MudDialog?.Close(DialogResult.Cancel());
-                }
+                await OrderService.CancelOrderStatus(cancelOrder);
+                Snackbar.Add("Hủy đơn thành công", Severity.Success);
+                await LoadOrder();
+                StateHasChanged();
             }
+
+            MudDialog?.Close(DialogResult.Cancel());
         }
 
         private OrderStatus GetNextStatus(OrderStatus OrderStatus)
@@ -192,20 +184,21 @@ namespace StaffWebApp.Components.Order
             {
                 OrderStatus.Pending => OrderStatus.AwaitingShipment,
                 OrderStatus.AwaitingShipment => OrderStatus.AWaitingPickup,
-                OrderStatus.AWaitingPickup => OrderStatus.Completed,               
+                OrderStatus.AWaitingPickup => OrderStatus.Completed,
             };
         }
+
         #endregion
 
-    private async Task ExportOrders()
-    {
-        // Code xuất dữ liệu
-        try
+        private async Task ExportOrders()
         {
-            bool success = await OrderService.ExportOrdersToExcel(_paginationRequest);
-            if (success == true)
+            // Code xuất dữ liệu
+            try
             {
-                Snackbar.Add("Xuất ra excel thành công", Severity.Success);
+                bool success = await OrderService.ExportOrdersToExcel(_paginationRequest);
+                if (success == true)
+                {
+                    Snackbar.Add("Xuất ra excel thành công", Severity.Success);
 
                 }
                 else
@@ -218,8 +211,7 @@ namespace StaffWebApp.Components.Order
                 Snackbar.Add("Xuất ra excel thất bại", Severity.Error);
             }
         }
-    
-
 
     }
 }
+
