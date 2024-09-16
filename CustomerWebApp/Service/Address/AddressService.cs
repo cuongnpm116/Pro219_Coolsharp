@@ -15,10 +15,10 @@ public class AddressService : IAddressService
     {
         _httpClient = httpClientFactory.CreateClient(ShopConstants.EShopClient);
     }
-    public async Task<Result<List<AddressModel>>> GetUserAddress(Guid userId)
+    public async Task<Result<List<AddressModel>>> GetUserAddress(Guid customerId)
     {
 
-        string url = startUrl + $"get-addresses?userId={userId}";
+        string url = startUrl + $"get-addresses?customerId={customerId}";
         var result = await _httpClient.GetFromJsonAsync<Result<List<AddressModel>>>(url);
         return result;
     }
@@ -71,10 +71,10 @@ public class AddressService : IAddressService
         return result;
     }
 
-    public async Task<Result<AddressModel>> GetDefaultAddress(Guid userId)
+    public async Task<Result<AddressModel>> GetDefaultAddress(Guid customerId)
     {
 
-        string url = startUrl + $"default-address?userid={userId}";
+        string url = startUrl + $"default-address?customerId={customerId}";
         var apiRes = await _httpClient.GetFromJsonAsync<Result<AddressModel>>(url);
         return apiRes;
     }

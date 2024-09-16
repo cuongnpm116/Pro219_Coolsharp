@@ -2,6 +2,7 @@
 using CustomerWebApp.Service.Address;
 using CustomerWebApp.Service.Cart;
 using CustomerWebApp.Service.Category;
+using CustomerWebApp.Service.Customer;
 using CustomerWebApp.Service.Order;
 using CustomerWebApp.Service.Payment;
 using CustomerWebApp.Service.Product;
@@ -17,6 +18,7 @@ internal static class ServiceCollectionExtension
         services.AddTransient<IVietNamAddressService, VietNamAddressService>();
 
         services.AddTransient<IProductService, ProductService>();
+        services.AddTransient<ICustomerService, CustomerService>();
         services.AddTransient<ICategoryService, CategoryService>();
         services.AddTransient<ICartService, CartService>();
         services.AddTransient<IPaymentService, PaymentService>();

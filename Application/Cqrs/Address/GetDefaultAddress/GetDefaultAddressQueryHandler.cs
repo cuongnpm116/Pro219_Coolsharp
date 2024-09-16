@@ -17,7 +17,7 @@ internal sealed class GetDefaultAddressQueryHandler : IRequestHandler<GetDefault
     {
         try
         {
-            var result = await _addressRepository.GetDefaultAddressVm(request.UserId, cancellationToken);
+            var result = await _addressRepository.GetDefaultAddressVm(request.CustomerId, cancellationToken);
             return result;
         }
         catch (Exception ex)

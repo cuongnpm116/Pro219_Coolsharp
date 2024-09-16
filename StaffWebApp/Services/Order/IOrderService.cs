@@ -11,9 +11,9 @@ public interface IOrderService
     Task<Result<OrderVm>> GetOrderDetais(Guid orderId);
 
     Task UpdateOrderStatus(OrderVm request);
-    Task CancelOrderStatus(Guid orderId);
     Task<Result<List<OrderDetailVm>>> TopProducts(OrderPaginationRequest request);
     Task<Result<List<ProductDetailInOrderVm>>> LowStockProducts();
+    Task<Result<bool>> CancelOrderStatus(CancelOrderRequest request);
     Task<Result<List<OrderVm>>> Statistical();
     Task<string> PrintOrder(Guid orderId);
     Task<bool> ExportOrdersToExcel(OrderPaginationRequest request);

@@ -27,7 +27,9 @@ public static class DependencyInjection
         services.AddScoped<IEmailService, EmailService>();
 
         services.AddScoped<IVietNamAddressRepository, VietNamAddressRepository>();
+
         services.AddTransient<IAddressRepository, AddressRepository>();
+        services.AddTransient<ICustomerRepository, CustomerRepository>();
         services.AddTransient<IStaffRepository, StaffRepository>();
         services.AddTransient<IRoleRepository, RoleRepository>();
         services.AddTransient<IProductRepository, ProductRepository>();

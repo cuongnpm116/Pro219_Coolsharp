@@ -1,0 +1,110 @@
+﻿@using CustomerWebApp.Components.Pages
+@using CustomerWebApp.Service.Order.ViewModel
+@using WebAppIntegrated.Constants
+@using WebAppIntegrated.Enum
+@using WebAppIntegrated.Pagination
+
+<MudContainer>
+    <MudTabs Elevation="1"
+             Rounded="true"
+             Centered="true"
+             ActivePanelIndexChanged="async (int index) => await OnSelectedTabChanged(index)">
+        <MudTabPanel Text="Tất cả" />
+        <MudTabPanel Text="Chờ xác nhận" />
+        <MudTabPanel Text="Chờ giao hàng" />
+        <MudTabPanel Text="Hoàn thành" />
+        <MudTabPanel Text="Đã hủy" />
+    </MudTabs>
+
+    <div class="my-3" style="max-width: 70%">
+        <MudTextField @bind-Value="_request.SearchString"
+                      Clearable="true"
+                      Immediate="true"
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      OnAdornmentClick="async () => await SearchClick()">
+        </MudTextField>
+    </div>
+
+    @if (_paginatedOrders.Data is not null && _paginatedOrders.Data.Count > 0)
+    {
+        <MudTable T="OrderVm" Items="_paginatedOrders.Data" Hover="true" OnRowClick="OnOrderRowClick">
+            <HeaderContent>
+                <MudTh>Mã hóa đơn</MudTh>
+                <MudTh>Tổng tiền</MudTh>
+                <MudTh>Số lượng sản phẩm</MudTh>
+                <MudTh>Ngày tạo</MudTh>
+                <MudTh>Trạng thái</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.OrderCode</MudTd>
+                <MudTd>@string.Format("{0:N0} VND", context.TotalPrice)</MudTd>
+                <MudTd>@context.ProductCount</MudTd>
+                <MudTd>@context.CreatedOn</MudTd>
+                <MudTd>@EnumUtility.ConvertOrderStatus(context.OrderStatus)</MudTd>
+                <MudTd>
+                    @if (context.OrderStatus == OrderStatus.Pending)
+                    {
+                        <MudButton OnClick="async () => await CancelOrder(context.Id, context.OrderCode)"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Error">Hủy</MudButton>
+                    }
+                </MudTd>
+            </RowTemplate>
+            <ChildRowContent>
+                @if (_orderDetail is not null && _expandedOrderId == context.Id)@*  _orderDetail is not null && _orderDetail.First().OrderId == context.Id *@
+                {
+                    <td colspan="6">
+                        <MudTable T="OrderDetailVm" Items="_orderDetail">
+                            <HeaderContent>
+                                <MudTh></MudTh>
+                                <MudTh>Tên sản phẩm</MudTh>
+                                <MudTh>Chi tiết</MudTh>
+                                <MudTh>Giá mua</MudTh>
+                                <MudTh>Số lượng</MudTh>
+                                <MudTh>Tổng</MudTh>
+                            </HeaderContent>
+                            <RowTemplate Context="detail">
+                                <MudTd><MudImage Src="@($"{_imageUrl}{detail.ImagePath}")" Height="60" Width="60"></MudImage></MudTd>
+                                <MudTd>@detail.ProductName</MudTd>
+                                <MudTd>@(detail.ColorName + " " + detail.SizeNumber)</MudTd>
+                                <MudTd>@string.Format("{0:N0} VND", detail.Price)</MudTd>
+                                <MudTd>@detail.Quantity</MudTd>
+                                <MudTd>@string.Format("{0:N0} VND", (detail.Price * detail.Quantity))</MudTd>
+                            </RowTemplate>
+                            
+                        </MudTable>
+                        <MudGrid Justify="Justify.FlexEnd"  Style="margin-top: 10px;">
+                            <MudItem xs="12" md="4">
+                                <MudText Typo="Typo.h6">Tổng tiền sản phẩm: @string.Format("{0:N0} VND", context.TotalCost)</MudText>
+                            </MudItem>
+                            <MudFlexBreak/>
+                            <MudItem xs="12" md="4">
+                                <MudText Typo="Typo.h6">Voucher đã dùng: @(context.VoucherCode != null ? context.VoucherCode : "Không có") </MudText>
+                            </MudItem>
+                            <MudFlexBreak />
+                            <MudItem xs="12" md="4">
+                                <MudText Typo="Typo.h6">Số tiền đã giảm: @string.Format("{0:N0} VND", (context.TotalCost - context.TotalPrice))</MudText>
+                            </MudItem>
+                            <MudFlexBreak />
+                            <MudItem xs="12" md="4">
+                                <MudText Typo="Typo.h6">Thành tiền: @string.Format("{0:N0} VND", context.TotalPrice)</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </td>
+                }
+            </ChildRowContent>
+            <PagerContent>
+                <Pagination HasNext="_paginatedOrders.HasNext"
+                            PageNumber="_paginatedOrders.PageNumber"
+                            OnPreviousPageClicked="async () => await OnPreviousPageClicked()"
+                            OnNextPageClicked="async () => await OnNextPageClicked()"></Pagination>
+            </PagerContent>
+        </MudTable>
+    }
+    else
+    {
+        <MudText>Không có đơn hàng</MudText>
+    }
+</MudContainer>

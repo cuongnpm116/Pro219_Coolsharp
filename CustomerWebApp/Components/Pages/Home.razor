@@ -7,42 +7,22 @@
 
 <MudContainer Class="mt-16">
     <MudCarousel Class="mud-width-full" ShowBullets="false" Style="height:635px;" TData="object">
-        <MudCarouselItem Transition="transition">
-            <div class="d-flex position-relative" style="height:100%">
-                <MudImage Width="1842" Height="635" ObjectPosition="ObjectPosition.Left" Class="mx-auto my-auto"
-                          Src="/images/banner.jpg" />
-                <div class="position-absolute" style="top: 40%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                    <h2 style=" padding: 10px;">Tưng bừng khai trương giảm giá 20% tất cả sản phẩm </h2>
-                    <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Success" Href="/products">
-                        Mua ngay
-                    </MudButton>
+        @for (int i = 0; i < 4; i++)
+        {
+            <MudCarouselItem Transition="transition">
+                <div class="d-flex position-relative" style="height:100%">
+                    <MudImage Width="1842" Height="635" ObjectPosition="ObjectPosition.Left" Class="mx-auto my-auto"
+                              Src="/images/banner.jpg" />
+                    <div class="position-absolute" style="top: 40%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                        <h2 style=" padding: 10px;">Tưng bừng khai trương giảm giá tất cả đơn hàng 10%. Số lượng có hạn.</h2>
+                        <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Success" Href="/products">
+                            Mua ngay
+                        </MudButton>
+                    </div>
                 </div>
-            </div>
-        </MudCarouselItem>
-        <MudCarouselItem Transition="transition">
-            <div class="d-flex position-relative" style="height:100%">
-                <MudImage Width="1842" Height="635" ObjectPosition="ObjectPosition.Left" Class="mx-auto my-auto"
-                          Src="/images/banner.jpg" />
-                <div class="position-absolute" style="top: 40%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                    <h2 style=" padding: 10px;">Tưng bừng khai trương giảm giá 20% tất cả sản phẩm </h2>
-                    <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Success" Href="/products">
-                        Mua ngay
-                    </MudButton>
-                </div>
-            </div>
-        </MudCarouselItem>
-        <MudCarouselItem Transition="transition">
-            <div class="d-flex position-relative" style="height:100%">
-                <MudImage Width="1842" Height="635" ObjectPosition="ObjectPosition.Left" Class="mx-auto my-auto"
-                          Src="/images/banner.jpg" />
-                <div class="position-absolute" style="top: 40%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                    <h2 style=" padding: 10px;">Tưng bừng khai trương giảm giá 20% tất cả sản phẩm </h2>
-                    <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Success" Size="Size.Large" Href="/products">
-                        Mua ngay
-                    </MudButton>
-                </div>
-            </div>
-        </MudCarouselItem>
+            </MudCarouselItem>
+        }
+        
     </MudCarousel>
     <MudGrid Class="mt-5">
         <MudItem xs="12" md="6" lg="6">
