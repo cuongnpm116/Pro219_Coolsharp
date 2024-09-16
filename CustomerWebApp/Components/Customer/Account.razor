@@ -1,0 +1,31 @@
+﻿@page "/account"
+@using Microsoft.AspNetCore.Components.Authorization
+
+
+
+<MudContainer>
+    <MudTabs Outlined="true" Position="Position.Left" Rounded="true" Border="true" ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
+        <MudTabPanel Text="Thông tin cơ bản">
+            <Profile CustomerId="_customerId"></Profile>
+        </MudTabPanel>
+        <MudTabPanel Text="Địa chỉ">
+            <Address CustomerId="_customerId"></Address>
+        </MudTabPanel>
+        <MudTabPanel Text="Đơn Mua">
+            <PurchaseOrder CustomerId="_customerId"></PurchaseOrder>
+        </MudTabPanel>
+    </MudTabs>
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
+
+    private Guid _customerId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     AuthenticationState authState = await AuthStateTask;
+    //     _customerId = new(authState.User.Claims.FirstOrDefault(x => x.Type == "userId").Value);
+    // }
+}

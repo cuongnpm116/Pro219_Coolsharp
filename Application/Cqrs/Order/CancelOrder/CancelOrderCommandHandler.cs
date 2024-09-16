@@ -4,18 +4,18 @@ using MediatR;
 
 namespace Application.Cqrs.Order.CancelOrder;
 
-internal sealed class CancelOrderForStaffCommandHandler : IRequestHandler<CancelOrderForStaffCommand, Result>
+internal sealed class CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, Result>
 {
     private readonly IOrderRepository _orderRepository;
-    public CancelOrderForStaffCommandHandler(IOrderRepository orderRepository)
+    public CancelOrderCommandHandler(IOrderRepository orderRepository)
     {
         _orderRepository = orderRepository;
     }
-    public async Task<Result> Handle(CancelOrderForStaffCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
     {
         try
         {
-            var result = await _orderRepository.CancelOrderForStaff(request, cancellationToken);
+            var result = await _orderRepository.CancelOrder(request, cancellationToken);
             return result;
         }
         catch (Exception ex)

@@ -7,11 +7,11 @@ namespace CustomerWebApp.Service.Address;
 
 public interface IAddressService
 {
-    Task<Result<List<AddressModel>>> GetUserAddress(Guid userId);
+    Task<Result<List<AddressModel>>> GetUserAddress(Guid customerId);
     Task<Result<bool>> AddUserAddress(AddAddressRequest model);
     Task<Result<bool>> UpdateUserAddress(UpdateAddressRequest model);
     Task<Result<AddressModel>> GetAddressById(Guid addressId);
     Task<Result<bool>> MakeDefaultAddress(MakeDefaultAddressModel model);
     Task<Result<bool>> DeleteAddress(DeleteAddressRequest model);
-    Task<Result<AddressModel>> GetDefaultAddress(Guid userId);
+    Task<Result<AddressModel>> GetDefaultAddress(Guid customerId);
 }

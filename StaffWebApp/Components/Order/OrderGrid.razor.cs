@@ -125,13 +125,16 @@ public partial class OrderGrid
 
     protected async Task CancelOrder(Guid orderId)
     {
+        CancelOrderRequest cancelOrder = new();
+        cancelOrder.OrderId = orderId;
+        cancelOrder.ModifiedBy = Guid.Empty;
         bool? messageResult = await DialogService.ShowMessageBox("Cảnh báo",
                                                "Bạn chắc chắn hủy đơn hàng không?",
                                                yesText: "Xóa",
                                                cancelText: "Hủy");
         if (messageResult == true)
         {
-            await OrderService.CancelOrderStatus(orderId);
+            await OrderService.CancelOrderStatus(cancelOrder);
             Snackbar.Add("Hủy đơn thành công", Severity.Success);
             await LoadOrder();
             StateHasChanged();
@@ -160,7 +163,7 @@ public partial class OrderGrid
                 Snackbar.Add("Xuất ra excel thất bại", Severity.Error);
             }
         }
-        catch (Exception ex)
+        catch (Exception )
         {
             Snackbar.Add("Xuất ra excel thất bại", Severity.Error);
         }

@@ -8,16 +8,12 @@
 
   <ItemGroup>
     <Compile Remove="Components\Categorys\**" />
-    <Compile Remove="Components\Customer\**" />
     <Compile Remove="Components\Voucher\**" />
     <Content Remove="Components\Categorys\**" />
-    <Content Remove="Components\Customer\**" />
     <Content Remove="Components\Voucher\**" />
     <EmbeddedResource Remove="Components\Categorys\**" />
-    <EmbeddedResource Remove="Components\Customer\**" />
     <EmbeddedResource Remove="Components\Voucher\**" />
     <None Remove="Components\Categorys\**" />
-    <None Remove="Components\Customer\**" />
     <None Remove="Components\Voucher\**" />
   </ItemGroup>
 

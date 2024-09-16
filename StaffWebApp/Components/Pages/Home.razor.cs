@@ -16,7 +16,7 @@ public partial class Home
     private List<OrderDetailVm> _lstOrderDetail = new();
     private List<ProductDetailInOrderVm> _lstProductDetail = new();
     private OrderPaginationRequest _paginationRequest = new();
-    private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
+    private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
     protected override async Task OnInitializedAsync()
     {
         await Statistical();

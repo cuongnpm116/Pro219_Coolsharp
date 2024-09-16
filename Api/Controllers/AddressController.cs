@@ -22,9 +22,9 @@ public class AddressController : ControllerBase
     }
 
     [HttpGet("get-addresses")]
-    public async Task<IActionResult> GetAddresses([FromQuery] Guid userId)
+    public async Task<IActionResult> GetAddresses([FromQuery] Guid customerId)
     {
-        var result = await _mediator.Send(new GetAddressesQuery(userId));
+        var result = await _mediator.Send(new GetAddressesQuery(customerId));
         return Ok(result);
     }
 
@@ -65,9 +65,9 @@ public class AddressController : ControllerBase
     }
 
     [HttpGet("default-address")]
-    public async Task<IActionResult> GetDefaultAddress([FromQuery] Guid userId)
+    public async Task<IActionResult> GetDefaultAddress([FromQuery] Guid CustomerId)
     {
-        GetDefaultAddressQuery query = new(userId);
+        GetDefaultAddressQuery query = new(CustomerId);
         Result result = await _mediator.Send(query);
         return Ok(result);
     }

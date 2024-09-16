@@ -259,19 +259,18 @@ public  class ProductRepository : IProductRepository
             );
         }
 
-        
-        var productDetailsQuery = _context.ProductDetails.AsQueryable();
-        var totalStock = productDetailsQuery.Sum(pd => pd.Stock);
-        var minPrice = productDetailsQuery.Min(pd => pd.SalePrice);
 
-       var productQuery = productsQuery
+        
+
+        var productQuery = productsQuery
             .Select(x => new ProductStaffVm
             {
                 Id = x.Id,
                 Name = x.Name,
-                TotalStock = totalStock,
-                MinPrice = minPrice,
                 Status = x.Status,
+                TotalStock = _context.ProductDetails
+                      .Where(pd => pd.ProductId == x.Id)
+                      .Sum(pd => pd.Stock),
                 ProductDetails = (from pd in _context.ProductDetails
                                   join c in _context.Colors on pd.ColorId equals c.Id
                                   join s in _context.Sizes on pd.SizeId equals s.Id
@@ -292,6 +291,8 @@ public  class ProductRepository : IProductRepository
                                       Images = g.Select(img => img.ImagePath).Where(path => path != null).ToList()
 
                                   }).ToList()
+                
+
             });
 
         if (!string.IsNullOrWhiteSpace(request.SearchString))

@@ -139,7 +139,7 @@
                     <MudCard>
                         <MudLink OnClick="() => NavigateToProductDetail(item.ProductId)"
                                  Underline="Underline.None">
-                            <MudCardMedia Image="@item.ImageUrl"
+                            <MudCardMedia Image="@($"{_imageUrl}{item.ImageUrl}")"
                                           Height="200" />
                         </MudLink>
                         <MudLink OnClick="() => NavigateToProductDetail(item.ProductId)"

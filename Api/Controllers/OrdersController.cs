@@ -2,6 +2,8 @@
 using Application.Cqrs.Order.CreateOrder;
 using Application.Cqrs.Order.Get;
 using Application.Cqrs.Order.GetById;
+using Application.Cqrs.Order.GetOrderDetailForCustomer;
+using Application.Cqrs.Order.GetOrderForCustomer;
 using Application.Cqrs.Order.Statisticals;
 using Application.Cqrs.Order.UpdateOrder;
 using MediatR;
@@ -25,9 +27,21 @@ public class OrdersController : ControllerBase
         var result = await _mediator.Send(request);
         return Ok(result);
     }
+    [HttpGet("get-orders-for-customer")]
+    public async Task<IActionResult> GetOrdersForCustomer([FromQuery] GetOrderForCustomerQuery request)
+    {
+        var result = await _mediator.Send(request);
+        return Ok(result);
+    }
 
-
-
+    [HttpGet("get-orderdetails-for-customer")]
+    public async Task<IActionResult> GetOrderDetailsForCustomer([FromQuery] Guid orderId)
+    {
+        GetOrderDetailForCustomerQuery query = new();
+        query.OrderId = orderId;
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
 
 
     [HttpGet("get-orders-for-Staff")]
@@ -49,8 +63,8 @@ public class OrdersController : ControllerBase
         var result = await _mediator.Send(request);
         return Ok(result);
     }
-    [HttpDelete("cancel-order-status-staff")]
-    public async Task<IActionResult> CancelOrderForStaff([FromQuery] CancelOrderForStaffCommand request)
+    [HttpPut("cancel-order")]
+    public async Task<IActionResult> CancelOrderForStaff([FromBody] CancelOrderCommand request)
     {
         var result = await _mediator.Send(request);
         return Ok(result);

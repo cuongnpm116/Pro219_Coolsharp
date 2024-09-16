@@ -1,9 +1,12 @@
 ﻿using iTextSharp.text;
 using iTextSharp.text.pdf;
+using Newtonsoft.Json;
 using OfficeOpenXml;
 using StaffWebApp.Services.Order.Requests;
 using StaffWebApp.Services.Order.Vms;
+using System.Net.Http;
 using WebAppIntegrated.ApiResponse;
+using WebAppIntegrated.Constants;
 using WebAppIntegrated.Enum;
 using WebAppIntegrated.Pagination;
 
@@ -12,19 +15,17 @@ namespace StaffWebApp.Services.Order;
 public class OrderService : IOrderService
 {
     private const string apiUrl = "/api/Orders";
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly HttpClient _httpClient;
     private readonly IWebHostEnvironment _hostingEnvironment;
     public OrderService(IHttpClientFactory httpClientFactory, IWebHostEnvironment hostingEnvironment)
     {
-        _httpClientFactory = httpClientFactory;
+        _httpClient = httpClientFactory.CreateClient(ShopConstants.EShopClient);
         _hostingEnvironment = hostingEnvironment;
     }
 
-
-
     public async Task<Result<PaginationResponse<OrderVm>>> GetOrders(OrderPaginationRequest request)
     {
-        var httpClient = _httpClientFactory.CreateClient("eShopApi");
+        
         //var url = $"/api/Orders/get-orders-for-Staff?PageNumber={request.PageNumber}&PageSize={request.PageSize}";
         var url = apiUrl + $"/get-orders-for-Staff?";
         if (request.OrderStatus != null)
@@ -41,42 +42,44 @@ public class OrderService : IOrderService
             url += $"&SearchString={Uri.EscapeDataString(request.SearchString)}";
         }
 
-        var result = await httpClient.GetFromJsonAsync<Result<PaginationResponse<OrderVm>>>(url);
+        var result = await _httpClient.GetFromJsonAsync<Result<PaginationResponse<OrderVm>>>(url);
         return result;
     }
 
     public async Task<Result<OrderVm>> GetOrderDetais(Guid orderId)
     {
-        var httpClient = _httpClientFactory.CreateClient("eShopApi");
-        var response = await httpClient.GetFromJsonAsync<Result<OrderVm>>(apiUrl + $"/get-order-detail-staff?orderId={orderId}");
+        
+        var response = await _httpClient.GetFromJsonAsync<Result<OrderVm>>(apiUrl + $"/get-order-detail-staff?orderId={orderId}");
         return response;
     }
 
     public async Task UpdateOrderStatus(OrderVm request)
     {
-        var httpClient = _httpClientFactory.CreateClient("eShopApi");
-        var response = await httpClient.PutAsJsonAsync(apiUrl + $"/update-order-status-staff", request);
+        
+        var response = await _httpClient.PutAsJsonAsync(apiUrl + $"/update-order-status-staff", request);
         response.EnsureSuccessStatusCode();
     }
-    public async Task CancelOrderStatus(Guid orderId)
+    public async Task<Result<bool>> CancelOrderStatus(CancelOrderRequest request)
     {
-        var httpClient = _httpClientFactory.CreateClient("eShopApi");
-        var response = await httpClient.DeleteAsync(apiUrl + $"/cancel-order-status-staff?Id={orderId}");
-        response.EnsureSuccessStatusCode();
+        string url = apiUrl + $"/cancel-order";
+        var apiRes = await _httpClient.PutAsJsonAsync(url, request);
+        string content = await apiRes.Content.ReadAsStringAsync();
+        Result<bool> result = JsonConvert.DeserializeObject<Result<bool>>(content);
+        return result;
     }
     public async Task<Result<List<OrderDetailVm>>> TopProducts()
     {
-        var httpClient = _httpClientFactory.CreateClient("eShopApi");
+        
         string url = apiUrl + $"/top-products ";
-        var result = await httpClient.GetFromJsonAsync<Result<List<OrderDetailVm>>>(url);
+        var result = await _httpClient.GetFromJsonAsync<Result<List<OrderDetailVm>>>(url);
         return result;
     }
 
     public async Task<Result<List<OrderVm>>> Statistical()
     {
-        var httpClient = _httpClientFactory.CreateClient("eShopApi");
+        
         string url = apiUrl + $"/statistical";
-        var result = await httpClient.GetFromJsonAsync<Result<List<OrderVm>>>(url);
+        var result = await _httpClient.GetFromJsonAsync<Result<List<OrderVm>>>(url);
         return result;
     }
 

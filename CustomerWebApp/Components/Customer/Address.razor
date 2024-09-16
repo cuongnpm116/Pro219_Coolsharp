@@ -1,0 +1,64 @@
+﻿@if (_addresses is null)
+{
+        <MudContainer Class="d-flex justify-center align-center">
+            <MudProgressCircular Color="Color.Info" Indeterminate="true" />
+        </MudContainer>
+}
+else if (_addresses.Count == 0)
+{
+        <MudContainer Class="d-flex flex-column justify-center">
+            <MudText Typo="Typo.h5" Align="Align.Center"> Bạn chưa có địa chỉ nào </MudText>
+            <MudPaper Elevation="0" Class="d-flex justify-center">
+                <MudButton OnClick="async () => await OpenAddOrEditAddress(Guid.Empty, CustomerId, true)"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           FullWidth="false">
+                    Thêm địa chỉ mới
+                </MudButton>
+            </MudPaper>
+        </MudContainer>
+}
+else
+{
+        <MudContainer>
+            <MudPaper Class="d-flex justify-end" Elevation="0">
+                <MudButton OnClick="async () => await OpenAddOrEditAddress(Guid.Empty, CustomerId, false)"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary">
+                    Thêm địa chỉ mới
+                </MudButton>
+            </MudPaper>
+            <MudPaper Elevation="1">
+            @foreach (var address in _addresses)
+            {
+                        <MudPaper Class="my-6 pa-6 d-flex flex-row justify-space-between" Style="height:180px;">
+                            <MudPaper Elevation="0" Class="align-content-center">
+                                <MudText>@address.PhoneNumber</MudText>
+                                <MudText>@address.Detail</MudText>
+                                <MudText>@(address.Ward.Name + ", " + address.District.Name + ", " + address.Province.Name)</MudText>
+                            </MudPaper>
+                            <MudPaper Elevation="0" Class="d-flex flex-column justify-center gap-2">
+                        @if (address.IsDefault)
+                        {
+                                        <MudChip T="string" Variant="Variant.Outlined" Color="Color.Info">Mặc định</MudChip>
+                        }
+                        else
+                        {
+                                        <MudButton OnClick="async () => await SetDefaultAddress(_defaultAddressId,address.Id)"
+                                                   Variant="Variant.Filled"
+                                                   Disabled="address.IsDefault">
+                                            Thiết lập mặc định
+                                        </MudButton>
+                                        <MudButton OnClick="async () => await DeleteAddress(address.Id, CustomerId)"
+                                                   Variant="Variant.Filled"
+                                                   Color="Color.Error">Xóa</MudButton>
+                        }
+                                <MudButton OnClick="async () => await OpenAddOrEditAddress(address.Id, CustomerId,address.IsDefault)"
+                                           Variant="Variant.Filled"
+                                           Color="Color.Warning">Cập nhật địa chỉ</MudButton>
+                            </MudPaper>
+                        </MudPaper>
+            }
+            </MudPaper>
+        </MudContainer>
+}

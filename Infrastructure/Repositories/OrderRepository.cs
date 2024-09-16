@@ -18,6 +18,8 @@ using Infrastructure.Context;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.SignalR;
+using Application.Cqrs.Order.GetOrderForCustomer;
+using Infrastructure.Extensions;
 
 namespace Infrastructure.Repositories;
 internal sealed class OrderRepository : IOrderRepository
@@ -112,6 +114,65 @@ internal sealed class OrderRepository : IOrderRepository
         }
     }
 
+    public async Task<Result<List<OrderDetailVm>>> GetOrderDetails(Guid orderId)
+    {
+        var query = await (from od in _context.OrderDetails
+                           join pd in _context.ProductDetails on od.ProductDetailId equals pd.Id
+                           join p in _context.Products on pd.ProductId equals p.Id
+                           join c in _context.Colors on pd.ColorId equals c.Id
+                           join s in _context.Sizes on pd.SizeId equals s.Id
+                           join pi in _context.ProductImages on pd.Id equals pi.ProductDetailId into ppi
+                           from pi in ppi.DefaultIfEmpty()
+                           join i in _context.Images on pi.ImageId equals i.Id into ii
+                           from i in ii.DefaultIfEmpty()
+                           where od.OrderId == orderId
+                           select new OrderDetailVm
+                           {
+                               OrderId = od.OrderId,
+                               Id = od.Id,
+                               ProductDetailId = pd.Id,
+                               ProductId = p.Id,
+                               ProductName = p.Name,
+                               Price = od.Price,
+                               Quantity = od.Quantity,
+                               ColorName = c.Name,
+                               SizeNumber = s.SizeNumber,
+                               ImagePath = i.ImagePath
+                           }).ToListAsync();
+
+        return Result<List<OrderDetailVm>>.Success(query);
+    }
+
+    public async Task<Result<PaginationResponse<OrderVm>>> GetOrdersForCustomer(GetOrderForCustomerQuery request)
+    {
+        var query = from o in _context.Orders
+                    join od in _context.OrderDetails on o.Id equals od.OrderId into orderGroup
+                    join v in _context.Vouchers on o.VoucherId equals v.Id into vv
+                    from v in vv.DefaultIfEmpty()
+                    where o.CustomerId == request.CustomerId
+                    orderby o.CreatedOn descending
+                    select new OrderVm
+                    {
+                        Id = o.Id,
+                        OrderCode = o.OrderCode,
+                        VoucherCode = v != null ? v.VoucherCode : string.Empty,
+                        CreatedOn = o.CreatedOn,
+                        OrderStatus = o.OrderStatus,
+                        TotalPrice = o.TotalPrice,
+                        ProductCount = orderGroup.Count(),
+                        TotalCost = orderGroup.Sum(d => d.Price * d.Quantity)
+                    };
+
+        if (request.OrderStatus != OrderStatus.None)
+        {
+            query = query.Where(o => o.OrderStatus == request.OrderStatus);
+        }
+
+        var result = await query.ToPaginatedResponseAsync(request.PageNumber, request.PageSize);
+        return Result<PaginationResponse<OrderVm>>.Success(result);
+    }
+
+
 
     #region OrderStaff
     public async Task<Result<PaginationResponse<OrderVm>>> GetOrdersForStaff(GetOrdersForStaffQuery request)
@@ -170,8 +231,6 @@ internal sealed class OrderRepository : IOrderRepository
         return Result<PaginationResponse<OrderVm>>.Success(result);
     }
 
-
-
     public async Task<Result<OrderVm>> GetOrderDetailForStaff(Guid orderId)
     {
         try
@@ -210,7 +269,6 @@ internal sealed class OrderRepository : IOrderRepository
                 Id = order.Id,
                 OrderCode = order.OrderCode,
                 VoucherCode = voucher?.VoucherCode != null ? voucher.VoucherCode : "N/A",
-                //ReduceAmount = ,
                 CreatedOn = order.CreatedOn,
                 ConfirmedDate = order.ConfirmedDate,
                 ShippedDate = order.ShippedDate,
@@ -275,7 +333,7 @@ internal sealed class OrderRepository : IOrderRepository
                    .Replace("{ShipAddressDetail}", order.ShipAddressDetail)
                    .Replace("{PhoneNumber}", order.PhoneNumber)
                    .Replace("{EmailAddress}", customer.EmailAddress);
-        if (order.Voucher !=null)
+        if (order.Voucher != null)
         {
             body = body.Replace("{VoucherRowStyle}", "")
                 .Replace("{VoucherCodeRowStyle}", "")
@@ -333,7 +391,7 @@ internal sealed class OrderRepository : IOrderRepository
         try
         {
             Order? exist = await _context.Orders
-                            .Include(x=>x.Voucher)
+                            .Include(x => x.Voucher)
                             .AsNoTracking()
                             .FirstOrDefaultAsync(x => x.Id == request.Id);
             string orderstatus = "";
@@ -400,12 +458,12 @@ internal sealed class OrderRepository : IOrderRepository
         }
     }
 
-    public async Task<Result<bool>> CancelOrderForStaff(CancelOrderForStaffCommand request, CancellationToken token)
+    public async Task<Result<bool>> CancelOrder(CancelOrderCommand request, CancellationToken token)
     {
         try
         {
             var exist = await _context.Orders
-                .FirstOrDefaultAsync(x => x.Id == request.Id);
+                .FirstOrDefaultAsync(x => x.Id == request.OrderId);
 
             if (exist == null)
             {
@@ -415,19 +473,10 @@ internal sealed class OrderRepository : IOrderRepository
                 .Where(x => x.OrderId == exist.Id)
                 .ToListAsync();
 
-            foreach (var detail in orderDetails)
-            {
-                var productDetail = await _context.ProductDetails
-                    .FirstOrDefaultAsync(x => x.Id == detail.ProductDetailId);
-
-                if (productDetail != null)
-                {
-                    productDetail.Stock += detail.Quantity;
-                    _context.ProductDetails.Update(productDetail);
-                }
-            }
-            //huy orderdetail
+           
             exist.OrderStatus = OrderStatus.Cancelled;
+            exist.ModifiedBy = request.ModifiedBy != Guid.Empty ? request.ModifiedBy : Guid.Empty;
+            exist.ModifiedOn = DateTime.Now;
             _context.Orders.Update(exist);
 
             return Result<bool>.Success(true/*, "Hủy Order thành công"*/);
@@ -518,8 +567,6 @@ internal sealed class OrderRepository : IOrderRepository
             return Result<List<OrderVm>>.Error(ex.Message);
         }
     }
-
-
 
 
     #endregion
