@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using WebAppIntegrated.Enum
-@* @attribute [Authorize(Roles = "admin,staff")] *@
+@attribute [Authorize(Roles = "admin,staff")] 
 
 <MudTabs @bind-ActivePanelIndex="_selectedTabIndex" Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Style="margin-top: 30px;">
     <MudTabPanel Text="Tất Cả">

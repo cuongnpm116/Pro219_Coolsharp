@@ -119,7 +119,7 @@ internal sealed class StaffRepository : IStaffRepository
         var vm = await _context.Staffs
             .AsNoTracking()
             .Where(s => s.Id == staffId)
-            .Select(s => new StaffUpdateInfoVm(s.Id, s.FirstName, s.LastName, s.DateOfBirth))
+            .Select(s => new StaffUpdateInfoVm(s.Id, s.FirstName, s.LastName, s.DateOfBirth,s.Username, s.ImageUrl))
             .SingleOrDefaultAsync(cancellationToken);
         return vm;
     }

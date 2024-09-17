@@ -9,7 +9,6 @@ using Application.Cqrs.Customer.UniqueUsername;
 using Application.Cqrs.Customer.UpdateAvatar;
 using Application.Cqrs.Customer.UpdateProfile;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;

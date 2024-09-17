@@ -63,7 +63,7 @@ public partial class ProductDetail
     public static string ProductName { get; set; } = "";
     private Transition transition = Transition.None;
 
-    public Guid CustomerId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
+    public Guid CustomerId;
     #endregion
 
     #region product Method
@@ -232,15 +232,11 @@ public partial class ProductDetail
 
     private async Task AddToCart()
     {
-        //AuthenticationState? authState = await AuthStateTask;
-        //if (authState.User.Identity == null || !authState.User.Identity.IsAuthenticated)
-        //{
-        //    Navigation.NavigateTo("/login");
-        //    StateHasChanged();
-        //}
-        //var stringUserId = authState.User.Claims.FirstOrDefault(x => x.Type == "userId")?.Value;
+        AuthenticationState? authState = await AuthStateTask;
+        
+        var stringUserId = authState.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
 
-        //UserId = new(stringUserId);
+        CustomerId = new(stringUserId);
 
 
         _addCartRequest.ProductId = ProductId;
@@ -284,10 +280,10 @@ public partial class ProductDetail
 
     private async Task BuyNow()
     {
-        //AuthenticationState? authState = await AuthStateTask;
-        //var stringUserId = authState.User.Claims.FirstOrDefault(x => x.Type == "userId")?.Value;
+        AuthenticationState? authState = await AuthStateTask;
+        var stringUserId = authState.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
 
-        //UserId = new(stringUserId);
+        CustomerId = new(stringUserId);
 
         _addCartRequest.ProductId = ProductId;
         _addCartRequest.CustomerId = CustomerId;

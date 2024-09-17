@@ -26,12 +26,12 @@ public partial class OrderDetail
     private decimal _totalAmount = 0;
     [Parameter]
     public string OrderId { get; set; }
-    public Guid _usreId;
+    public Guid _userId;
     private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
     protected override async Task OnInitializedAsync()
     {
-        //AuthenticationState? authState = await AuthStateTask;
-        //_usreId = new(authState.User.Claims.FirstOrDefault(x => x.Type == "userId")?.Value);
+        AuthenticationState? authState = await AuthStateTask;
+        _userId = new(authState.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value);
 
         await LoadOrder();
         if (orderVm.VoucherCode != "N/A")

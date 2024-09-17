@@ -1,0 +1,41 @@
+﻿@{
+    Layout = "Layout";
+}
+
+<div class="login-form-container">
+    <h2 class="text-center mb-4">Cool Sharp</h2>
+    <div class="mb-3">
+        <label for="username" class="form-label">Tài khoản</label>
+        <input type="text" class="form-control" id="username" placeholder="Username" required>
+        <p id="usernameError" class="text-danger"></p>
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Mật khẩu</label>
+        <div class="input-group">
+            <input type="password" class="form-control" id="password" placeholder="Password" required>
+            <span class="input-group-text" id="toggle-password">
+                <i class="fa fa-eye" id="toggle-password-icon"></i>
+            </span>
+        </div>
+        <p id="passwordError" class="text-danger"></p>
+    </div>
+    <button class="btn btn-primary w-100" id="login-button" onclick="buttonLoginClick()">Đăng nhập</button>
+    <div class="d-flex justify-content-between mt-3">
+        <a href="/register">Chưa có tài khoản? Hãy đăng ký</a>
+        <a href="/forget-password">Quên mật khẩu</a>
+    </div>
+</div>
+
+<style>
+    .login-form-container {
+        max-width: 500px;
+        margin: auto;
+        margin-top: 200px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.8); /* Màu nền trắng với độ trong suốt */
+        border-radius: 8px; /* Bo tròn các góc */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+    }
+</style>
+
+<script src="../Views/Account/Login.cshtml.js"> </script>

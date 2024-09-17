@@ -8,12 +8,16 @@
 
   <ItemGroup>
     <Compile Remove="Components\Categorys\**" />
+    <Compile Remove="Components\Orders\**" />
     <Compile Remove="Components\Voucher\**" />
     <Content Remove="Components\Categorys\**" />
+    <Content Remove="Components\Orders\**" />
     <Content Remove="Components\Voucher\**" />
     <EmbeddedResource Remove="Components\Categorys\**" />
+    <EmbeddedResource Remove="Components\Orders\**" />
     <EmbeddedResource Remove="Components\Voucher\**" />
     <None Remove="Components\Categorys\**" />
+    <None Remove="Components\Orders\**" />
     <None Remove="Components\Voucher\**" />
   </ItemGroup>
 
@@ -32,7 +36,6 @@
 
 
   <ItemGroup>
-    <Folder Include="Components\Orders\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 </Project>

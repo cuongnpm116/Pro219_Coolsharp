@@ -2,8 +2,9 @@
 @using CustomerWebApp.Service.Payment
 @using CustomerWebApp.Service.Payment.Dtos
 @using System.Collections.Specialized
-@* @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize] *@
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize]
 
 @inject NavigationManager Navigation
 @if (paymentResponse != null && paymentResponse.VnPayResponseCode == "00")
@@ -66,8 +67,8 @@ else
 @code {
     [Inject]
     private IPaymentService PaymentService { get; set; }
-    // [CascadingParameter]
-    // private Task<AuthenticationState> AuthStateTask { get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; }
     private PaymentResponse paymentResponse = new();
     private CreatePaymentRequest paymentRequest = new();
     private string orderCode;
@@ -75,12 +76,12 @@ else
     private string amount = "";
     private bool isSuccess;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
 
-        // AuthenticationState? authState = await AuthStateTask;
-        // var stringUserId = authState.User.Claims.FirstOrDefault(x => x.Type == "userId")?.Value;
-        // UserId = new(stringUserId);
+        AuthenticationState? authState = await AuthStateTask;
+        var stringUserId = authState.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        CustomerId = new(stringUserId);
 
         var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
         var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
