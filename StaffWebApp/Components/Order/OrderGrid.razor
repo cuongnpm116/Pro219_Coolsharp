@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using WebAppIntegrated.Enum
-@* @attribute [Authorize(Roles = "admin,staff")] *@
+@attribute [Authorize(Roles = "admin,staff")] 
 
 <div class="row" style="margin-top:10px;display:flex;justify-content:space-between">
     <div class="col-8" style="display:flex; align-items: center;">
@@ -22,6 +22,7 @@
                       @onkeydown="HandleKeyPress">
 
         </MudTextField>
+        
     </MudItem>
     <MudItem xs="12" md="3" lg="4">
         <MudSelect T="OrderStatus" Label="Chọn Trạng Thái" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Value="_paginationRequest.OrderStatus" ValueChanged="@StatusChanged">

@@ -1,6 +1,7 @@
 ﻿@page "/account"
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
-
+@attribute [Authorize]
 
 
 <MudContainer>
@@ -21,11 +22,11 @@
     [CascadingParameter]
     private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
-    private Guid _customerId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
+    private Guid _customerId;
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     AuthenticationState authState = await AuthStateTask;
-    //     _customerId = new(authState.User.Claims.FirstOrDefault(x => x.Type == "userId").Value);
-    // }
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationState authState = await AuthStateTask;
+        _customerId = new(authState.User.Claims.FirstOrDefault(x => x.Type == "UserId").Value);
+    }
 }

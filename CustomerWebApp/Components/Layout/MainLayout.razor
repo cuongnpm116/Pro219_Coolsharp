@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
 
 <MudThemeProvider />
 <MyMudThemeProvider />
@@ -20,13 +21,56 @@
 
         <MudTextField @bind-Value="Search" Style="@($"color:{Colors.Gray.Lighten5};")" Placeholder="Nhập tên sản phẩm..." Margin="Margin.Dense"></MudTextField>
         <MudIconButton Icon="@Icons.Material.Filled.Search" Style="@($"color:{Colors.Gray.Lighten5};")" OnClick="NavigateToSearchPage"></MudIconButton>
-        <MudLink Href="/cart">
-            <MudBadge Content="@CartState.Quantity" Overlap="true" Origin="Origin.TopRight" Class="mx-6 my-4">
-                <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Style="@($"color:{Colors.Gray.Lighten5};")" />
-            </MudBadge>
-        </MudLink>
+        <AuthorizeView>
+            <Authorized>
+                <MudLink Href="/cart">
+                    <MudBadge Content="@CartState.Quantity" Overlap="true" Origin="Origin.TopRight" Class="mx-6 my-4">
+                        <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Style="@($"color:{Colors.Gray.Lighten5};")" />
+                    </MudBadge>
+                </MudLink>
 
-        
+                <MudMenu AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+                    <ActivatorContent>
+                        <MudAvatar>
+                            <MudImage Src="@_imageUrl"></MudImage>
+                        </MudAvatar>
+                        <MudText Class="ml-2 mt-2" Style="@($"color:{Colors.Gray.Lighten5};")">@_username</MudText>
+                    </ActivatorContent>
+                    <ChildContent>
+                        <MudMenuItem>
+                            <MudLink Href="/account" Underline="Underline.None">
+                                <MudButton>
+                                    Hồ sơ
+                                </MudButton>
+                            </MudLink>
+                        </MudMenuItem>
+                        <MudMenuItem>
+                            <MudLink Href="/auth/logout" Underline="Underline.None">
+                                <MudButton>
+                                    Đăng xuất
+                                </MudButton>
+                            </MudLink>
+                        </MudMenuItem>
+                    </ChildContent>
+                </MudMenu>
+            </Authorized>
+            <NotAuthorized>
+                <MudLink Href="/login">
+                    <MudButton Style="@($"color:{Colors.Gray.Lighten5};")">
+                        Đăng nhập
+                    </MudButton>
+                </MudLink>
+                <MudLink Href="/register">
+                    <MudButton Style="@($"color:{Colors.Gray.Lighten5};")">
+                        Đăng ký
+                    </MudButton>
+                </MudLink>
+
+            </NotAuthorized>
+        </AuthorizeView>
+       
+
+
 
     </MudAppBar>
 

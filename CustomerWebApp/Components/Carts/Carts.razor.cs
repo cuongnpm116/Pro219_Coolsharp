@@ -2,6 +2,7 @@
 using CustomerWebApp.Service.Cart.Dtos;
 using CustomerWebApp.Service.Cart.ViewModel;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 using Newtonsoft.Json;
 using WebAppIntegrated.Constants;
@@ -11,7 +12,8 @@ namespace CustomerWebApp.Components.Carts;
 
 public partial class Carts
 {
-
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; }
     [Inject]
     NavigationManager Navigation { get; set; }
     [Inject]
@@ -23,7 +25,7 @@ public partial class Carts
     [Inject]
     private SelectedProductState SelectedProductState { get; set; }
 
-    public Guid UserId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
+    public Guid UserId;
     private bool selectAllChecked = false;
     private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
     private bool IsDisable { get; set; } = true;
@@ -37,6 +39,11 @@ public partial class Carts
 
     protected override async Task OnInitializedAsync()
     {
+
+        AuthenticationState? authState = await AuthStateTask;
+        var stringUserId = authState.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        UserId = new(stringUserId);
+
         await LoadCarts();
         foreach (var itemId in SelectedProductState.SelectedProductDetailIds)
         {

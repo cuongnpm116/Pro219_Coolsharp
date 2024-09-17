@@ -4,22 +4,28 @@ using Application.Cqrs.Staff.GetListStaff;
 using Application.Cqrs.Staff.UpdateStaffInfo;
 using Application.Cqrs.Staff.UpdateStaffRole;
 using Application.IRepositories;
+using Application.IServices;
 using Application.ValueObjects.Pagination;
+using Common.Consts;
 using Common.Utilities;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Primitives;
 using Infrastructure.Context;
 using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Infrastructure.Repositories;
 internal sealed class StaffRepository : IStaffRepository
 {
     private readonly AppDbContext _context;
+    private readonly ITokenService _tokenService;
 
-    public StaffRepository(AppDbContext context)
+    public StaffRepository(AppDbContext context, ITokenService tokenService)
     {
         _context = context;
+        _tokenService = tokenService;
     }
 
     public async Task<bool> AddStaffAsync(AddStaffCommand command)
@@ -113,7 +119,7 @@ internal sealed class StaffRepository : IStaffRepository
         var vm = await _context.Staffs
             .AsNoTracking()
             .Where(s => s.Id == staffId)
-            .Select(s => new StaffUpdateInfoVm(s.Id, s.FirstName, s.LastName, s.DateOfBirth))
+            .Select(s => new StaffUpdateInfoVm(s.Id, s.FirstName, s.LastName, s.DateOfBirth,s.Username, s.ImageUrl))
             .SingleOrDefaultAsync(cancellationToken);
         return vm;
     }
@@ -133,5 +139,38 @@ internal sealed class StaffRepository : IStaffRepository
         _context.StaffRoles.RemoveRange(toRemove);
         await _context.StaffRoles.AddRangeAsync(toAdd);
         return true;
+    }
+
+    public  async Task<Result<string>> Authenticate(string username, string password)
+    {
+        Staff? exist = await _context.Staffs.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Username == username);
+        if (exist == null)
+        {
+            return Result<string>.Invalid("Tên tài khoản không tồn tại. Vui lòng nhập lại tên tài khoản");
+        }
+
+        if (!HashUtility.Verify(password, exist.HashedPassword))
+        {
+            return Result<string>.Invalid("Mật khẩu không chính xác. Vui lòng nhập lại mật khẩu");
+        }
+
+        List<string> roleNames = await (from r in _context.Roles
+                                        join ur in _context.StaffRoles on r.Id equals ur.RoleId
+                                        where ur.StaffId == exist.Id
+                                        select r.Code)
+                                        .ToListAsync();
+
+        Claim[] claims =
+        [
+                new("UserId", exist.Id.ToString()),
+                new(ClaimTypes.Name, exist.Username),
+                new(ClaimTypes.Email, exist.Email),
+                new(ClaimTypes.Role, string.Join(";", roleNames)),
+            ];
+
+        string token = _tokenService.GenerateToken(claims);
+
+        return Result<string>.Success(token);
     }
 }

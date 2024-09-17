@@ -1,5 +1,6 @@
 ﻿@page "/productdetail"
 @page "/productdetail/{ProductId:guid}"
+@using Microsoft.AspNetCore.Components.Authorization
 
 <div class="d-flex flex-row align-items-center" style="width: 100%;height: 60px;border-bottom: solid 1px #ebebeb;margin-bottom: 20px;">
     <ul>
@@ -91,13 +92,8 @@
                     <MudText style="margin-top:15px">@_productDetail.Stock Sản phẩm có sẵn</MudText>
                 </div>
                 <MudText Color="Color.Error" Typo="Typo.h6">@Error</MudText>
-                <MudButton Variant="Variant.Outlined"
-                           Class="mt-3"
-                           Style="@($"color:{Colors.Red.Default};background:{Colors.Red.Lighten4};")"
-                           OnClick="AddToCart">Thêm vào giỏ hàng</MudButton>
-
-                <MudButton Variant="Variant.Filled" Class="mt-3" Style="margin-left:15px" Color="Color.Success" OnClick="BuyNow">Mua ngay</MudButton>
-                @* <AuthorizeView>
+                
+                <AuthorizeView>
                     <Authorized>
                         <MudButton Variant="Variant.Outlined"
                                    Class="mt-3"
@@ -117,7 +113,7 @@
                             Mua ngay
                         </MudButton>
                     </NotAuthorized>
-                </AuthorizeView> *@
+                </AuthorizeView>
             </MudItem>
         </MudGrid>
         <MudText Typo="Typo.h4" Style="margin-top:30px">

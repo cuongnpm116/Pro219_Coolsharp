@@ -1,5 +1,7 @@
 ﻿@page "/list-role"
+@using Microsoft.AspNetCore.Authorization
 @using StaffWebApp.Components.Reuse
+@attribute [Authorize(Roles = "admin")]
 
 <MudTable Items=_paginatedRoles.Data
           Hover=true
