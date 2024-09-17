@@ -18,6 +18,8 @@
 
   <ItemGroup>
     <Folder Include="Services\Staff\Dtos\" />
+    <Folder Include="wwwroot\export_invoice\" />
+    <Folder Include="wwwroot\pdf-invoice\" />
   </ItemGroup>
 
 

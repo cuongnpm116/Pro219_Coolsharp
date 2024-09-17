@@ -55,8 +55,8 @@ public partial class OrderDetail
             }
         }
     }
-    private string dataUrl;
 
+    private string PdfUrl { get; set; }
     private async Task PrintInvoice(Guid orderId)
     {
         try
@@ -72,10 +72,8 @@ public partial class OrderDetail
                 byte[] pdfBytes = Convert.FromBase64String(base64String);
                 string fileName = "invoice.pdf";
                 string outputPath = Path.Combine(wwwrootPath, "pdf-invoice", fileName);
-
-                File.WriteAllBytes(outputPath, pdfBytes);
-
                 snackbar.Add("Xuất ra file PDF thành công", Severity.Success);
+              
             }
 
         }

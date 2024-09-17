@@ -23,9 +23,14 @@ internal sealed class SizeRepository : ISizeRepository
 
     public async Task<Result<bool>> AddSize(CreateSizeCommand request)
     {
-
         try
         {
+            bool isDuplicate = await _context.Sizes
+                .AnyAsync(c =>c.SizeNumber == request.SizeNumber);
+            if (isDuplicate)
+            {
+                return Result<bool>.Success(false/*, "Size đã tồn tại."*/);
+            }
             var size = new Size
             {
                 Id = Guid.NewGuid(),
@@ -39,6 +44,8 @@ internal sealed class SizeRepository : ISizeRepository
             return Result<bool>.Error(ex.Message);
         }
     }
+
+
 
 
     public async Task<Result<SizeVm>> GetSizeById(Guid id)
@@ -101,6 +108,12 @@ internal sealed class SizeRepository : ISizeRepository
     {
         try
         {
+            bool isDuplicate = await _context.Sizes
+                .AnyAsync(c => c.SizeNumber == request.SizeNumber);
+            if (isDuplicate)
+            {
+                return Result<bool>.Success(false/*, "Size đã tồn tại."*/);
+            }
             Size? query = await _context.Sizes.FirstOrDefaultAsync(x => x.Id == request.Id);
             query.SizeNumber = request.SizeNumber;
             query.Status = request.Status;

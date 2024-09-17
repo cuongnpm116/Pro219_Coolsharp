@@ -54,6 +54,11 @@ public partial class CreateSize
             {
                 _createRequest.SizeNumber = _sizeVm.SizeNumber;
                 var result = await SizeService.CreateSize(_createRequest);
+                if (result.Value == false)
+                {
+                    Snackbar.Add("Size bị trùng", Severity.Error);
+                    return;
+                }
                 success = result.Value;
                 Snackbar.Add("Thêm kích cỡ thành công", Severity.Success);
             }
@@ -63,6 +68,11 @@ public partial class CreateSize
                 _updateRequest.SizeNumber = _sizeVm.SizeNumber;
                 _updateRequest.Status = _sizeVm.Status;
                 var result = await SizeService.UpdateSize(_updateRequest);
+                if (result.Value == false)
+                {
+                    Snackbar.Add("Size bị trùng", Severity.Error);
+                    return;
+                }
                 success = result.Value;
                 Snackbar.Add("Cập nhật kích cỡ thành công", Severity.Success);
             }

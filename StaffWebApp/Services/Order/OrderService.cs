@@ -172,8 +172,9 @@ public class OrderService : IOrderService
             int index = 1;
             foreach (var detail in orderDetails)
             {
+                string productInfo = $"{detail.ProductName}\nMàu sắc: {detail.ColorName} - Size: {detail.SizeNumber}";
                 AddCellToTable(table, index.ToString(), bodyFont, Element.ALIGN_CENTER);
-                AddCellToTable(table, detail.ProductName, bodyFont, Element.ALIGN_CENTER);
+                AddCellToTable(table, productInfo, bodyFont, Element.ALIGN_CENTER);
                 AddCellToTable(table, detail.Quantity.ToString(), bodyFont, Element.ALIGN_CENTER);
                 AddCellToTable(table, $"{detail.Price:N0} VND", bodyFont, Element.ALIGN_CENTER);
                 AddCellToTable(table, $"{detail.Price * detail.Quantity:N0} VND", bodyFont, Element.ALIGN_CENTER);

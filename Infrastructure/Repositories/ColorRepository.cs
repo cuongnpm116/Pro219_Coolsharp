@@ -25,6 +25,12 @@ internal sealed class ColorRepository : IColorRepository
     {
         try
         {
+            bool isDuplicate = await _context.Colors
+                .AnyAsync(c => c.Name.ToLower() == request.Name.ToLower());
+            if (isDuplicate)
+            {          
+                return Result<bool>.Success(false/*, "Color đã tồn tại."*/);
+            }
             var color = new Color
             {
                 Id = Guid.NewGuid(),
@@ -38,12 +44,18 @@ internal sealed class ColorRepository : IColorRepository
         {
             return Result<bool>.Error(ex.Message);
         }
-
     }
+
     public async Task<Result<bool>> UpdateColor(UpdateColorCommand request)
     {
         try
         {
+            bool isDuplicate = await _context.Colors
+                .AnyAsync(c => c.Name.ToLower() == request.Name.ToLower());
+            if (isDuplicate)
+            {
+                return Result<bool>.Success(false/*, "Color đã tồn tại."*/);
+            }
             Color? query = await _context.Colors.FirstOrDefaultAsync(x => x.Id == request.Id);
             query.Name = request.Name;
             query.Status = request.Status;

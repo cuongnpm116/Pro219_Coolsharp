@@ -53,17 +53,27 @@ public partial class CreateColor
         {
             if (Id == Guid.Empty)
             {
-                _createRequest.Name = _colorVm.Name;
+                _createRequest.Name = _colorVm.Name.Trim(); ;
                 var result = await ColorService.CreateColor(_createRequest);
+                if (result.Value == false)
+                {
+                    Snackbar.Add("Tên màu bị trùng", Severity.Error);
+                    return;
+                }
                 success = result.Value;
                 Snackbar.Add("Thêm màu thành công", Severity.Success);
             }
             else
             {
                 _updateRequest.Id = Id;
-                _updateRequest.Name = _colorVm.Name;
+                _updateRequest.Name = _colorVm.Name.Trim(); ;
                 _updateRequest.Status = _colorVm.Status;
                 var result = await ColorService.UpdateColor(_updateRequest);
+                if (result.Value == false)
+                {
+                    Snackbar.Add("Tên màu bị trùng", Severity.Error);
+                    return;
+                }
                 success = result.Value;
                 Snackbar.Add("Cập nhật màu thành công", Severity.Success);
             }
