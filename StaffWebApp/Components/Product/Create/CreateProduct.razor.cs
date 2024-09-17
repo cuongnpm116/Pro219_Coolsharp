@@ -73,6 +73,11 @@ public partial class CreateProduct
             Snackbar.Add("Vui lòng kiểm tra lại thông tin bạn nhập", Severity.Error);
             return;
         }
+        bool? confirm = await DialogService.ShowMessageBox(
+            "Xác nhận",
+            $"Bạn chắc chắn muốn thêm sản phẩm {_productInfoForm._product.Name}",
+            yesText: "Có",
+            cancelText: "Hủy");
 
         var result = await ProductService.CreateProductAsync(
             _productInfoForm._product,
@@ -97,6 +102,10 @@ public partial class CreateProduct
     private void RemoveProductDetail(ProductDetailVm productDetail)
     {
         _productDetailForms.Remove(productDetail);
+        if (productDetail.Color is null || productDetail.Color.Id == Guid.Empty)
+        {
+            return;
+        }
         bool isUsedColor = _productDetailForms.Values.Any(x => x.ProductDetail.Color == productDetail.Color);
         if (!isUsedColor)
         {

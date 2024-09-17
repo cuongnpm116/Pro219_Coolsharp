@@ -12,7 +12,6 @@
     </TitleContent>
 
     <DialogContent>
-
         <MudForm @ref=_form Model="_product" Validation="_validator.ValidateValue" ValidationDelay="0">
             <MudTextField @bind-Value=_product.Name
                           For="() => _product.Name"

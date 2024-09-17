@@ -18,7 +18,7 @@
                           IconSize="Size.Medium"
                           Class="mt-0">
             </MudTextField>
-            <MudButton OnClick="async () => await OnOpenCreateProductClick()" Color="Color.Primary">Thêm sản phẩm</MudButton>
+            <MudButton OnClick="() =>  OnOpenCreateProductClick()" Color="Color.Primary">Thêm sản phẩm</MudButton>
         </ToolBarContent>
         <HeaderContent>
             <MudTh>Stt</MudTh>
@@ -46,10 +46,13 @@
 
 @code {
     [Inject]
-    private IProductService ProductService { get; set; } = null!;
+    private IDialogService DialogService { get; set; } = null!;
 
     [Inject]
-    private IDialogService DialogService { get; set; } = null!;
+    private NavigationManager NavigationManager { get; set; } = null!;
+
+    [Inject]
+    private IProductService ProductService { get; set; } = null!;
 
     private GetProductPaginationRequest _request = new();
     private PaginationResponse<ProductVm> _paginatedProduct = new();
@@ -90,6 +93,8 @@
         }
     }
 
-    private async Task OnOpenCreateProductClick()
-    { }
+    private void OnOpenCreateProductClick()
+    {
+        NavigationManager.NavigateTo("/create-product");
+    }
 }

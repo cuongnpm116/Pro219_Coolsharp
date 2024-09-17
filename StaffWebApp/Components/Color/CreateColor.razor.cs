@@ -9,13 +9,17 @@ namespace StaffWebApp.Components.Color;
 public partial class CreateColor
 {
     [Inject]
-    private IColorService ColorService { get; set; }
+    private IColorService ColorService { get; set; } = null!;
+
     [Inject]
-    private IDialogService DiagService { get; set; }
+    private IDialogService DiagService { get; set; } = null!;
+
     [Inject]
-    private ISnackbar Snackbar { get; set; }
+    private ISnackbar Snackbar { get; set; } = null!;
+
     [CascadingParameter]
-    private MudDialogInstance? MudDialog { get; set; }
+    private MudDialogInstance MudDialog { get; set; } = null!;
+
     [Parameter]
     public Guid Id { get; set; }
 
@@ -35,15 +39,16 @@ public partial class CreateColor
                 _colorVm = result.Value;
 
             }
-
         }
     }
+
     private async Task Submit()
     {
-        bool? messageResult = await DiagService.ShowMessageBox("Cảnh báo",
-                                                         "Bạn chắc chắn với thay đổi?",
-                                                         yesText: "Lưu",
-                                                         cancelText: "Hủy");
+        bool? messageResult = await DiagService.ShowMessageBox(
+            "Xác nhận",
+            $"Bạn chắc chắn muốn thêm màu {_colorVm.Name}?",
+            yesText: "Lưu",
+            cancelText: "Hủy");
         if (messageResult == true && Validate())
         {
             if (Id == Guid.Empty)
@@ -51,7 +56,7 @@ public partial class CreateColor
                 _createRequest.Name = _colorVm.Name;
                 var result = await ColorService.CreateColor(_createRequest);
                 success = result.Value;
-                Snackbar.Add($"{result.Message}", Severity.Success);
+                Snackbar.Add("Thêm màu thành công", Severity.Success);
             }
             else
             {
@@ -60,17 +65,14 @@ public partial class CreateColor
                 _updateRequest.Status = _colorVm.Status;
                 var result = await ColorService.UpdateColor(_updateRequest);
                 success = result.Value;
-                Snackbar.Add($"{result.Message}", Severity.Success);
+                Snackbar.Add("Cập nhật màu thành công", Severity.Success);
             }
-
-
-            MudDialog?.Close(DialogResult.Ok(success));
-
+            MudDialog.Close(DialogResult.Ok(success));
         }
     }
+
     private bool Validate()
     {
-
         if (string.IsNullOrWhiteSpace(_colorVm.Name))
         {
             Snackbar.Add("Vui lòng nhập màu.", Severity.Error);
@@ -86,6 +88,6 @@ public partial class CreateColor
 
     private void OnClickCloseBtn()
     {
-        MudDialog?.Close(DialogResult.Ok(false));
+        MudDialog.Close(DialogResult.Ok(false));
     }
 }

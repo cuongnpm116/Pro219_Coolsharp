@@ -9,14 +9,17 @@ namespace StaffWebApp.Components.Size;
 public partial class CreateSize
 {
     [Inject]
-    private ISizeService SizeService { get; set; }
+    private ISizeService SizeService { get; set; } = null!;
 
     [Inject]
-    private IDialogService DiagService { get; set; }
+    private IDialogService DiagService { get; set; } = null!;
+
     [Inject]
-    private ISnackbar Snackbar { get; set; }
+    private ISnackbar Snackbar { get; set; } = null!;
+
     [CascadingParameter]
-    private MudDialogInstance? MudDialog { get; set; }
+    private MudDialogInstance MudDialog { get; set; } = null!;
+
     [Parameter]
     public Guid Id { get; set; }
 
@@ -34,27 +37,25 @@ public partial class CreateSize
             if (result.Value != null)
             {
                 _sizeVm = result.Value;
-
             }
-
         }
     }
+
     private async Task Submit()
     {
-        bool? messageResult = await DiagService.ShowMessageBox("Cảnh báo",
-                                                         "Bạn chắc chắn với thay đổi?",
-                                                         yesText: "Lưu",
-                                                         cancelText: "Hủy");
+        bool? messageResult = await DiagService.ShowMessageBox(
+            "Xác nhận",
+            $"Bạn chắc chắn muốn thêm cỡ {_sizeVm.SizeNumber}",
+            yesText: "Lưu",
+            cancelText: "Hủy");
         if (messageResult == true && Validate())
         {
             if (Id == Guid.Empty)
             {
-
-
                 _createRequest.SizeNumber = _sizeVm.SizeNumber;
                 var result = await SizeService.CreateSize(_createRequest);
                 success = result.Value;
-                Snackbar.Add($"{result.Message}", Severity.Success);
+                Snackbar.Add("Thêm kích cỡ thành công", Severity.Success);
             }
             else
             {
@@ -63,17 +64,15 @@ public partial class CreateSize
                 _updateRequest.Status = _sizeVm.Status;
                 var result = await SizeService.UpdateSize(_updateRequest);
                 success = result.Value;
-                Snackbar.Add($"{result.Message}", Severity.Success);
+                Snackbar.Add("Cập nhật kích cỡ thành công", Severity.Success);
             }
-
-
-            MudDialog?.Close(DialogResult.Ok(success));
-
+            MudDialog.Close(DialogResult.Ok(success));
         }
     }
+
     private bool Validate()
     {
-        if (_sizeVm.SizeNumber == null || string.IsNullOrWhiteSpace(_sizeVm.SizeNumber.ToString()))
+        if (_sizeVm.SizeNumber == 0 || string.IsNullOrWhiteSpace(_sizeVm.SizeNumber.ToString()))
         {
             Snackbar.Add("Vui lòng nhập size.", Severity.Error);
             return false;
@@ -97,6 +96,6 @@ public partial class CreateSize
 
     private void OnClickCloseBtn()
     {
-        MudDialog?.Close(DialogResult.Ok(false));
+        MudDialog.Close(DialogResult.Ok(false));
     }
 }

@@ -15,7 +15,7 @@
                   CanCancelEdit
                   @bind-SelectedItem="_selectedDetail"
                   CommitEditTooltip="Cập nhật"
-                  OnCommitEditClick="@(() => Snackbar.Add("Cập nhật chi tiết thành công"))"
+                  OnCommitEditClick="@(() => Snackbar.Add("Cập nhật chi tiết thành công", Severity.Success))"
                   RowEditPreview="EditDetail"
                   RowEditCancel="SetToOriginalValue"
                   RowEditCommit="async (object detail) => await UpdateDetail(detail)"
@@ -49,6 +49,7 @@
                                      MaxItems="_colors.Count()"
                                      ToStringFunc="(ColorForSelectVm vm) => vm is null ? string.Empty : vm.Name"
                                      For="() => context.Color"
+                                     Validation="@(async () => await _validator.ValidateValueAsync(context, "Color"))"
                                      Immediate
                                      OnlyValidateIfDirty
                                      Required
@@ -61,6 +62,7 @@
                                      MaxItems="_sizes.Count()"
                                      ToStringFunc="(SizeForSelectVm vm) => vm is null ? string.Empty : vm.SizeNumber.ToString()"
                                      For="() => context.Size"
+                                     Validation="@(async () => await _validator.ValidateValueAsync(context, "Size"))"
                                      Immediate
                                      OnlyValidateIfDirty
                                      Required
@@ -69,6 +71,8 @@
                 <MudTd>
                     <MudTextField @bind-Value=context.OriginalPrice
                                   For="() => context.OriginalPrice"
+                                  Validation="@(async (decimal x) => await _validator.ValidateValueAsync(context, "OriginalPrice"))"
+                                  Immediate
                                   Required
                                   RequiredError="Hãy nhập giá trị cho giá nhập">
                     </MudTextField>
@@ -76,13 +80,17 @@
                 <MudTd>
                     <MudTextField @bind-Value=context.Price
                                   For="() => context.Price"
+                                  Validation="@(async (decimal y) => await _validator.ValidateValueAsync(context, "Price"))"
+                                  Immediate
                                   Required
                                   RequiredError="Hãy nhập giá trị cho giá nhập">
                     </MudTextField>
                 </MudTd>
                 <MudTd>
                     <MudTextField @bind-Value=context.Stock
+                                  OnBlur="OnStockLoseFocus"
                                   For="() => context.Stock"
+                                  Validation="@(async (int z) => await _validator.ValidateValueAsync(context, "Stock"))"
                                   Required
                                   RequiredError="Hãy nhập giá trị cho giá nhập">
                     </MudTextField>
@@ -102,123 +110,4 @@
     </DialogActions>
 </MudDialog>
 
-@code {
-    [Inject]
-    private ISnackbar Snackbar { get; set; } = null!;
 
-    [Inject]
-    private IProductService ProductService { get; set; } = null!;
-
-    [Inject]
-    private IColorService ColorService { get; set; } = null!;
-
-    [Inject]
-    private ISizeService SizeService { get; set; } = null!;
-
-    [CascadingParameter]
-    public MudDialogInstance DialogInstance { get; set; } = null!;
-
-    [Parameter]
-    public Guid ProductId { get; set; }
-
-    private IEnumerable<ColorForSelectVm> _colors = [];
-    private IEnumerable<SizeForSelectVm> _sizes = [];
-    private IEnumerable<DetailVm> _details = [];
-
-    private DetailVm _selectedDetail;
-    private DetailVm _backupDetail;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await GetColor();
-        await GetSize();
-        await GetDetails();
-    }
-
-    private async Task GetDetails()
-    {
-        _details = await ProductService.GetDetails(ProductId);
-    }
-
-    private async Task GetColor()
-    {
-        var colors = await ColorService.GetColorForSelectVms();
-        _colors = colors;
-    }
-
-    private async Task GetSize()
-    {
-        var sizes = await SizeService.GetSizeForSelectVms();
-        _sizes = sizes;
-    }
-
-    private string GetClassification(string colorName, int sizeNumber)
-    {
-        return colorName + ", " + sizeNumber;
-    }
-
-    private async Task UpdateDetail(object detail)
-    {
-        bool result = await ProductService.UpdateDetailAsync(detail as DetailVm);
-        if (result)
-        {
-            _selectedDetail = null;
-            await GetDetails();
-        }
-    }
-
-    private void EditDetail(object detail)
-    {
-        _selectedDetail = detail as DetailVm;
-        _backupDetail = new DetailVm
-            {
-                Id = _selectedDetail.Id,
-                Size = _selectedDetail.Size,
-                Color = _selectedDetail.Color,
-                OriginalPrice = _selectedDetail.OriginalPrice,
-                Price = _selectedDetail.Price,
-                Stock = _selectedDetail.Stock
-            };
-    }
-
-    private void SetToOriginalValue(object item)
-    {
-        var detail = item as DetailVm;
-        detail.Size = _backupDetail.Size;
-        detail.Color = _backupDetail.Color;
-        detail.OriginalPrice = _backupDetail.OriginalPrice;
-        detail.Price = _backupDetail.Price;
-        detail.Stock = _backupDetail.Stock;
-    }
-
-    private void ChangeColor(ColorForSelectVm color)
-    {
-        _selectedDetail.Color = color;
-    }
-
-    private void OnStockLoseFocus()
-    {
-        if (_selectedDetail.Stock < 0)
-        {
-            _selectedDetail.Stock = 0;
-        }
-    }
-
-    private async Task<IEnumerable<ColorForSelectVm>> SearchColors(string value, CancellationToken token)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return await Task.FromResult(_colors);
-        }
-        return await Task.FromResult(_colors.Where(x => x.Name.Contains(value, StringComparison.CurrentCultureIgnoreCase)));
-    }
-
-    private async Task<IEnumerable<SizeForSelectVm>> SearchSizes(string value, CancellationToken token)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return await Task.FromResult(_sizes);
-        }
-        return await Task.FromResult(_sizes.Where(x => x.SizeNumber.ToString().Contains(value)));
-    }
-}
