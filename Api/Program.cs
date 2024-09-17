@@ -28,6 +28,7 @@ builder.Services.AddControllers();
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerDocumentation();
 
 builder.Services.AddCorsPolicy();
 builder.Services.AddJwtAuthentication(builder.Configuration);
@@ -40,7 +41,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(settings => settings.DisplayRequestDuration());
 }
+app.UseSwagger();
 
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseCors("eShopApi");
