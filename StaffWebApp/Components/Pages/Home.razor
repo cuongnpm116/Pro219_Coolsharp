@@ -1,7 +1,8 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Authorization
 @using WebAppIntegrated.Enum
- @attribute [Authorize(Roles = "admin,staff")] 
+@inject IJSRuntime JS
+ @attribute [Authorize(Roles = "admin,staff")]
 
 <MudGrid Justify="Justify.SpaceAround" Spacing="3" Style="margin-top: 30px;">
     <!-- Hôm Nay -->
@@ -25,14 +26,11 @@
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn thành công:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@ordersInDay.Count(order => order.OrderStatus == OrderStatus.Completed)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="4">
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn huỷ:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@ordersInDay.Count(order => order.OrderStatus == OrderStatus.Cancelled)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
-                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn trả:</MudText>
-                            <MudText Typo="Typo.h6" Align="Align.Center">0</MudText>
-                        </MudItem>
+                    
                     </MudGrid>
                 }
             </MudGrid>
@@ -59,14 +57,11 @@
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn thành công:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@ordersInMonth.Count(order => order.OrderStatus == OrderStatus.Completed)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="4">
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn huỷ:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@ordersInMonth.Count(order => order.OrderStatus == OrderStatus.Cancelled)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
-                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn trả:</MudText>
-                            <MudText Typo="Typo.h6" Align="Align.Center">0</MudText>
-                        </MudItem>
+                       
                     </MudGrid>
                 }
             </MudGrid>
@@ -93,14 +88,11 @@
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn thành công:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@ordersInYear.Count(order => order.OrderStatus == OrderStatus.Completed)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="4">
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn huỷ:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@ordersInYear.Count(order => order.OrderStatus == OrderStatus.Cancelled)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
-                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn trả:</MudText>
-                            <MudText Typo="Typo.h6" Align="Align.Center">0</MudText>
-                        </MudItem>
+                    
                     </MudGrid>
                 }
             </MudGrid>
@@ -126,14 +118,11 @@
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn thành công:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@_Statistical.Count(order => order.OrderStatus == OrderStatus.Completed)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="4">
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn huỷ:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@_Statistical.Count(order => order.OrderStatus == OrderStatus.Cancelled)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
-                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn trả:</MudText>
-                            <MudText Typo="Typo.h6" Align="Align.Center">0</MudText>
-                        </MudItem>
+                    
                     </MudGrid>
                 }
             </MudGrid>
@@ -170,8 +159,9 @@
     <MudItem xs="12">
         <MudGrid>
             <MudItem xs="6">
-                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels"
-                          YAxisTicks="1000" Width="100%" Height="350px"></MudChart>
+                <div>
+                    <canvas id="myChart"></canvas>
+                </div>
             </MudItem>
             <MudItem xs="6">
                 <MudPaper Class="pa-4">
@@ -241,7 +231,7 @@
                         <MudTd align="left">
                             <MudText Typo="Typo.body1">@context.ProductName</MudText>
                             <MudText Typo="Typo.caption" Class="text-muted">
-                                Màu: @context.ColorName - Size: @context.SizeNumber
+                                Màu sắc: @context.ColorName - Size: @context.SizeNumber
                             </MudText>
                         </MudTd>
                         <MudTd align="center">
@@ -278,7 +268,7 @@
                         <MudTd align="left">
                             <MudText Typo="Typo.body1">@context.ProductName</MudText>
                             <MudText Typo="Typo.caption" Class="text-muted">
-                                Màu: @context.ColorName - Size: @context.SizeNumber
+                                Màu sắc: @context.ColorName - Size: @context.SizeNumber
                             </MudText>
                         </MudTd>
                         <MudLink Href="" Style="text-decoration:none">
@@ -293,4 +283,40 @@
     </MudItem>
 
 </MudGrid>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let myChart;
+
+    function updateChart(chartData) {
+        // Kiểm tra và phá hủy biểu đồ nếu đã tồn tại
+        if (myChart) {
+            myChart.destroy();
+        }
+
+        var ctx = document.getElementById('myChart').getContext('2d');
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Doanh thu theo tháng',
+                    data: chartData.data,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+
 

@@ -409,6 +409,7 @@ internal sealed class OrderRepository : IOrderRepository
             {
                 case OrderStatus.AwaitingShipment:
                     exist.ConfirmedDate = DateTime.Now;
+                    exist.StaffId= request.StaffId;
                     exist.OrderStatus = OrderStatus.AwaitingShipment;
                     if (exist != null)
                     {
@@ -508,11 +509,13 @@ internal sealed class OrderRepository : IOrderRepository
                         join k in _context.Sizes on c.SizeId equals k.Id
                         where b.OrderStatus == OrderStatus.Completed
                         select new { a, b, c, d, i, h, k };
+
             if (request.Begin != null && request.End != null)
             {
-                query = query.Where(s => s.b.CreatedOn >= request.Begin && s.b.CreatedOn <= request.End);
+                // Sửa request.End để có thời gian là cuối ngày 9/18/2024
+                var newEnd = request.End.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(s => s.b.CompletedDate >= request.Begin.Value && s.b.CompletedDate <= newEnd);
             }
-
             var topProducts = await query
                 .GroupBy(g => g.c.Id)
                 .Select(g => new
