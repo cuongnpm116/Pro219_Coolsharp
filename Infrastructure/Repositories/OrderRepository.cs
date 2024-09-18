@@ -409,6 +409,7 @@ internal sealed class OrderRepository : IOrderRepository
             {
                 case OrderStatus.AwaitingShipment:
                     exist.ConfirmedDate = DateTime.Now;
+                    exist.StaffId= request.StaffId;
                     exist.OrderStatus = OrderStatus.AwaitingShipment;
                     if (exist != null)
                     {
