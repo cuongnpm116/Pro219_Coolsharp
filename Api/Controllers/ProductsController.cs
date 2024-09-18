@@ -1,4 +1,8 @@
-﻿using Application.Cqrs.Product.Create;
+﻿using Application.Cqrs.Product.AddDetail;
+using Application.Cqrs.Product.AddDetailWithNewImages;
+using Application.Cqrs.Product.CheckColorExistedInProduct;
+using Application.Cqrs.Product.CheckUpdateDetail;
+using Application.Cqrs.Product.Create;
 using Application.Cqrs.Product.GetFeaturedProduct;
 using Application.Cqrs.Product.GetInfo;
 using Application.Cqrs.Product.GetProductCustomerAppPaging;
@@ -9,6 +13,7 @@ using Application.Cqrs.Product.GetProductDetailsForStaff;
 using Application.Cqrs.Product.GetProductDetailStock;
 using Application.Cqrs.Product.GetProductForStaff;
 using Application.Cqrs.Product.GetProductImage;
+using Application.Cqrs.Product.UpdateDetailWithNewImages;
 using Application.Cqrs.Product.UpdateProductDetail;
 using Application.Cqrs.Product.UpdateProductInfo;
 using MediatR;
@@ -122,6 +127,41 @@ public class ProductsController : ControllerBase
 
     [HttpPut("update-detail")]
     public async Task<IActionResult> UpdateProductDetail([FromBody] UpdateProductDetailCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result.Value);
+    }
+
+    [HttpGet("check-update-detail-exist")]
+    public async Task<IActionResult> CheckUpdateDetailExist([FromQuery] CheckUpdateDetailQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(result.Value);
+    }
+
+    [HttpGet("check-color-existed-in-product")]
+    public async Task<IActionResult> CheckColorExistedInProduct([FromQuery] CheckColorExistedInProductQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(result.Value);
+    }
+
+    [HttpPut("update-detail-with-new-images")]
+    public async Task<IActionResult> UpdateDetailWithNewImages([FromBody] UpdateDetailWithNewImageCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result.Value);
+    }
+
+    [HttpPost("add-detail-with-new-images")]
+    public async Task<IActionResult> AddDetailWithNewImages([FromBody] AddDetailWithNewImagesCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result.Value);
+    }
+
+    [HttpPost("add-detail")]
+    public async Task<IActionResult> AddDetail([FromBody] AddDetailCommand command)
     {
         var result = await _mediator.Send(command);
         return Ok(result.Value);

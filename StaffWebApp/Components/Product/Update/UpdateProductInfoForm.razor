@@ -1,4 +1,5 @@
-﻿@using StaffWebApp.Services.Category
+﻿@using StaffWebApp.Components.Category
+@using StaffWebApp.Services.Category
 @using StaffWebApp.Services.Category.ViewModel
 @using StaffWebApp.Services.Product
 @using StaffWebApp.Services.Product.Dtos
@@ -12,6 +13,12 @@
     </TitleContent>
 
     <DialogContent>
+        <MudButton OnClick="() => OpenAddCategoryDialogClick()"
+                   Color="Color.Secondary"
+                   Variant="Variant.Outlined"
+        Class="mb-2">
+            Thêm danh mục
+        </MudButton>
         <MudForm @ref=_form Model="_product" Validation="_validator.ValidateValue" ValidationDelay="0">
             <MudTextField @bind-Value=_product.Name
                           For="() => _product.Name"
@@ -97,6 +104,17 @@
                     Dialog.Close(DialogResult.Cancel);
                 }
             }
+        }
+    }
+
+    private async Task OpenAddCategoryDialogClick()
+    {
+        DialogOptions options = new() { MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<CreateCategoryDialog>("Thêm danh mục", options);
+        var dialogResult = await dialog.Result;
+        if (dialogResult is not null && !dialogResult.Canceled)
+        {
+            await GetCategories();
         }
     }
 

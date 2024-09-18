@@ -18,7 +18,12 @@
                           IconSize="Size.Medium"
                           Class="mt-0">
             </MudTextField>
-            <MudButton OnClick="() =>  OnOpenCreateProductClick()" Color="Color.Primary">Thêm sản phẩm</MudButton>
+            <MudButton OnClick="() => OnOpenCreateProductClick()"
+                       Color="Color.Primary"
+                       Variant="Variant.Outlined"
+                       Class="ml-3">
+                Thêm sản phẩm
+            </MudButton>
         </ToolBarContent>
         <HeaderContent>
             <MudTh>Stt</MudTh>
@@ -33,68 +38,21 @@
             <MudTd>@string.Join(", ", context.Categories)</MudTd>
             <MudTd>@context.TotalStock</MudTd>
             <MudTd>
-                <MudButton OnClick="async () => await ShowDetails(context.Id, context.Name)">Chi tiết</MudButton>
-                <MudButton OnClick="async () => await ShowUpdateProductInfoDialog(context.Id, context.Name)">Sửa thông tin chung</MudButton>
+                <MudButton OnClick="async () => await ShowDetails(context.Id, context.Name)"
+                           Color="Color.Secondary"
+                           Variant="Variant.Outlined">
+                    Chi tiết
+                </MudButton>
+                <MudButton OnClick="async () => await ShowUpdateProductInfoDialog(context.Id, context.Name)"
+                           Color="Color.Secondary"
+                           Variant="Variant.Outlined">
+                    Sửa thông tin chung
+                </MudButton>
             </MudTd>
         </RowTemplate>
         <PagerContent>
-            <Pagination HasNext="_paginatedProduct.HasNext" />
+            <Pagination HasNext="_paginatedProduct.HasNext"
+                        PageNumber="_paginatedProduct.PageNumber" />
         </PagerContent>
     </MudTable>
 </MudContainer>
-
-
-@code {
-    [Inject]
-    private IDialogService DialogService { get; set; } = null!;
-
-    [Inject]
-    private NavigationManager NavigationManager { get; set; } = null!;
-
-    [Inject]
-    private IProductService ProductService { get; set; } = null!;
-
-    private GetProductPaginationRequest _request = new();
-    private PaginationResponse<ProductVm> _paginatedProduct = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        await GetProducts();
-    }
-
-    private async Task GetProducts()
-    {
-        _paginatedProduct = await ProductService.GetProducts(_request);
-    }
-
-    private async Task ShowUpdateProductInfoDialog(Guid productId, string productName)
-    {
-        var dialogOptions = new DialogOptions { MaxWidth = MaxWidth.Large };
-        var parameters = new DialogParameters();
-        parameters.Add("ProductId", productId);
-        var dialog = DialogService.Show<UpdateProductInfoForm>($"Sửa thông tin chung cho {productName}", parameters, dialogOptions);
-        var result = await dialog.Result;
-        if (result is not null && !result.Canceled)
-        {
-            await GetProducts();
-        }
-    }
-
-    private async Task ShowDetails(Guid id, string name)
-    {
-        var dialogOptions = new DialogOptions { MaxWidth = MaxWidth.Large };
-        var parameters = new DialogParameters();
-        parameters.Add("ProductId", id);
-        var dialog = DialogService.Show<ListProductDetail>($"Chi tiết sản phẩm {name}", parameters, dialogOptions);
-        var result = await dialog.Result;
-        if (result is not null && !result.Canceled)
-        {
-            await GetProducts();
-        }
-    }
-
-    private void OnOpenCreateProductClick()
-    {
-        NavigationManager.NavigateTo("/create-product");
-    }
-}

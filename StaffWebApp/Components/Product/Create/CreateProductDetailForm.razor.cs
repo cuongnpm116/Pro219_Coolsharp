@@ -7,9 +7,8 @@ using StaffWebApp.Services.Size.Vms;
 namespace StaffWebApp.Components.Product.Create;
 public partial class CreateProductDetailForm
 {
-    [EditorRequired]
     [Parameter]
-    public ProductDetailVm ProductDetail { get; set; }
+    public ProductDetailVm ProductDetail { get; set; } = new();
 
     [EditorRequired]
     [Parameter]
@@ -19,11 +18,9 @@ public partial class CreateProductDetailForm
     [Parameter]
     public IEnumerable<SizeForSelectVm> Sizes { get; set; }
 
-    [EditorRequired]
     [Parameter]
     public EventCallback<ColorForSelectVm> OnColorChanged { get; set; }
 
-    [EditorRequired]
     [Parameter]
     public EventCallback<ProductDetailVm> OnDetailRemove { get; set; }
 

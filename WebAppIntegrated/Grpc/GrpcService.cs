@@ -29,7 +29,7 @@ public class GrpcService : IGrpcService
         });
 
         byte[] buffer = new byte[1024 * 32];
-        await using var readStream = file.OpenReadStream();
+        await using var readStream = file.OpenReadStream(1024 * 1024 * 10);
         while (true)
         {
             int count = await readStream.ReadAsync(buffer);

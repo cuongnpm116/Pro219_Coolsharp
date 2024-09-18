@@ -1,9 +1,13 @@
 ﻿using Application.Cqrs.Product;
+using Application.Cqrs.Product.AddDetail;
+using Application.Cqrs.Product.AddDetailWithNewImages;
+using Application.Cqrs.Product.CheckUpdateDetail;
 using Application.Cqrs.Product.Create;
 using Application.Cqrs.Product.GetInfo;
 using Application.Cqrs.Product.GetProductCustomerAppPaging;
 using Application.Cqrs.Product.GetProductDetailsForStaff;
 using Application.Cqrs.Product.GetProductForStaff;
+using Application.Cqrs.Product.UpdateDetailWithNewImages;
 using Application.Cqrs.Product.UpdateProductDetail;
 using Application.Cqrs.Product.UpdateProductInfo;
 using Application.IRepositories;
@@ -54,9 +58,10 @@ public class ProductRepository : IProductRepository
                                  join i in _context.Images on pi.ImageId equals i.Id
                                  where pd.ProductId == productId
                                  select new { pd.ColorId, i.ImagePath })
-                                   .AsEnumerable() // phải group trong c# thay vì sql vì ef core không dịch được :/
-                                   .GroupBy(x => x.ColorId)
-                                   .ToDictionary(g => g.Key, g => g.Select(x => x.ImagePath).ToList());
+                                 .AsEnumerable()
+                                 .GroupBy(x => x.ColorId)
+                                 .ToDictionary(g => g.Key, g => g.Select(x => x.ImagePath)
+                                 .ToList());
 
         return Result<Dictionary<Guid, List<string>>>.Success(groupedImagePaths);
     }
@@ -71,7 +76,6 @@ public class ProductRepository : IProductRepository
                     from i in ii.DefaultIfEmpty()
                     orderby p.Name descending
                     select new { p.Id, p.Name, i.ImagePath };
-
 
         var groupedProductQuery = query.AsEnumerable()
                                        .GroupBy(product => product.Id)
@@ -90,7 +94,6 @@ public class ProductRepository : IProductRepository
 
     public async Task<Result<ProductDetailVm>> GetProductDetailForShowOnCustomerApp(Guid productId)
     {
-
         var query = from p in _context.Products.AsNoTracking()
                     join pd in _context.ProductDetails.AsNoTracking() on p.Id equals pd.ProductId
                     where pd.ProductId == productId
@@ -250,7 +253,6 @@ public class ProductRepository : IProductRepository
             CategoryIds = _context.ProductCategories.AsNoTracking()
                 .Where(x => x.ProductId == productId)
                 .Select(x => x.CategoryId)
-                .AsEnumerable()
         };
         return result;
     }
@@ -297,8 +299,8 @@ public class ProductRepository : IProductRepository
         foreach (var product in products.Data)
         {
             product.Categories = categories
-                                .Where(x => x.ProductId == product.Id)
-                                .Select(x => x.Name);
+                .Where(x => x.ProductId == product.Id)
+                .Select(x => x.Name);
         }
 
         return products;
@@ -364,20 +366,103 @@ public class ProductRepository : IProductRepository
 
     public async Task<bool> UpdateProductDetail(UpdateProductDetailCommand request)
     {
-        var productDetail = await _context.ProductDetails.FindAsync(request.Id);
-
+        ProductDetail? productDetail = await _context.ProductDetails.FindAsync(request.Id);
         if (productDetail == null)
         {
             return false;
         }
+        Guid oldColorId = productDetail.ColorId;
 
         productDetail.Stock = request.Stock;
         productDetail.OriginalPrice = request.OriginalPrice;
         productDetail.SalePrice = request.Price;
         productDetail.ColorId = request.ColorId;
         productDetail.SizeId = request.SizeId;
-
         _context.ProductDetails.Update(productDetail);
+
+        IEnumerable<ProductImage> oldProductImages = _context.ProductImages.Where(x => x.ProductDetailId == productDetail.Id);
+        _context.ProductImages.RemoveRange(oldProductImages);
+
+        IEnumerable<Guid> newImageIds = _context.ProductDetails
+            .Where(x => x.ColorId == productDetail.ColorId)
+            .SelectMany(x => x.ProductImages.Select(x => x.ImageId));
+        IEnumerable<ProductImage> newProductImages = newImageIds.Select(x => new ProductImage(productDetail.Id, x));
+        await _context.ProductImages.AddRangeAsync(newProductImages);
+
+        return true;
+    }
+
+    public async Task<Guid> CheckUpdateDetailExist(CheckUpdateDetailQuery request)
+    {
+        ProductDetail? exist = await _context.ProductDetails
+            .AsNoTracking()
+            .SingleOrDefaultAsync(x => x.ProductId == request.ProductId
+                && x.ColorId == request.ColorId
+                && x.SizeId == request.SizeId);
+        return exist is not null ? exist.Id : Guid.Empty;
+    }
+
+    public async Task<bool> CheckColorExistedInProduct(Guid productId, Guid colorId)
+    {
+        bool exist = await _context.ProductDetails.AsNoTracking()
+            .AnyAsync(x => x.ProductId == productId && x.ColorId == colorId);
+        return exist;
+    }
+
+    public async Task<bool> UpdateDetailWithNewImage(UpdateDetailWithNewImageCommand request)
+    {
+        ProductDetail? productDetail = await _context.ProductDetails.FindAsync(request.Detail.Id);
+        if (productDetail == null)
+        {
+            return false;
+        }
+
+        productDetail.Stock = request.Detail.Stock;
+        productDetail.OriginalPrice = request.Detail.OriginalPrice;
+        productDetail.SalePrice = request.Detail.Price;
+        productDetail.ColorId = request.Detail.ColorId;
+        productDetail.SizeId = request.Detail.SizeId;
+        _context.ProductDetails.Update(productDetail);
+
+        IEnumerable<ProductImage> oldProductImages = _context.ProductImages.Where(x => x.ProductDetailId == productDetail.Id);
+        _context.ProductImages.RemoveRange(oldProductImages);
+        await _context.Images.AddRangeAsync(request.NewImages.Select(x => new Image(x.Id, x.Path)));
+        await _context.ProductImages.AddRangeAsync(request.NewProductImages.Select(x => new ProductImage(x.ProductDetailId, x.ImageId)));
+        return true;
+    }
+
+    public async Task<bool> AddDetailWithNewImages(AddDetailWithNewImagesCommand request)
+    {
+        ProductDetail newProductDetail = new(
+            request.Detail.Id,
+            request.ProductId,
+            request.Detail.SizeId,
+            request.Detail.ColorId,
+            request.Detail.Stock,
+            request.Detail.Price,
+            request.Detail.OriginalPrice);
+        await _context.ProductDetails.AddAsync(newProductDetail);
+        await _context.Images.AddRangeAsync(request.NewImages.Select(x => new Image(x.Id, x.Path)));
+        await _context.ProductImages.AddRangeAsync(request.NewProductImages.Select(x => new ProductImage(newProductDetail.Id, x.ImageId)));
+        return true;
+    }
+
+    public async Task<bool> AddDetailAsync(AddDetailCommand request)
+    {
+        ProductDetail newProductDetail = new(
+            request.Detail.Id,
+            request.ProductId,
+            request.Detail.SizeId,
+            request.Detail.ColorId,
+            request.Detail.Stock,
+            request.Detail.Price,
+            request.Detail.OriginalPrice);
+        await _context.ProductDetails.AddAsync(newProductDetail);
+
+        IEnumerable<Guid> newImageIds = _context.ProductDetails
+            .Where(x => x.ColorId == newProductDetail.ColorId)
+            .SelectMany(x => x.ProductImages.Select(x => x.ImageId));
+        IEnumerable<ProductImage> newProductImages = newImageIds.Select(x => new ProductImage(newProductDetail.Id, x));
 
         return true;
     }
