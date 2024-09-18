@@ -95,7 +95,6 @@ internal sealed class CartRepository : ICartRepository
                         AmountOfMoney = ci.Quantity * pd.SalePrice
                     };
 
-
         var listCartItem = await query.AsNoTracking().ToListAsync();
 
         CartVm cartVm = new()

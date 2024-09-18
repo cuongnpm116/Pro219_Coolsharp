@@ -134,13 +134,15 @@ public partial class OrderGrid
                                                           cancelText: "Hủy");
         if (result == true)
         {
+
+            var dialog = DialogService.Show<LoadResponse>("");
             var nextStatus = GetNextStatus(OrderStatus);
             var updateRequest = new OrderVm
             {
                 Id = orderId,
                 OrderStatus = nextStatus,
-                StaffId= _staffId,
-                
+                StaffId = _staffId,
+
             };
             try
             {
@@ -157,7 +159,7 @@ public partial class OrderGrid
             }
             finally
             {
-                MudDialog?.Close(DialogResult.Cancel());
+                dialog.Close();
             }
         }
     }
@@ -216,7 +218,7 @@ public partial class OrderGrid
         }
     }
 
-    
+
 
 }
 
