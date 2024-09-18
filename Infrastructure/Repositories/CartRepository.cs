@@ -72,12 +72,12 @@ internal sealed class CartRepository : ICartRepository
                     join ci in _context.CartItems on c.Id equals ci.CartId
                     join pd in _context.ProductDetails on ci.ProductDetailId equals pd.Id
                     join p in _context.Products on pd.ProductId equals p.Id
-                    join pi in _context.ProductImages on pd.Id equals pi.ProductDetailId into piGroup
-                    from pi in piGroup.DefaultIfEmpty()
-                    join i in _context.Images on pi.ImageId equals i.Id into piImage
-                    from i in piImage.DefaultIfEmpty()
                     join cl in _context.Colors on pd.ColorId equals cl.Id
                     join s in _context.Sizes on pd.SizeId equals s.Id
+                    let image = (from pi in _context.ProductImages
+                                 join img in _context.Images on pi.ImageId equals img.Id
+                                 where pi.ProductDetailId == pd.Id
+                                 select img.ImagePath).FirstOrDefault()
                     where c.CustomerId == customerId
                     select new CartItemVm
                     {
@@ -89,7 +89,7 @@ internal sealed class CartRepository : ICartRepository
                         ProductName = p.Name,
                         SizeNumber = s.SizeNumber,
                         ColorName = cl.Name,
-                        ImagePath = i.ImagePath,
+                        ImagePath = image,
                         Quantity = ci.Quantity,
                         UnitPrice = pd.SalePrice,
                         AmountOfMoney = ci.Quantity * pd.SalePrice
