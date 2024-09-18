@@ -514,7 +514,7 @@ internal sealed class OrderRepository : IOrderRepository
             {
                 // Sửa request.End để có thời gian là cuối ngày 9/18/2024
                 var newEnd = request.End.Value.Date.AddDays(1).AddTicks(-1);
-                query = query.Where(s => s.b.CreatedOn >= request.Begin.Value && s.b.CreatedOn <= newEnd);
+                query = query.Where(s => s.b.CompletedDate >= request.Begin.Value && s.b.CompletedDate <= newEnd);
             }
             var topProducts = await query
                 .GroupBy(g => g.c.Id)
