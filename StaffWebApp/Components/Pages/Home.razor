@@ -1,7 +1,8 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Authorization
 @using WebAppIntegrated.Enum
- @attribute [Authorize(Roles = "admin,staff")] 
+@inject IJSRuntime JS
+ @attribute [Authorize(Roles = "admin,staff")]
 
 <MudGrid Justify="Justify.SpaceAround" Spacing="3" Style="margin-top: 30px;">
     <!-- Hôm Nay -->
@@ -158,8 +159,9 @@
     <MudItem xs="12">
         <MudGrid>
             <MudItem xs="6">
-             <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels"
-                          Width="100%" Height="100%"></MudChart>
+                <div>
+                    <canvas id="myChart"></canvas>
+                </div>
             </MudItem>
             <MudItem xs="6">
                 <MudPaper Class="pa-4">
@@ -281,4 +283,40 @@
     </MudItem>
 
 </MudGrid>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let myChart;
+
+    function updateChart(chartData) {
+        // Kiểm tra và phá hủy biểu đồ nếu đã tồn tại
+        if (myChart) {
+            myChart.destroy();
+        }
+
+        var ctx = document.getElementById('myChart').getContext('2d');
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Doanh thu theo tháng',
+                    data: chartData.data,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+
 

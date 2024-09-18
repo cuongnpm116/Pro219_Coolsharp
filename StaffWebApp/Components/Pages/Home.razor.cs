@@ -1,205 +1,197 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using MudBlazor;
-using Org.BouncyCastle.Asn1.Ocsp;
 using StaffWebApp.Services.Order;
 using StaffWebApp.Services.Order.Requests;
 using StaffWebApp.Services.Order.Vms;
 using WebAppIntegrated.Constants;
 using WebAppIntegrated.Enum;
 
-namespace StaffWebApp.Components.Pages;
-
-public partial class Home
+namespace StaffWebApp.Components.Pages
 {
-    [Inject]
-    private IOrderService OrderService { get; set; }
-    private List<OrderVm> _Statistical = new();
-    private List<OrderDetailVm> _lstOrderDetail = new();
-    private List<ProductDetailInOrderVm> _lstProductDetail = new();
-    [Inject]
-    private ISnackbar Snackbar { get; set; }
-    private OrderPaginationRequest _paginationRequest = new();
-    private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
-
-    protected override async Task OnInitializedAsync()
+    public partial class Home
     {
-        await Statistical();
-        await TopProducts();
-        await LowStockProducts();
-        await BarChart();
-        await PieChart();
-        StateHasChanged();
-    }
+        [Inject]
+        private IOrderService OrderService { get; set; }
 
-    private async Task Statistical()
-    {
-        var response = await OrderService.Statistical();
-        if (response.Value != null)
+        [Inject]
+        private ISnackbar Snackbar { get; set; }
+
+        private List<OrderVm> _Statistical = new();
+        private List<OrderDetailVm> _lstOrderDetail = new();
+        private List<ProductDetailInOrderVm> _lstProductDetail = new();
+        private OrderPaginationRequest _paginationRequest = new();
+        private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
+
+        private DateTime? BeginDate;
+        private DateTime? EndDate;
+        private double[] data;
+        private string[] labels;
+
+        protected override async Task OnInitializedAsync()
         {
-            _Statistical = response.Value;
+            await Statistical();
+            await TopProducts();
+            await LowStockProducts();
+            await PieChart();
             StateHasChanged();
         }
-    }
-    #region Products
-    private async Task TopProducts()
-    {
-        var response = await OrderService.TopProducts(_paginationRequest);
 
-        if (response.Value != null)
+        private async Task Statistical()
         {
-            _lstOrderDetail = response.Value;
+            var response = await OrderService.Statistical();
+            if (response.Value != null)
+            {
+                _Statistical = response.Value;
+                StateHasChanged();
+            }
+        }
+
+        #region Products
+
+        private async Task TopProducts()
+        {
+            var response = await OrderService.TopProducts(_paginationRequest);
+            if (response.Value != null)
+            {
+                _lstOrderDetail = response.Value;
+                StateHasChanged();
+            }
+        }
+
+        private async Task LowStockProducts()
+        {
+            var response = await OrderService.LowStockProducts();
+            if (response.Value != null)
+            {
+                _lstProductDetail = response.Value;
+                StateHasChanged();
+            }
+        }
+
+        private async Task OnStockChanged(int newStock)
+        {
+            _paginationRequest.Stock = newStock;
+            await TopProducts();
             StateHasChanged();
         }
-    }
-    private async Task LowStockProducts()
-    {
-        var response = await OrderService.LowStockProducts();
 
-        if (response.Value != null)
+        private async Task OnBeginDateChanged(DateTime? newBegin)
         {
-            _lstProductDetail = response.Value;
+            _paginationRequest.Begin = newBegin;
+            await TopProducts();
             StateHasChanged();
         }
-    }
-    private async Task OnStockChanged(int newStock)
-    {
-        _paginationRequest.Stock = newStock;
-        await TopProducts();
-        StateHasChanged();
-    }
 
-    private async Task OnBeginDateChanged(DateTime? newBegin)
-    {
-        _paginationRequest.Begin = newBegin;
-        await TopProducts();
-        StateHasChanged();
-    }
-
-
-    private async Task OnEndDateChanged(DateTime? newEnd)
-    {
-        _paginationRequest.End = newEnd;
-        await TopProducts();
-        StateHasChanged();
-    }
-    #endregion
-
-    #region BarChart
-
-    private DateTime? BeginDate;
-    private DateTime? EndDate;
-    private string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-    private List<ChartSeries> Series = new List<ChartSeries>();
-    private double[] data;
-    private string[] labels;
-    private async Task BeginOnchand(DateTime? newBegin)
-    {
-        BeginDate = newBegin;
-        await BarChart();
-        await PieChart();
-        StateHasChanged();
-    }
-
-    private async Task EndOnchand(DateTime? newEnd)
-    {
-        EndDate = newEnd;
-        await BarChart();
-        await PieChart();
-        StateHasChanged();
-    }
-
-    private async Task BarChart()
-    {
-        var response = await OrderService.Statistical();
-        if (response != null && response.Value != null)
+        private async Task OnEndDateChanged(DateTime? newEnd)
         {
+            _paginationRequest.End = newEnd;
+            await TopProducts();
+            StateHasChanged();
+        }
+
+        #endregion
+
+        #region BarChart
+
+        private async Task BeginOnchand(DateTime? newBegin)
+        {
+            BeginDate = newBegin;
+            await UpdateChartData();
+            await PieChart();
+            StateHasChanged();
+        }
+
+        private async Task EndOnchand(DateTime? newEnd)
+        {
+            EndDate = newEnd;
+            await UpdateChartData();
+            await PieChart();
+            StateHasChanged();
+        }
+
+        private async Task UpdateChartData()
+        {
+            var response = await OrderService.Statistical();
             var orderList = response.Value;
+
             if (BeginDate.HasValue && EndDate.HasValue)
             {
-                if (BeginDate.Value.Date == EndDate.Value.Date)
-                {
-                    // Ngày bắt đầu và kết thúc là cùng một ngày
-                    var startOfDay = BeginDate.Value.Date;
-                    var endOfDay = startOfDay.AddDays(1).AddTicks(-1); // Cuối ngày
-                    orderList = orderList.Where(o => o.CompletedDate >= startOfDay && o.CompletedDate <= endOfDay).ToList();
-                }
-                else
-                {
-                    // Ngày bắt đầu và kết thúc khác nhau
-                    orderList = orderList.Where(o => o.CompletedDate >= BeginDate.Value && o.CompletedDate <= EndDate.Value).ToList();
-                }
+                var newEnd = EndDate.Value.Date.AddDays(1).AddTicks(-1);
+                orderList = orderList.Where(o => o.CompletedDate >= BeginDate.Value && o.CompletedDate <= newEnd).ToList();
             }
-            var monthlyRevenue = orderList
-                .Where(order => order.OrderStatus == OrderStatus.Completed && order.CompletedDate.HasValue)
-                .GroupBy(order => new { order.CompletedDate.Value.Year, order.CompletedDate.Value.Month })
-                .Select(group => new
-                {
-                    Year = group.Key.Year,
-                    Month = group.Key.Month,
-                    TotalRevenue = group.Sum(order => order.TotalPrice)
-                })
-                .OrderBy(x => x.Year)
-                .ThenBy(x => x.Month)
+
+            // Lọc đơn hàng chỉ với OrderStatus.Completed
+            var completedOrders = orderList
+                .Where(order => order.OrderStatus == OrderStatus.Completed)
                 .ToList();
-            var revenueDataByYear = new Dictionary<int, double[]>();
 
-            foreach (var item in monthlyRevenue)
+            // Tính tổng doanh thu theo tháng
+            var monthlyRevenue = new decimal[12];
+
+            foreach (var order in completedOrders)
             {
-                if (!revenueDataByYear.ContainsKey(item.Year))
+                var month = order.CompletedDate.Value.Month - 1; // Tháng 0-11
+                monthlyRevenue[month] += order.TotalPrice;
+            }
+
+            var chartData = new
+            {
+                labels = new[]
                 {
-                    revenueDataByYear[item.Year] = new double[12];
-                }
-                revenueDataByYear[item.Year][item.Month - 1] = (double)item.TotalRevenue;
-            }
+                    "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5",
+                    "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10",
+                    "Tháng 11", "Tháng 12"
+                },
+                data = monthlyRevenue.Select(mr => (double)mr).ToArray() // Chuyển đổi decimal sang double nếu cần
+            };
 
-            Series = revenueDataByYear.Select(kvp => new ChartSeries
-            {
-                Name = $"Doanh thu Năm {kvp.Key}",
-                Data = kvp.Value
-            }).ToList();
+            await JS.InvokeVoidAsync("updateChart", chartData);
+            StateHasChanged();
         }
-    }
 
-
-private async Task PieChart()
-{
-    var response = await OrderService.Statistical();
-    if (response.Value != null)
-    {
-        var orderList = response.Value;
-        if (BeginDate.HasValue && EndDate.HasValue)
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (BeginDate.Value.Date == EndDate.Value.Date)
+            if (firstRender)
             {
-                // Ngày bắt đầu và kết thúc là cùng một ngày
-                var startOfDay = BeginDate.Value.Date;
-                var endOfDay = startOfDay.AddDays(1).AddTicks(-1); // Cuối ngày
-                orderList = orderList.Where(o => o.CreatedOn >= startOfDay && o.CreatedOn <= endOfDay).ToList();
-            }
-            else
-            {
-                // Ngày bắt đầu và kết thúc khác nhau
-                orderList = orderList.Where(o => o.CreatedOn >= BeginDate.Value && o.CreatedOn <= EndDate.Value).ToList();
+                // Gọi UpdateChartData để cập nhật dữ liệu ban đầu khi component lần đầu được render
+                await UpdateChartData();
             }
         }
 
-        var statusCounts = orderList
-            .GroupBy(o => o.OrderStatus)
-            .Select(g => new { Status = EnumUtility.ConvertOrderStatus(g.Key), Count = g.Count() })
-            .ToList();
+        #endregion
 
-        var totalOrders = statusCounts.Sum(sc => sc.Count);
-        labels = statusCounts
-            .Select(sc => $"{sc.Status} ({sc.Count} đơn, {(sc.Count * 100.0 / totalOrders):0.##}%)") // Thêm số đơn hàng và phần trăm vào nhãn
-            .ToArray();
+        #region PieChart
 
-        data = statusCounts
-            .Select(sc => (double)sc.Count)
-            .ToArray();
+        private async Task PieChart()
+        {
+            var response = await OrderService.Statistical();
+            if (response.Value != null)
+            {
+                var orderList = response.Value;
+
+                if (BeginDate.HasValue && EndDate.HasValue)
+                {
+                    var newEnd = EndDate.Value.Date.AddDays(1).AddTicks(-1);
+                    orderList = orderList.Where(o => o.CreatedOn >= BeginDate.Value && o.CreatedOn <= newEnd).ToList();
+                }
+
+                var statusCounts = orderList
+                    .GroupBy(o => o.OrderStatus)
+                    .Select(g => new { Status = EnumUtility.ConvertOrderStatus(g.Key), Count = g.Count() })
+                    .ToList();
+
+                var totalOrders = statusCounts.Sum(sc => sc.Count);
+                labels = statusCounts
+                    .Select(sc => $"{sc.Status} ({sc.Count} đơn, {(sc.Count * 100.0 / totalOrders):0.##}%)") // Thêm số đơn hàng và phần trăm vào nhãn
+                    .ToArray();
+
+                data = statusCounts
+                    .Select(sc => (double)sc.Count)
+                    .ToArray();
+            }
+        }
+
+        #endregion
     }
-}
-
-
-
-    #endregion
 }

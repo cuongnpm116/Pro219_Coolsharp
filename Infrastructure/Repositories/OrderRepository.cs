@@ -509,21 +509,13 @@ internal sealed class OrderRepository : IOrderRepository
                         join k in _context.Sizes on c.SizeId equals k.Id
                         where b.OrderStatus == OrderStatus.Completed
                         select new { a, b, c, d, i, h, k };
+
             if (request.Begin != null && request.End != null)
             {
-                if (request.Begin.Value.Date == request.End.Value.Date)
-                {
-                    var startOfDay = request.Begin.Value.Date;
-                    var endOfDay = request.End.Value.Date.AddDays(1).AddTicks(-1); // Cuối ngày
-                    query = query.Where(s => s.b.CreatedOn >= startOfDay && s.b.CreatedOn <= endOfDay);
-                }
-                else
-                {
-                    query = query.Where(s => s.b.CreatedOn >= request.Begin.Value && s.b.CreatedOn <= request.End.Value);
-                }
+                // Sửa request.End để có thời gian là cuối ngày 9/18/2024
+                var newEnd = request.End.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(s => s.b.CreatedOn >= request.Begin.Value && s.b.CreatedOn <= newEnd);
             }
-
-
             var topProducts = await query
                 .GroupBy(g => g.c.Id)
                 .Select(g => new
