@@ -1,6 +1,8 @@
 ﻿@page "/list-staff"
+@using Microsoft.AspNetCore.Authorization
 @using StaffWebApp.Components.Reuse
 @using WebAppIntegrated.Enum
+@attribute [Authorize(Roles = "admin")]
 
 <MudButton OnClick="OpenAddStaffDialog" Variant="Variant.Filled">Thêm nhân viên</MudButton>
 <MudTable Items="_paginatedStaff.Data">

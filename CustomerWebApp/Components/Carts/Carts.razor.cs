@@ -2,6 +2,7 @@
 using CustomerWebApp.Service.Cart.Dtos;
 using CustomerWebApp.Service.Cart.ViewModel;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 using Newtonsoft.Json;
 using WebAppIntegrated.Constants;
@@ -11,7 +12,8 @@ namespace CustomerWebApp.Components.Carts;
 
 public partial class Carts
 {
-
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; }
     [Inject]
     NavigationManager Navigation { get; set; }
     [Inject]
@@ -23,7 +25,7 @@ public partial class Carts
     [Inject]
     private SelectedProductState SelectedProductState { get; set; }
 
-    public Guid UserId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
+    public Guid UserId;
     private bool selectAllChecked = false;
     private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
     private bool IsDisable { get; set; } = true;
@@ -37,6 +39,11 @@ public partial class Carts
 
     protected override async Task OnInitializedAsync()
     {
+
+        AuthenticationState? authState = await AuthStateTask;
+        var stringUserId = authState.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        UserId = new(stringUserId);
+
         await LoadCarts();
         foreach (var itemId in SelectedProductState.SelectedProductDetailIds)
         {
@@ -197,15 +204,17 @@ public partial class Carts
 
     private bool isUpdating = false;
 
-    private async Task AdjustQuantity(CartItemVm context, int change)
+    private async Task UpdateQuantity(CartItemVm context, int change)
     {
-        if (isUpdating)
+        int newQuantity = context.Quantity + change;
+        if (newQuantity < 1)
         {
-            return;
+            newQuantity = 1;
         }
-
-        isUpdating = true;
-        int newQuantity = Math.Clamp(context.Quantity + change, 1, context.ProductQuantity);
+        else if (newQuantity > context.ProductQuantity)
+        {
+            newQuantity = context.ProductQuantity;
+        }
 
         if (newQuantity != context.Quantity)
         {
@@ -213,23 +222,9 @@ public partial class Carts
             await UpdateCart(context.CartId, context.ProductDetailId, context.Quantity);
             StateHasChanged();
         }
-
-        isUpdating = false;
     }
 
-    private async Task HandleQuantityChange(CartItemVm context, ChangeEventArgs e)
-    {
-        if (isUpdating)
-        {
-            return;
-        }
-
-        if (int.TryParse(e.Value?.ToString(), out int newQuantity))
-        {
-            await AdjustQuantity(context, newQuantity - context.Quantity);
-        }
-    }
-
+    
     private void NavigateToCheckout()
     {
         if (_cartItemIds.Count != 0)

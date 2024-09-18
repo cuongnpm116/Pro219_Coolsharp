@@ -49,7 +49,7 @@ public partial class Checkout
     public decimal totalPayment;
     private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
     //public decimal totalPrice;
-    public Guid CustomerId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
+    public Guid CustomerId;
     public Guid OrderId;
     public int OrderType { get; set; } = 0;
     #region Voucher
@@ -146,12 +146,12 @@ public partial class Checkout
     #endregion
     protected override async Task OnInitializedAsync()
     {
-        //AuthenticationState? authState = await AuthStateTask;
-        //var stringUserId = authState.User.Claims.FirstOrDefault(x => x.Type == "userId")?.Value;
-        //if (!string.IsNullOrWhiteSpace(stringUserId))
-        //{
-        //    UserId = new(stringUserId);
-        //}
+        AuthenticationState? authState = await AuthStateTask;
+        var stringUserId = authState.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        if (!string.IsNullOrWhiteSpace(stringUserId))
+        {
+            CustomerId = new(stringUserId);
+        }
         await GetDefaultAddress();
         //Request
         var uri = new Uri(Navigation.Uri);

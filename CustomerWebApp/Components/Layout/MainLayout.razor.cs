@@ -1,10 +1,12 @@
 using CustomerWebApp.Components.Carts;
 using CustomerWebApp.Service.Cart;
 using CustomerWebApp.Service.Cart.ViewModel;
+using CustomerWebApp.Service.Customer;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
+using System.Security.Claims;
 using WebAppIntegrated.Constants;
 
 namespace CustomerWebApp.Components.Layout;
@@ -18,6 +20,8 @@ public partial class MainLayout
 
     [Inject]
     private ICartService CartService { get; set; } = null!;
+    [Inject]
+    private ICustomerService CustomerService { get; set; } = null!;
 
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
@@ -31,15 +35,29 @@ public partial class MainLayout
     private string _username = string.Empty;
     private CartVm cartVm = new();
 
-    public Guid UserId = Guid.Parse("BCF83D3E-BC97-4813-8E2C-96FD34863EA8");
+    public Guid UserId;
     private string Search { get; set; } = "";
     public int Quantity;
     public int top = 5;
 
     protected override async Task OnInitializedAsync()
     {
+        AuthenticationState authState = await AuthStateTask;
+        List<Claim> claims = authState.User.Claims.ToList();
+
+        if (!authState.User.Identity.IsAuthenticated)
+        {
+            return;
+        }
+
+        string stringUserId = authState.User?.Claims.FirstOrDefault(x => x.Type == "UserId")!.Value;
+        UserId = new(stringUserId);
+        var result = await CustomerService.GetUserProfile(UserId);
+        _imageUrl += result.Value.ImageUrl;
+        _username = result.Value.Username;
 
         await GetQuantityCart();
+
         _hubConnection = new HubConnectionBuilder()
         .WithUrl(Navigation.ToAbsoluteUri("https://localhost:1000/shophub"))
         .Build();
@@ -53,6 +71,7 @@ public partial class MainLayout
         await _hubConnection.StartAsync();
         CartState.OnChange += StateHasChanged;
     }
+
     public async ValueTask DisposeAsync()
     {
         if (_hubConnection is not null)
@@ -82,7 +101,6 @@ public partial class MainLayout
     {
         _isNotificationsVisible = false;
     }
-
 
     public void Dispose()
     {

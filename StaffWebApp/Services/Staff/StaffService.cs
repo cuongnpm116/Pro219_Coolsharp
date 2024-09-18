@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using StaffWebApp.Services.Staff.Requests;
 using StaffWebApp.Services.Staff.Vms;
+using System.Net.Http;
 using System.Text;
 using WebAppIntegrated.ApiResponse;
 using WebAppIntegrated.Constants;
@@ -49,6 +50,14 @@ internal class StaffService : IStaffService
         string url = _baseUrl + $"/get-staff-update-info?staffid={staffId}";
         var apiRes = await _client.GetFromJsonAsync<Result<UpdateStaffInfoVm>>(url);
         return apiRes;
+    }
+
+    public async Task<Result<string>> Login(LoginInfo info)
+    {
+        HttpResponseMessage apiResponse = await _client.PostAsJsonAsync(_baseUrl + "/login", info);
+        string content = await apiResponse.Content.ReadAsStringAsync();
+        Result<string>? result = JsonConvert.DeserializeObject<Result<string>>(content);
+        return result;
     }
 
     public async Task<Result<bool>> UpdateStaffInfo(UpdateStaffInfoVm request)

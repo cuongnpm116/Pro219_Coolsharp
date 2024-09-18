@@ -17,6 +17,7 @@
 
 
   <ItemGroup>
+    <Folder Include="Views\" />
     <Folder Include="Services\Staff\Dtos\" />
   </ItemGroup>
 
