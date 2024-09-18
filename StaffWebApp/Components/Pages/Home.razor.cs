@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using Org.BouncyCastle.Asn1.Ocsp;
 using StaffWebApp.Services.Order;
 using StaffWebApp.Services.Order.Requests;
 using StaffWebApp.Services.Order.Vms;
@@ -15,6 +16,8 @@ public partial class Home
     private List<OrderVm> _Statistical = new();
     private List<OrderDetailVm> _lstOrderDetail = new();
     private List<ProductDetailInOrderVm> _lstProductDetail = new();
+    [Inject]
+    private ISnackbar Snackbar { get; set; }
     private OrderPaginationRequest _paginationRequest = new();
     private string _imageUrl = ShopConstants.EShopApiHost + "/product-content/";
 
@@ -97,9 +100,9 @@ public partial class Home
         StateHasChanged();
     }
 
-    private async Task EndOnchand(DateTime? newBegin)
+    private async Task EndOnchand(DateTime? newEnd)
     {
-        EndDate = newBegin;
+        EndDate = newEnd;
         await BarChart();
         await PieChart();
         StateHasChanged();
@@ -113,7 +116,18 @@ public partial class Home
             var orderList = response.Value;
             if (BeginDate.HasValue && EndDate.HasValue)
             {
-                orderList = orderList.Where(o => o.CompletedDate >= BeginDate.Value && o.CompletedDate <= EndDate.Value).ToList();
+                if (BeginDate.Value.Date == EndDate.Value.Date)
+                {
+                    // Ngày bắt đầu và kết thúc là cùng một ngày
+                    var startOfDay = BeginDate.Value.Date;
+                    var endOfDay = startOfDay.AddDays(1).AddTicks(-1); // Cuối ngày
+                    orderList = orderList.Where(o => o.CompletedDate >= startOfDay && o.CompletedDate <= endOfDay).ToList();
+                }
+                else
+                {
+                    // Ngày bắt đầu và kết thúc khác nhau
+                    orderList = orderList.Where(o => o.CompletedDate >= BeginDate.Value && o.CompletedDate <= EndDate.Value).ToList();
+                }
             }
             var monthlyRevenue = orderList
                 .Where(order => order.OrderStatus == OrderStatus.Completed && order.CompletedDate.HasValue)
@@ -147,32 +161,44 @@ public partial class Home
     }
 
 
-    private async Task PieChart()
+private async Task PieChart()
+{
+    var response = await OrderService.Statistical();
+    if (response.Value != null)
     {
-        var response = await OrderService.Statistical();
-        if (response.Value != null)
+        var orderList = response.Value;
+        if (BeginDate.HasValue && EndDate.HasValue)
         {
-            var orderList = response.Value;
-            if (BeginDate.HasValue && EndDate.HasValue)
+            if (BeginDate.Value.Date == EndDate.Value.Date)
             {
-                orderList = orderList.Where(o => o.CompletedDate >= BeginDate.Value && o.CompletedDate <= EndDate.Value).ToList();
+                // Ngày bắt đầu và kết thúc là cùng một ngày
+                var startOfDay = BeginDate.Value.Date;
+                var endOfDay = startOfDay.AddDays(1).AddTicks(-1); // Cuối ngày
+                orderList = orderList.Where(o => o.CreatedOn >= startOfDay && o.CreatedOn <= endOfDay).ToList();
             }
-
-            var statusCounts = orderList
-                .GroupBy(o => o.OrderStatus)
-                .Select(g => new { Status = EnumUtility.ConvertOrderStatus(g.Key), Count = g.Count() })
-                .ToList();
-
-            var totalOrders = statusCounts.Sum(sc => sc.Count);
-            labels = statusCounts
-                .Select(sc => $"{sc.Status} ({(sc.Count * 100.0 / totalOrders):0.##}%)") // Thêm phần trăm vào nhãn
-                .ToArray();
-
-            data = statusCounts
-                .Select(sc => (double)sc.Count)
-                .ToArray();
+            else
+            {
+                // Ngày bắt đầu và kết thúc khác nhau
+                orderList = orderList.Where(o => o.CreatedOn >= BeginDate.Value && o.CreatedOn <= EndDate.Value).ToList();
+            }
         }
+
+        var statusCounts = orderList
+            .GroupBy(o => o.OrderStatus)
+            .Select(g => new { Status = EnumUtility.ConvertOrderStatus(g.Key), Count = g.Count() })
+            .ToList();
+
+        var totalOrders = statusCounts.Sum(sc => sc.Count);
+        labels = statusCounts
+            .Select(sc => $"{sc.Status} ({sc.Count} đơn, {(sc.Count * 100.0 / totalOrders):0.##}%)") // Thêm số đơn hàng và phần trăm vào nhãn
+            .ToArray();
+
+        data = statusCounts
+            .Select(sc => (double)sc.Count)
+            .ToArray();
     }
+}
+
 
 
     #endregion

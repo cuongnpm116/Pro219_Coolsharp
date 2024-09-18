@@ -511,8 +511,18 @@ internal sealed class OrderRepository : IOrderRepository
                         select new { a, b, c, d, i, h, k };
             if (request.Begin != null && request.End != null)
             {
-                query = query.Where(s => s.b.CreatedOn >= request.Begin && s.b.CreatedOn <= request.End);
+                if (request.Begin.Value.Date == request.End.Value.Date)
+                {
+                    var startOfDay = request.Begin.Value.Date;
+                    var endOfDay = request.End.Value.Date.AddDays(1).AddTicks(-1); // Cuối ngày
+                    query = query.Where(s => s.b.CreatedOn >= startOfDay && s.b.CreatedOn <= endOfDay);
+                }
+                else
+                {
+                    query = query.Where(s => s.b.CreatedOn >= request.Begin.Value && s.b.CreatedOn <= request.End.Value);
+                }
             }
+
 
             var topProducts = await query
                 .GroupBy(g => g.c.Id)

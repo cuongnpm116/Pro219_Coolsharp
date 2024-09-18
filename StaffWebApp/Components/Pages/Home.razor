@@ -25,14 +25,11 @@
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn thành công:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@ordersInDay.Count(order => order.OrderStatus == OrderStatus.Completed)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="4">
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn huỷ:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@ordersInDay.Count(order => order.OrderStatus == OrderStatus.Cancelled)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
-                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn trả:</MudText>
-                            <MudText Typo="Typo.h6" Align="Align.Center">0</MudText>
-                        </MudItem>
+                    
                     </MudGrid>
                 }
             </MudGrid>
@@ -59,14 +56,11 @@
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn thành công:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@ordersInMonth.Count(order => order.OrderStatus == OrderStatus.Completed)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="4">
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn huỷ:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@ordersInMonth.Count(order => order.OrderStatus == OrderStatus.Cancelled)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
-                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn trả:</MudText>
-                            <MudText Typo="Typo.h6" Align="Align.Center">0</MudText>
-                        </MudItem>
+                       
                     </MudGrid>
                 }
             </MudGrid>
@@ -93,14 +87,11 @@
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn thành công:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@ordersInYear.Count(order => order.OrderStatus == OrderStatus.Completed)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="4">
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn huỷ:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@ordersInYear.Count(order => order.OrderStatus == OrderStatus.Cancelled)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
-                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn trả:</MudText>
-                            <MudText Typo="Typo.h6" Align="Align.Center">0</MudText>
-                        </MudItem>
+                    
                     </MudGrid>
                 }
             </MudGrid>
@@ -126,14 +117,11 @@
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn thành công:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@_Statistical.Count(order => order.OrderStatus == OrderStatus.Completed)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="4">
                             <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn huỷ:</MudText>
                             <MudText Typo="Typo.h6" Align="Align.Center">@_Statistical.Count(order => order.OrderStatus == OrderStatus.Cancelled)</MudText>
                         </MudItem>
-                        <MudItem xs="2">
-                            <MudText Typo="Typo.subtitle1" Align="Align.Center">Đơn trả:</MudText>
-                            <MudText Typo="Typo.h6" Align="Align.Center">0</MudText>
-                        </MudItem>
+                    
                     </MudGrid>
                 }
             </MudGrid>
@@ -171,7 +159,7 @@
         <MudGrid>
             <MudItem xs="6">
              <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels"
-                          YAxisTicks="1000" Width="100%" Height="350px"></MudChart>          
+                          Width="100%" Height="100%"></MudChart>
             </MudItem>
             <MudItem xs="6">
                 <MudPaper Class="pa-4">
