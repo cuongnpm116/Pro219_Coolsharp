@@ -33,6 +33,9 @@ public partial class CreateProduct
     [Inject]
     private IDialogService DialogService { get; set; } = null!;
 
+    [Inject]
+    private NavigationManager Navigation { get; set; } = null!;
+
     private CreateProductInfoForm _productInfoForm = new();
 
     // phải dùng dictionary vì
@@ -68,7 +71,11 @@ public partial class CreateProduct
         List<Task<bool>> validateProductDetailTasks = _productDetailForms.Values.Select(x => x.ValidateAsync()).ToList();
         bool[] isValidProductDetails = await Task.WhenAll(validateProductDetailTasks);
         List<bool> isValidImages = _imagesByColorForms.Values.Select(x => x.Validate()).ToList();
-        if (isValidProductDetails.Any(check => !check) || !isValidProductInfo || isValidImages.Any(check => !check))
+        if (!isValidProductInfo
+            || isValidProductDetails.Length == 0
+            || isValidProductDetails.Any(x => x == false)
+            || isValidImages.Count == 0
+            || isValidImages.Any(x => x == false))
         {
             Snackbar.Add("Vui lòng kiểm tra lại thông tin bạn nhập", Severity.Error);
             return;
@@ -78,20 +85,24 @@ public partial class CreateProduct
             $"Bạn chắc chắn muốn thêm sản phẩm {_productInfoForm._product.Name}",
             yesText: "Có",
             cancelText: "Hủy");
+        if (confirm is not null && confirm is true)
+        {
+            var result = await ProductService.CreateProductAsync(
+                _productInfoForm._product,
+                [.. _productDetailForms.Keys],
+                _imagesByColorForms.ToDictionary(x => x.Key.Id, x => x.Value.Images)
+            );
+            if (result)
+            {
+                Snackbar.Add("Thêm sản phẩm thành công", Severity.Success);
+                Navigation.NavigateTo("/list-product");
+            }
+            else
+            {
+                Snackbar.Add("Thêm sản phẩm thất bại", Severity.Error);
+            }
+        }
 
-        var result = await ProductService.CreateProductAsync(
-            _productInfoForm._product,
-            [.. _productDetailForms.Keys],
-            _imagesByColorForms.ToDictionary(x => x.Key.Id, x => x.Value.Images)
-        );
-        if (result)
-        {
-            Snackbar.Add("Thêm sản phẩm thành công", Severity.Success);
-        }
-        else
-        {
-            Snackbar.Add("Thêm sản phẩm thất bại", Severity.Error);
-        }
     }
 
     private void AddProductDetail()

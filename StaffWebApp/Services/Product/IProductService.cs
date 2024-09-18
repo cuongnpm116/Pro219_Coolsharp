@@ -17,4 +17,9 @@ public interface IProductService
     Task<bool> UpdateProductInfoAsync(Guid productId, ProductInfoVm info);
     Task<IEnumerable<DetailVm>> GetDetails(Guid productId);
     Task<bool> UpdateDetailAsync(DetailVm detail);
+    Task<Guid> CheckUpdateExistDetail(Guid productId, Guid colorId, Guid sizeId);
+    Task<bool> CheckColorExistedInProduct(Guid productId, Guid colorId);
+    Task<bool> UpdateDetailWithNewImages(DetailVm detail, List<ImageDto> newImages);
+    Task<bool> AddDetailWithNewImages(Guid productId, ProductDetailVm detail, List<ImageDto> newImages);
+    Task<bool> AddDetailAsync(Guid productId, ProductDetailVm detail);
 }

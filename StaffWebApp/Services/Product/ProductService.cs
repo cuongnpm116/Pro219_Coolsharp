@@ -142,4 +142,62 @@ public class ProductService : IProductService
         bool value = JsonConvert.DeserializeObject<bool>(content);
         return value;
     }
+
+    public async Task<bool> UpdateDetailWithNewImages(DetailVm detail, List<ImageDto> newImages)
+    {
+        IEnumerable<CreateProductImageRequest> productImageRequests = newImages.Select(x => new CreateProductImageRequest(detail.Id, x.Id));
+        string finalUrl = $"{_baseUrl}/update-detail-with-new-images";
+        var apiRes = await _client.PutAsJsonAsync(finalUrl, new
+        {
+            Detail = new ProductDetailDto(detail.Id, detail.Color.Id, detail.Size.Id, detail.Stock, detail.Price, detail.OriginalPrice),
+            NewImages = newImages,
+            NewProductImages = productImageRequests
+        });
+        string content = await apiRes.Content.ReadAsStringAsync();
+        bool value = JsonConvert.DeserializeObject<bool>(content);
+        return value;
+    }
+
+    public async Task<bool> AddDetailWithNewImages(Guid productId, ProductDetailVm detail, List<ImageDto> newImages)
+    {
+        IEnumerable<CreateProductImageRequest> productImageRequests = newImages.Select(x => new CreateProductImageRequest(detail.Id, x.Id));
+        string finalUrl = $"{_baseUrl}/add-detail-with-new-images";
+        var apiRes = await _client.PostAsJsonAsync(finalUrl, new
+        {
+            ProductId = productId,
+            Detail = new ProductDetailDto(detail.Id, detail.Color.Id, detail.Size.Id, detail.Stock, detail.Price, detail.OriginalPrice),
+            NewImages = newImages,
+            NewProductImages = productImageRequests
+        });
+        string content = await apiRes.Content.ReadAsStringAsync();
+        bool value = JsonConvert.DeserializeObject<bool>(content);
+        return value;
+    }
+
+    public async Task<bool> AddDetailAsync(Guid productId, ProductDetailVm detail)
+    {
+        string finalUrl = $"{_baseUrl}/add-detail";
+        var apiRes = await _client.PostAsJsonAsync(finalUrl, new
+        {
+            ProductId = productId,
+            Detail = new ProductDetailDto(detail.Id, detail.Color.Id, detail.Size.Id, detail.Stock, detail.Price, detail.OriginalPrice)
+        });
+        string content = await apiRes.Content.ReadAsStringAsync();
+        bool value = JsonConvert.DeserializeObject<bool>(content);
+        return value;
+    }
+
+    public async Task<Guid> CheckUpdateExistDetail(Guid productId, Guid colorId, Guid sizeId)
+    {
+        string finalUrl = _baseUrl + $"/check-update-detail-exist?productid={productId}&colorid={colorId}&sizeid={sizeId}";
+        var apiRes = await _client.GetFromJsonAsync<Guid>(finalUrl);
+        return apiRes;
+    }
+
+    public async Task<bool> CheckColorExistedInProduct(Guid productId, Guid colorId)
+    {
+        string finalUrl = _baseUrl + $"/check-color-existed-in-product?productid={productId}&colorid={colorId}";
+        var apiRes = await _client.GetFromJsonAsync<bool>(finalUrl);
+        return apiRes;
+    }
 }

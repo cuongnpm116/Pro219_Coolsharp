@@ -1,7 +1,7 @@
 ﻿@using StaffWebApp.Services.Color.Vms
 @using StaffWebApp.Services.Size.Vms
 
-<MudForm @ref=_form Model="ProductDetail" Validation="_validator.ValidateValue">
+<MudForm @ref=_form Model="ProductDetail" Validation="_validator.ValidateValue" Class="my-4 mx-4">
     <MudPaper Class="pa-4 my-2 d-flex flex-row">
         <MudAutocomplete T="ColorForSelectVm"
                          Value="ProductDetail.Color"

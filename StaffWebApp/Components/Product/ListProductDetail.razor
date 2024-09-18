@@ -15,20 +15,29 @@
                   CanCancelEdit
                   @bind-SelectedItem="_selectedDetail"
                   CommitEditTooltip="Cập nhật"
-                  OnCommitEditClick="@(() => Snackbar.Add("Cập nhật chi tiết thành công", Severity.Success))"
                   RowEditPreview="EditDetail"
                   RowEditCancel="SetToOriginalValue"
                   RowEditCommit="async (object detail) => await UpdateDetail(detail)"
                   CommitEditIcon="@Icons.Material.Filled.Edit"
                   IsEditRowSwitchingBlocked="false"
                   EditTrigger="TableEditTrigger.RowClick">
+            <ToolBarContent>
+                <MudButton OnClick="async () => await OpenAddDetailDiaLog()">
+                    Thêm chi tiết
+                </MudButton>
+                <MudButton OnClick="async () => await OpenAddColorDialogClick()">
+                    Thêm màu
+                </MudButton>
+                <MudButton OnClick="async () => await OpenAddSizeDialogClick()">
+                    Thêm kích cỡ
+                </MudButton>
+            </ToolBarContent>
             <HeaderContent>
                 <MudTh>Stt</MudTh>
                 <MudTh>Phân loại</MudTh>
                 <MudTh>Giá nhập</MudTh>
                 <MudTh>Giá bán</MudTh>
                 <MudTh>Số lượng</MudTh>
-                <MudTh>Hành động</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@(_details.ToList().IndexOf(context) + 1)</MudTd>
@@ -36,9 +45,6 @@
                 <MudTd>@context.OriginalPrice</MudTd>
                 <MudTd>@context.Price</MudTd>
                 <MudTd>@context.Stock</MudTd>
-                <MudTd>
-                    <MudButton>Xóa</MudButton>
-                </MudTd>
             </RowTemplate>
             <RowEditingTemplate>
                 <MudTd>
