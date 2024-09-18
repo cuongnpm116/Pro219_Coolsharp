@@ -204,15 +204,17 @@ public partial class Carts
 
     private bool isUpdating = false;
 
-    private async Task AdjustQuantity(CartItemVm context, int change)
+    private async Task UpdateQuantity(CartItemVm context, int change)
     {
-        if (isUpdating)
+        int newQuantity = context.Quantity + change;
+        if (newQuantity < 1)
         {
-            return;
+            newQuantity = 1;
         }
-
-        isUpdating = true;
-        int newQuantity = Math.Clamp(context.Quantity + change, 1, context.ProductQuantity);
+        else if (newQuantity > context.ProductQuantity)
+        {
+            newQuantity = context.ProductQuantity;
+        }
 
         if (newQuantity != context.Quantity)
         {
@@ -220,23 +222,9 @@ public partial class Carts
             await UpdateCart(context.CartId, context.ProductDetailId, context.Quantity);
             StateHasChanged();
         }
-
-        isUpdating = false;
     }
 
-    private async Task HandleQuantityChange(CartItemVm context, ChangeEventArgs e)
-    {
-        if (isUpdating)
-        {
-            return;
-        }
-
-        if (int.TryParse(e.Value?.ToString(), out int newQuantity))
-        {
-            await AdjustQuantity(context, newQuantity - context.Quantity);
-        }
-    }
-
+    
     private void NavigateToCheckout()
     {
         if (_cartItemIds.Count != 0)

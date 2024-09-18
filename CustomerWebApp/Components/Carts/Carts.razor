@@ -70,22 +70,10 @@ else
                 </MudTd>
 
                 <MudTd DataLabel="Quantity">
-                    <div class="d-flex align-center">
-                        <MudIconButton Icon="@Icons.Material.Filled.Remove"
-                                       Variant="Variant.Outlined"
-                                       Color="Color.Dark"
-                                       Size="Size.Small"
-                                       Disabled="@isUpdating"
-                                       OnClick="async () => await AdjustQuantity(context, -1)" />
-                        <input style="align-content:center; max-width:45px; text-align:center !important"
-                               value="@context.Quantity"
-                               @onchange="async (e) => await HandleQuantityChange(context, e)" />
-                        <MudIconButton Icon="@Icons.Material.Filled.Add"
-                                       Variant="Variant.Outlined"
-                                       Disabled="context.Quantity >= context.ProductQuantity || isUpdating"
-                                       Color="Color.Dark"
-                                       Size="Size.Small"
-                                       OnClick="async () => await AdjustQuantity(context, 1)" />
+                    <div style="display:flex;align-items:center">
+                        <MudIconButton Icon="@Icons.Material.Filled.Remove" Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" OnClick="async () => { if (!isUpdating) { isUpdating = true; await UpdateQuantity(context, -1); isUpdating = false; }}" />
+                        <input style="align-content:center; max-width:30px;text-align:center !important" value="@context.Quantity" @onchange="async (e) => { if (!isUpdating) { isUpdating = true; int.TryParse(e.Value?.ToString(), out int newQuantity); await UpdateQuantity(context, newQuantity - context.Quantity); isUpdating = false; }}" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Disabled="context.Quantity >= context.ProductQuantity" Color="Color.Dark" Size="Size.Small" OnClick="async () => { if (!isUpdating) { isUpdating = true; await UpdateQuantity(context, 1); isUpdating = false; }}" />
                     </div>
                     <MudText Color="Color.Error">@context.ProductQuantity sản phẩm có sẵn</MudText>
                 </MudTd>
