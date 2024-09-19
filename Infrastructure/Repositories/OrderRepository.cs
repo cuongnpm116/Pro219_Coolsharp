@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Infrastructure.Repositories;
 internal sealed class OrderRepository : IOrderRepository
@@ -248,6 +249,10 @@ internal sealed class OrderRepository : IOrderRepository
                                      select img.ImagePath).FirstOrDefault()
                         join h in _context.Colors on c.ColorId equals h.Id
                         join k in _context.Sizes on c.SizeId equals k.Id
+                        let image = (from pi in _context.ProductImages
+                                     join img in _context.Images on pi.ImageId equals img.Id
+                                     where pi.ProductDetailId == c.Id
+                                     select img.ImagePath).FirstOrDefault()
                         where a.OrderId == orderId
                         select new OrderDetailVm
                         {
@@ -508,12 +513,10 @@ internal sealed class OrderRepository : IOrderRepository
                         join b in _context.Orders on a.OrderId equals b.Id
                         join c in _context.ProductDetails on a.ProductDetailId equals c.Id
                         join d in _context.Products on c.ProductId equals d.Id
-                        join p in _context.ProductImages on c.Id equals p.ProductDetailId
-                        join i in _context.Images on p.ImageId equals i.Id
                         join h in _context.Colors on c.ColorId equals h.Id
                         join k in _context.Sizes on c.SizeId equals k.Id
                         where b.OrderStatus == OrderStatus.Completed
-                        select new { a, b, c, d, i, h, k };
+                        select new { a, b, c, d, h, k };
 
             if (request.Begin != null && request.End != null)
             {
@@ -531,8 +534,11 @@ internal sealed class OrderRepository : IOrderRepository
                     TotalQuantity = g.Sum(x => x.a.Quantity),
                     ProductName = g.Select(x => x.d.Name).FirstOrDefault(),
                     SizeNumber = g.Select(x => x.k.SizeNumber).FirstOrDefault(),
-                    ColorName = g.Select(x => x.h.Name).FirstOrDefault(),
-                    ImagePath = g.Select(x => x.i.ImagePath).FirstOrDefault(),
+                    ColorName = g.Select(x => x.h.Name).FirstOrDefault(),                  
+                    ImagePath = (from pi in _context.ProductImages
+                                 join img in _context.Images on pi.ImageId equals img.Id
+                                 where pi.ProductDetailId == g.Key
+                                 select img.ImagePath).FirstOrDefault(),
                     PaidPrice = g.Select(x => x.a.Price).FirstOrDefault(),
                 })
                 .OrderByDescending(x => x.TotalQuantity)
@@ -558,21 +564,24 @@ internal sealed class OrderRepository : IOrderRepository
         }
     }
 
+
     public async Task<Result<List<ProductDetailForStaffVm>>> LowStockProducts()
     {
         try
         {
             var lowStockProducts = await (from a in _context.Products
-                                          join b in _context.ProductDetails on a.Id equals b.ProductId
-                                          join c in _context.ProductImages on b.Id equals c.ProductDetailId
-                                          join i in _context.Images on c.ImageId equals i.Id
+                                          join b in _context.ProductDetails on a.Id equals b.ProductId                                  
                                           join h in _context.Colors on b.ColorId equals h.Id
                                           join k in _context.Sizes on b.SizeId equals k.Id
-                                          where b.Stock <= 10
+                                          let image = (from pi in _context.ProductImages
+                                                       join img in _context.Images on pi.ImageId equals img.Id
+                                                       where pi.ProductDetailId == b.Id
+                                                       select img.ImagePath).FirstOrDefault()
+                                          where b.Stock <= 5
                                           select new ProductDetailForStaffVm
                                           {
                                               ProductDetailId = b.Id,
-                                              ImageUrl = i.ImagePath,
+                                              ImageUrl = image,
                                               ProductName = a.Name,
                                               Stock = b.Stock,
                                               SizeNumber = k.SizeNumber,
