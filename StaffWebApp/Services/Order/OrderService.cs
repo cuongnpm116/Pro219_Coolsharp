@@ -233,6 +233,13 @@ public class OrderService : IOrderService
             return Convert.ToBase64String(pdfBytes);
         }
     }
+
+    public async Task<Result<CustomerInOrderVm>> GetCustomerId(Guid customerId)
+    {
+
+        var response = await _httpClient.GetFromJsonAsync<Result<CustomerInOrderVm>>($"https://localhost:1000/api/Customers/get-customer-by-id?customerId={customerId}");
+        return response;
+    }
     public async Task<bool> ExportOrdersToExcel(OrderPaginationRequest request)
     {
         try
@@ -287,8 +294,8 @@ public class OrderService : IOrderService
             }
 
             // Tạo tên tệp với thời gian hiện tại
-            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            var filePath = Path.Combine(exportPath, $"Orders_{timestamp}.xlsx");
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm");
+            var filePath = Path.Combine(exportPath, $"Orders-{timestamp}.xlsx");
 
             using (var package = new ExcelPackage())
             {
@@ -297,28 +304,58 @@ public class OrderService : IOrderService
                 // Set column headers
                 worksheet.Cells[1, 1].Value = "Ngày tạo";
                 worksheet.Cells[1, 2].Value = "OrderCode";
-                worksheet.Cells[1, 2].Value = "SĐT";
-                worksheet.Cells[1, 3].Value = "Ngày xác nhận";
-                worksheet.Cells[1, 4].Value = "Ngày vận chuyển";
-                worksheet.Cells[1, 5].Value = "Ngày hoàn thành";
-                worksheet.Cells[1, 6].Value = "TotalCost";
-                worksheet.Cells[1, 7].Value = "Phương thức thanh toán";
-                worksheet.Cells[1, 8].Value = "Khách hàng";
+                worksheet.Cells[1, 3].Value = "SĐT";
+                worksheet.Cells[1, 4].Value = "Ngày xác nhận";
+                worksheet.Cells[1, 5].Value = "Ngày vận chuyển";
+                worksheet.Cells[1, 6].Value = "Ngày hoàn thành";
+                worksheet.Cells[1, 7].Value = "TotalCost";
+                worksheet.Cells[1, 8].Value = "Phương thức thanh toán";
+                worksheet.Cells[1, 9].Value = "Khách hàng";
                 worksheet.Cells[1, 10].Value = "Trạng thái hóa đơn";
 
                 // Set data
                 for (int i = 0; i < confirmedOrders.Count; i++)
                 {
                     var order = confirmedOrders[i];
-                    worksheet.Cells[i + 2, 1].Value = order.CreatedOn;
+                    if (order.CreatedOn.HasValue)
+                    {
+                        worksheet.Cells[i + 2, 1].Value = order.CreatedOn.Value.ToOADate();
+                        worksheet.Cells[i + 2, 1].Style.Numberformat.Format = "dd/MM/yyyy"; // Định dạng ngày tháng
+                    }
                     worksheet.Cells[i + 2, 2].Value = order.OrderCode;
-                    worksheet.Cells[i + 2, 2].Value = order.PhoneNumber;
-                    worksheet.Cells[i + 2, 3].Value = order.ConfirmedDate;
-                    worksheet.Cells[i + 2, 4].Value = order.ShippedDate;
-                    worksheet.Cells[i + 2, 5].Value = order.CompletedDate;
-                    worksheet.Cells[i + 2, 6].Value = order.TotalPrice;
-                    worksheet.Cells[i + 2, 7].Value = order.PaymentMethod;
-                    worksheet.Cells[i + 2, 8].Value = order.Customer;
+                    worksheet.Cells[i + 2, 3].Value = order.PhoneNumber;
+                    // Kiểm tra nếu ConfirmedDate có giá trị
+                    if (order.ConfirmedDate.HasValue)
+                    {
+                        worksheet.Cells[i + 2, 4].Value = order.ConfirmedDate.Value.ToOADate();
+                        worksheet.Cells[i + 2, 4].Style.Numberformat.Format = "dd/MM/yyyy"; // Định dạng ngày tháng
+                    }
+
+                    // Kiểm tra nếu ShippedDate có giá trị
+                    if (order.ShippedDate.HasValue)
+                    {
+                        worksheet.Cells[i + 2, 5].Value = order.ShippedDate.Value.ToOADate();
+                        worksheet.Cells[i + 2, 5].Style.Numberformat.Format = "dd/MM/yyyy"; // Định dạng ngày tháng
+                    }
+
+                    // Kiểm tra nếu CompletedDate có giá trị
+                    if (order.CompletedDate.HasValue)
+                    {
+                        worksheet.Cells[i + 2, 6].Value = order.CompletedDate.Value.ToOADate();
+                        worksheet.Cells[i + 2, 6].Style.Numberformat.Format = "dd/MM/yyyy"; // Định dạng ngày tháng
+                    }
+                    worksheet.Cells[i + 2, 7].Value = order.TotalPrice;
+                    worksheet.Cells[i + 2, 8].Value = order.PaymentMethod;
+                    string customer = "";
+                    if (order.CustomerId.HasValue)
+                    {
+                        var customerResult = await GetCustomerId(order.CustomerId.Value);
+                        if (customerResult != null) // Kiểm tra nếu customerResult không phải null
+                        {
+                            customer = customerResult.Value.FirstName + " " + customerResult.Value.LastName; // Gán giá trị cho biến customer
+                        }
+                    }
+                    worksheet.Cells[i + 2, 9].Value = customer;
                     worksheet.Cells[i + 2, 10].Value = order.OrderStatus;
                 }
 
@@ -364,6 +401,9 @@ public class OrderService : IOrderService
                     currentRow++;
                 }
 
+                // Tự động điều chỉnh kích thước cột
+                worksheet.Cells.AutoFitColumns();
+
                 // Define path to save the file
                 var file = new FileInfo(filePath);
                 package.SaveAs(file);
@@ -375,6 +415,7 @@ public class OrderService : IOrderService
             return false;
         }
     }
+
 
 
 
