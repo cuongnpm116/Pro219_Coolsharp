@@ -182,6 +182,7 @@ internal sealed class OrderRepository : IOrderRepository
         var query = from a in _context.Orders
                     join b in _context.OrderDetails on a.Id equals b.OrderId into orderGroup
                     join c in _context.Payments on a.Id equals c.OrderId
+                    join d in _context.Customers on a.CustomerId equals d.Id
                     orderby a.CreatedOn descending
                     select new OrderVm
                     {
@@ -200,6 +201,7 @@ internal sealed class OrderRepository : IOrderRepository
                         CustomerId = a.CustomerId,
                         PhoneNumber = a.PhoneNumber,
                         ShipAddress = a.ShipAddress,
+                        Email=d.EmailAddress,
                         ShipAddressDetail = a.ShipAddressDetail,
                     };
 
@@ -212,7 +214,7 @@ internal sealed class OrderRepository : IOrderRepository
         // Tìm kiếm
         if (!string.IsNullOrEmpty(request.SearchString))
         {
-            query = query.Where(x => x.PhoneNumber.Contains(request.SearchString));
+            query = query.Where(x => x.PhoneNumber.Contains(request.SearchString) || x.Email.Contains(request.SearchString));
         }
 
         var paginatedQuery = query

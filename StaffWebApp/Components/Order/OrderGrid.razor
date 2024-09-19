@@ -49,6 +49,7 @@
                 <MudTh class="nowrap">STT</MudTh>
                 <MudTh class="nowrap">Mã Đơn Hàng</MudTh>
                 <MudTh class="nowrap">SĐT</MudTh>
+                <MudTh class="nowrap">Email</MudTh>
                 <MudTh class="nowrap">Tổng Tiền</MudTh>
                 <MudTh class="nowrap">Ngày Đặt Hàng</MudTh>
                 <MudTh class="nowrap">Phương thức thanh toán</MudTh>
@@ -62,6 +63,7 @@
                 <MudTd DataLabel="STT"> @(_lstOrder.Data.ToList().IndexOf(context) + 1)</MudTd>
                 <MudTd DataLabel="OrderCode">@context.OrderCode</MudTd>
                 <MudTd DataLabel="OrderCode">@context.PhoneNumber</MudTd>
+                <MudTd DataLabel="OrderCode">@context.Email</MudTd>
                 <MudTd DataLabel="TotalPrice">@string.Format("{0:#,##0}", context.TotalPrice)</MudTd>
                 <MudTd DataLabel="CreatedOn">@context.CreatedOn</MudTd>
                 <MudTd DataLabel="PaymentmMthods">@EnumUtility.ConvertPaymentMethod(context.PaymentMethod)</MudTd>
