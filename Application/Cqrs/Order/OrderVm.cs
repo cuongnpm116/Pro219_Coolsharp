@@ -19,6 +19,7 @@ public class OrderVm
     public string ShipAddress { get; set; } = string.Empty;
     public string ShipAddressDetail { get; set; } = string.Empty;
     public string Customer { get; set; }
+    public string? Email { get; set; }
     public string? Staff { get; set; }
     public string PhoneNumber { get; set; } = string.Empty;
     public decimal? TotalPrice { get; set; }
