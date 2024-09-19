@@ -42,8 +42,8 @@
             <RowTemplate>
                 <MudTd>@(_details.ToList().IndexOf(context) + 1)</MudTd>
                 <MudTd>@GetClassification(context.Color.Name, context.Size.SizeNumber)</MudTd>
-                <MudTd>@context.OriginalPrice</MudTd>
-                <MudTd>@context.Price</MudTd>
+                <MudTd>@string.Format("{0:N0} VND", context.OriginalPrice)</MudTd>
+                <MudTd>@string.Format("{0:N0} VND", context.Price)</MudTd>
                 <MudTd>@context.Stock</MudTd>
             </RowTemplate>
             <RowEditingTemplate>

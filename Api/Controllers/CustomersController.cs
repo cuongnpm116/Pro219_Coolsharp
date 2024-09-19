@@ -18,16 +18,19 @@ namespace Api.Controllers;
 public class CustomersController : ControllerBase
 {
     private readonly IMediator _mediator;
+
     public CustomersController(IMediator mediator)
     {
         _mediator = mediator;
     }
+
     [HttpGet("list-customer")]
     public async Task<IActionResult> GetListCustomer([FromQuery] GetCustomerWithPaginationQuery request)
     {
         var result = await _mediator.Send(request);
         return Ok(result);
     }
+
     [HttpGet("get-customer-by-id")]
     public async Task<IActionResult> Get([FromQuery] Guid customerId)
     {

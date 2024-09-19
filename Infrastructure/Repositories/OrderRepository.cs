@@ -21,7 +21,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Infrastructure.Repositories;
 internal sealed class OrderRepository : IOrderRepository
@@ -249,10 +248,6 @@ internal sealed class OrderRepository : IOrderRepository
                                      select img.ImagePath).FirstOrDefault()
                         join h in _context.Colors on c.ColorId equals h.Id
                         join k in _context.Sizes on c.SizeId equals k.Id
-                        let image = (from pi in _context.ProductImages
-                                     join img in _context.Images on pi.ImageId equals img.Id
-                                     where pi.ProductDetailId == c.Id
-                                     select img.ImagePath).FirstOrDefault()
                         where a.OrderId == orderId
                         select new OrderDetailVm
                         {
@@ -534,7 +529,7 @@ internal sealed class OrderRepository : IOrderRepository
                     TotalQuantity = g.Sum(x => x.a.Quantity),
                     ProductName = g.Select(x => x.d.Name).FirstOrDefault(),
                     SizeNumber = g.Select(x => x.k.SizeNumber).FirstOrDefault(),
-                    ColorName = g.Select(x => x.h.Name).FirstOrDefault(),                  
+                    ColorName = g.Select(x => x.h.Name).FirstOrDefault(),
                     ImagePath = (from pi in _context.ProductImages
                                  join img in _context.Images on pi.ImageId equals img.Id
                                  where pi.ProductDetailId == g.Key
@@ -570,7 +565,7 @@ internal sealed class OrderRepository : IOrderRepository
         try
         {
             var lowStockProducts = await (from a in _context.Products
-                                          join b in _context.ProductDetails on a.Id equals b.ProductId                                  
+                                          join b in _context.ProductDetails on a.Id equals b.ProductId
                                           join h in _context.Colors on b.ColorId equals h.Id
                                           join k in _context.Sizes on b.SizeId equals k.Id
                                           let image = (from pi in _context.ProductImages

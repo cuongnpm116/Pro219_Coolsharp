@@ -1,4 +1,4 @@
-﻿namespace Application.Cqrs.Customer;
+﻿namespace StaffWebApp.Services.Customer;
 
 public class CustomerVm
 {

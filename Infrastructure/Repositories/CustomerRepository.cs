@@ -10,7 +10,6 @@ using Application.ValueObjects.Pagination;
 using Common.Consts;
 using Common.Utilities;
 using Domain.Entities;
-using Domain.Enums;
 using Domain.Primitives;
 using Infrastructure.Context;
 using Infrastructure.Extensions;
@@ -151,10 +150,6 @@ internal sealed class CustomerRepository : ICustomerRepository
     public async Task<Result<PaginationResponse<CustomerVm>>> GetUsersWithPagination(GetCustomerWithPaginationQuery query)
     {
         var customer = _context.Customers.AsNoTracking();
-        if (query.Status != Status.None)
-        {
-            customer = customer.Where(s => s.Status == query.Status);
-        }
         var customerQuery = from s in _context.Customers
                             select new
                             {
@@ -164,30 +159,44 @@ internal sealed class CustomerRepository : ICustomerRepository
                                 s.EmailAddress,
                                 s.Username,
                                 s.ImageUrl,
+                                s.Gender,
                                 s.Status
                             };
         if (!string.IsNullOrEmpty(query.SearchString))
         {
             customerQuery = customerQuery.Where(s =>
-            s.FullName.ToLower().Contains(query.SearchString) ||
-            s.Username.ToLower().Contains(query.SearchString) ||
-            s.EmailAddress.ToLower().Contains(query.SearchString)
-                );
+            s.FullName.Contains(query.SearchString, StringComparison.CurrentCultureIgnoreCase) ||
+            s.Username.Contains(query.SearchString, StringComparison.CurrentCultureIgnoreCase) ||
+            s.EmailAddress.Contains(query.SearchString, StringComparison.CurrentCultureIgnoreCase));
         }
         var groupedStaffQuery = customerQuery
-    .GroupBy(s => new { s.Id, s.FullName, s.DateOfBirth, s.EmailAddress, s.Username, s.Status, s.ImageUrl })
-    .Select(g => new CustomerVm
-    {
-        Id = g.Key.Id,
-        FullName = g.Key.FullName,
-        Dob = g.Key.DateOfBirth,
-        EmailAddress = g.Key.EmailAddress,
-        Username = g.Key.Username,
-        ImageUrl = g.Key.ImageUrl,
-
-    });
-
+                .GroupBy(s => new { s.Id, s.FullName, s.DateOfBirth, s.EmailAddress, s.Username, s.Status, s.ImageUrl })
+                .Select(g => new CustomerVm
+                {
+                    Id = g.Key.Id,
+                    FullName = g.Key.FullName,
+                    Dob = g.Key.DateOfBirth,
+                    EmailAddress = g.Key.EmailAddress,
+                    Username = g.Key.Username,
+                    ImageUrl = g.Key.ImageUrl,
+                });
         var response = await groupedStaffQuery.ToPaginatedResponseAsync(query.PageNumber, query.PageSize);
+        foreach (var item in response.Data.Select(x => x))
+        {
+            var userOrderData = from c in _context.Customers
+                                join o in _context.Orders on c.Id equals o.CustomerId
+                                where c.Id == item.Id
+                                group o by c.Id into g
+                                select new
+                                {
+                                    g.Key,
+                                    TotalOrder = g.Count(),
+                                    TotalSpent = g.Sum(x => x.TotalPrice)
+                                };
+            var userOrder = await userOrderData.FirstOrDefaultAsync(x => x.Key == item.Id);
+            item.TotalOrders = userOrder?.TotalOrder ?? 0;
+            item.TotalSpent = userOrder?.TotalSpent ?? 0;
+        }
         return Result<PaginationResponse<CustomerVm>>.Success(response);
     }
 
