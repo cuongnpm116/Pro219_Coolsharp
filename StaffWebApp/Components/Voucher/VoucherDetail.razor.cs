@@ -64,6 +64,7 @@ public partial class VoucherDetail
                 }
 
                 _updateRequest.StartedDate = _voucherDetailVm.StartedDate;
+                _updateRequest.Stock = _voucherDetailVm.Stock;
                 _updateRequest.FinishedDate = _voucherDetailVm.FinishedDate;
                 _updateRequest.DiscountCondition = _voucherDetailVm.DiscountCondition;
                 _updateRequest.Status = _voucherDetailVm.Status;

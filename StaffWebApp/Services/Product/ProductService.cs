@@ -94,9 +94,9 @@ public class ProductService : IProductService
             urlBuilder.Append($"&searchString={Uri.EscapeDataString(request.SearchString)}");
         }
 
-        if (!string.IsNullOrEmpty(request.CategoryId))
+        if (request.CategoryId != Guid.Empty)
         {
-            urlBuilder.Append($"&categoryId={Uri.EscapeDataString(request.CategoryId)}");
+            urlBuilder.Append($"&categoryId={Uri.EscapeDataString(request.CategoryId.ToString())}");
         }
 
         string finalUrl = urlBuilder.ToString();

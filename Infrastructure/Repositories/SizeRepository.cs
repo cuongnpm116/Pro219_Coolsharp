@@ -26,7 +26,7 @@ internal sealed class SizeRepository : ISizeRepository
         try
         {
             bool isDuplicate = await _context.Sizes
-                .AnyAsync(c =>c.SizeNumber == request.SizeNumber);
+                .AnyAsync(c => c.SizeNumber == request.SizeNumber);
             if (isDuplicate)
             {
                 return Result<bool>.Success(false/*, "Size đã tồn tại."*/);

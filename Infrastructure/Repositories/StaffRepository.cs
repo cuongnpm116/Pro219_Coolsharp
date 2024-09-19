@@ -6,7 +6,6 @@ using Application.Cqrs.Staff.UpdateStaffRole;
 using Application.IRepositories;
 using Application.IServices;
 using Application.ValueObjects.Pagination;
-using Common.Consts;
 using Common.Utilities;
 using Domain.Entities;
 using Domain.Enums;
@@ -119,7 +118,7 @@ internal sealed class StaffRepository : IStaffRepository
         var vm = await _context.Staffs
             .AsNoTracking()
             .Where(s => s.Id == staffId)
-            .Select(s => new StaffUpdateInfoVm(s.Id, s.FirstName, s.LastName, s.DateOfBirth,s.Username, s.ImageUrl))
+            .Select(s => new StaffUpdateInfoVm(s.Id, s.FirstName, s.LastName, s.DateOfBirth, s.Username, s.ImageUrl))
             .SingleOrDefaultAsync(cancellationToken);
         return vm;
     }
@@ -141,7 +140,7 @@ internal sealed class StaffRepository : IStaffRepository
         return true;
     }
 
-    public  async Task<Result<string>> Authenticate(string username, string password)
+    public async Task<Result<string>> Authenticate(string username, string password)
     {
         Staff? exist = await _context.Staffs.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Username == username);

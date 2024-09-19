@@ -81,7 +81,10 @@ public partial class Checkout
         decimal maxDiscount = 0;
 
         foreach (var voucher in _lstVoucher)
+
         {
+            if (voucher.Stock <= 0)
+                continue;
             if (voucher.DiscountCondition > totalPriceProduct)
                 continue;
 
@@ -117,6 +120,8 @@ public partial class Checkout
             Snackbar.Add("Voucher này chưa đến ngày sử dụng!", Severity.Warning);
             return;
         }
+
+
         if (selectedVoucher != null && selectedVoucher.Id == voucher.Id)
         {
             // Bỏ chọn voucher
@@ -174,16 +179,20 @@ public partial class Checkout
 
         try
         {
-            await CreatOrder();
-            var model = new VnPayRequest
+            if (Validate())
             {
-                Amount = (double)totalPayment, // Amount in VND
-                CreatedDate = DateTime.Now,
-                OrderCode = _orderVm.OrderCode,
-            };
+                await CreatOrder();
+                var model = new VnPayRequest
+                {
+                    Amount = (double)totalPayment, // Amount in VND
+                    CreatedDate = DateTime.Now,
+                    OrderCode = _orderVm.OrderCode,
+                };
 
-            var paymentUrl = PaymentService.CreatePaymentUrl(HttpContextAccessor.HttpContext, model);
-            Navigation.NavigateTo(paymentUrl, true);
+                var paymentUrl = PaymentService.CreatePaymentUrl(HttpContextAccessor.HttpContext, model);
+                Navigation.NavigateTo(paymentUrl, true);
+
+            }
         }
         catch (Exception ex)
         {
@@ -202,9 +211,13 @@ public partial class Checkout
 
         try
         {
-            await CreatOrder();
-            await CreatePayment();
-            Navigation.NavigateTo("/payment-response?success=true", true);
+            if (Validate())
+            {
+                await CreatOrder();
+                await CreatePayment();
+                Navigation.NavigateTo("/payment-response?success=true", true);
+
+            }
         }
         catch (Exception ex)
         {
@@ -214,6 +227,17 @@ public partial class Checkout
         {
             DialogService.Close(dialog);
         }
+    }
+
+    private bool Validate()
+    {
+        if (_deliveryAddress is null)
+        {
+            Snackbar.Add("Vui lòng chọn địa chỉ giao hàng!", Severity.Warning);
+            return false;
+        }
+
+        return true;
     }
 
     private async Task CreatOrder()
@@ -239,6 +263,7 @@ public partial class Checkout
         {
             Snackbar.Add("Mua hàng không thành công! Vui lòng thử lại.", Severity.Warning);
         }
+
 
     }
 

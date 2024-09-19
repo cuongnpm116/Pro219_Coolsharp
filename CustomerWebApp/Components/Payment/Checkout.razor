@@ -68,7 +68,7 @@
                                 {
                                     @foreach (var item in _lstVoucher)
                                     {
-                                        var isActive = totalPriceProduct >= item.DiscountCondition;
+                                        var isActive = totalPriceProduct >= item.DiscountCondition & item.Stock >0;
                                         var style = $"height:180px; opacity:{(isActive ? "1" : "0.5")};";
                                         var isSelected = selectedVoucher != null && selectedVoucher.Id == item.Id;
 
@@ -80,7 +80,7 @@
                                                     Giảm @(item.DiscountPercent != 0 ? string.Format("{0:P0}", item.DiscountPercent/100m) : string.Format("{0:#,##0}", item.DiscountAmount))
                                                     cho đơn hàng từ @string.Format("{0:#,##0}", @item.DiscountCondition) VND
                                                 </MudText>
-                                                <MudText>Có hiệu lực từ: @item.StartedDate.ToString("dd.MM.yyyy")</MudText>
+                                                <MudText>Có hiệu lực từ: @item.StartedDate.ToString("dd.MM.yyyy") - @item.FinishedDate.ToString("dd.MM.yyyy")</MudText>
                                                 <MudText>
                                                     Số lượng:
                                                     <b style="font-weight:bold;color:red">

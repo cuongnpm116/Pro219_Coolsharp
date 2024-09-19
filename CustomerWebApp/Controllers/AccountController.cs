@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using CustomerWebApp.Service.Customer;
+using CustomerWebApp.Service.Customer.Request;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using CustomerWebApp.Service.Customer;
 using WebAppIntegrated.ApiResponse;
-using CustomerWebApp.Service.Customer.Request;
 using WebAppIntegrated.Utilities;
 
 namespace CustomerWebApp.Controllers;

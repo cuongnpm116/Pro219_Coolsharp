@@ -224,7 +224,7 @@ public partial class Carts
         }
     }
 
-    
+
     private void NavigateToCheckout()
     {
         if (_cartItemIds.Count != 0)

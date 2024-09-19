@@ -73,7 +73,7 @@ public partial class OrderDetail
                 string fileName = "invoice.pdf";
                 string outputPath = Path.Combine(wwwrootPath, "pdf-invoice", fileName);
                 snackbar.Add("Xuất ra file PDF thành công", Severity.Success);
-              
+
             }
 
         }

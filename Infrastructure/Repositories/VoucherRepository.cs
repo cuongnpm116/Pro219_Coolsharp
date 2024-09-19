@@ -145,6 +145,7 @@ internal sealed class VoucherRepository : IVoucherRepository
         voucher.FinishedDate = command.FinishedDate;
         voucher.DiscountPercent = command.DiscountPercent;
         voucher.DiscountAmount = command.DiscountAmount;
+        voucher.Stock = command.Stock;
         voucher.DiscountCondition = command.DiscountCondition;
         voucher.Status = (Status)command.Status;
         voucher.ModifiedOn = DateTime.Now;

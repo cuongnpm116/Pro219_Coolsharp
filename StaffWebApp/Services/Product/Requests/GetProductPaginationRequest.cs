@@ -3,6 +3,5 @@
 namespace StaffWebApp.Services.Product.Requests;
 public class GetProductPaginationRequest : PaginationRequest
 {
-    public string? SearchString { get; set; }
-    public string? CategoryId { get; set; }
+    public Guid CategoryId { get; set; } = Guid.Empty;
 }

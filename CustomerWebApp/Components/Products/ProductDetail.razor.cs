@@ -233,7 +233,7 @@ public partial class ProductDetail
     private async Task AddToCart()
     {
         AuthenticationState? authState = await AuthStateTask;
-        
+
         var stringUserId = authState.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
 
         CustomerId = new(stringUserId);

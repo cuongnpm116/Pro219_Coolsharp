@@ -28,7 +28,7 @@ internal sealed class ColorRepository : IColorRepository
             bool isDuplicate = await _context.Colors
                 .AnyAsync(c => c.Name.ToLower() == request.Name.ToLower());
             if (isDuplicate)
-            {          
+            {
                 return Result<bool>.Success(false/*, "Color đã tồn tại."*/);
             }
             var color = new Color

@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using WebAppIntegrated.Utilities;
 using StaffWebApp.Services.Staff;
 using StaffWebApp.Services.Staff.Requests;
+using System.Security.Claims;
 using WebAppIntegrated.ApiResponse;
+using WebAppIntegrated.Utilities;
 
 namespace StaffWebApp.Controllers;
 

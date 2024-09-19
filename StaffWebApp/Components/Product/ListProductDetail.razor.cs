@@ -34,6 +34,9 @@ public partial class ListProductDetail
     [Parameter]
     public Guid ProductId { get; set; }
 
+    //[Parameter]
+    //public Action OnSuccess { get; set; }
+
     private IEnumerable<ColorForSelectVm> _colors = [];
     private IEnumerable<SizeForSelectVm> _sizes = [];
     private IEnumerable<DetailVm> _details = [];
@@ -73,30 +76,41 @@ public partial class ListProductDetail
 
     private async Task UpdateDetail(object detail)
     {
-        if (detail is DetailVm detailVm)
+        try
         {
-            if (IsDetailModified(detailVm))
+            if (detail is DetailVm detailVm)
             {
-                var existDetailId = await ProductService.CheckUpdateExistDetail(ProductId, detailVm.Color.Id, detailVm.Size.Id);
-                if (await HandleExistingDetail(detailVm, existDetailId))
+                if (IsDetailModified(detailVm))
                 {
-                    return;
-                }
-
-                if (!await ProductService.CheckColorExistedInProduct(ProductId, detailVm.Color.Id))
-                {
-                    if (await HandleNewColor(detailVm))
+                    var existDetailId = await ProductService.CheckUpdateExistDetail(ProductId, detailVm.Color.Id, detailVm.Size.Id);
+                    if (await HandleExistingDetail(detailVm, existDetailId))
                     {
                         return;
                     }
-                }
-            }
 
-            await FinalizeUpdate(detailVm);
+                    if (!await ProductService.CheckColorExistedInProduct(ProductId, detailVm.Color.Id))
+                    {
+                        if (await HandleNewColor(detailVm))
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                await FinalizeUpdate(detailVm);
+            }
+            else
+            {
+                Snackbar.Add("Chi tiết sản phẩm không hợp lệ", Severity.Error);
+            }
         }
-        else
+        catch (Exception)
         {
-            Snackbar.Add("Chi tiết sản phẩm không hợp lệ", Severity.Error);
+            throw;
+        }
+        finally
+        {
+            //OnSuccess.Invoke();
         }
     }
 
@@ -111,7 +125,7 @@ public partial class ListProductDetail
         {
             await DialogService.ShowMessageBox(
                 "Thông báo",
-                $"Biến thể {GetClassification(detailVm.Color.Name, detailVm.Size.SizeNumber)} đã tồn tại. Vui lòng chọn lại biến thể hoặc sửa biến thể mà bạn chọn",
+                $"Biến thể {GetClassification(detailVm.Color.Name, detailVm.Size.SizeNumber)} đã tồn tại. Vui lòng chọn lại biến thể.",
                 yesText: "Xác nhận");
 
             _selectedDetail = null;
@@ -233,6 +247,7 @@ public partial class ListProductDetail
         if (dialogResult is not null && !dialogResult.Canceled)
         {
             await GetDetails();
+            StateHasChanged();
         }
     }
 

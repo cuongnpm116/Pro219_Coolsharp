@@ -61,7 +61,7 @@ internal sealed class OrderRepository : IOrderRepository
 
         var voucher = _context.Vouchers
             .FirstOrDefault(x => x.Id == voucherId);
-        if (voucher != null)
+        if (voucher != null && voucher.Stock > 0)
         {
             voucher.Stock -= 1;
             _context.Vouchers.Update(voucher);
@@ -242,8 +242,10 @@ internal sealed class OrderRepository : IOrderRepository
                         join b in _context.Orders on a.OrderId equals b.Id
                         join c in _context.ProductDetails on a.ProductDetailId equals c.Id
                         join d in _context.Products on c.ProductId equals d.Id
-                        join p in _context.ProductImages on c.Id equals p.ProductDetailId
-                        join i in _context.Images on p.ImageId equals i.Id
+                        let image = (from pi in _context.ProductImages
+                                     join img in _context.Images on pi.ImageId equals img.Id
+                                     where pi.ProductDetailId == c.Id
+                                     select img.ImagePath).FirstOrDefault()
                         join h in _context.Colors on c.ColorId equals h.Id
                         join k in _context.Sizes on c.SizeId equals k.Id
                         where a.OrderId == orderId
@@ -257,7 +259,7 @@ internal sealed class OrderRepository : IOrderRepository
                             Quantity = a.Quantity,
                             SizeNumber = k.SizeNumber,
                             ColorName = h.Name,
-                            ImagePath = i.ImagePath,
+                            ImagePath = image,
                         };
 
             var userStaff = await _context.Staffs.AsNoTracking().FirstOrDefaultAsync(x => x.Id == order.StaffId);
@@ -409,7 +411,7 @@ internal sealed class OrderRepository : IOrderRepository
             {
                 case OrderStatus.AwaitingShipment:
                     exist.ConfirmedDate = DateTime.Now;
-                    exist.StaffId= request.StaffId;
+                    exist.StaffId = request.StaffId;
                     exist.OrderStatus = OrderStatus.AwaitingShipment;
                     if (exist != null)
                     {
@@ -477,9 +479,12 @@ internal sealed class OrderRepository : IOrderRepository
             {
                 return Result<bool>.Error("Không tìm thấy đơn hàng");
             }
-            var orderDetails = await _context.OrderDetails
-                .Where(x => x.OrderId == exist.Id)
-                .ToListAsync();
+
+            if (exist.OrderStatus != OrderStatus.Pending && exist.OrderStatus != OrderStatus.Cancelled)
+            {
+                return Result<bool>.Error("Đơn hàng đã được xác nhận không thể hủy.");
+
+            }
 
 
             exist.OrderStatus = OrderStatus.Cancelled;

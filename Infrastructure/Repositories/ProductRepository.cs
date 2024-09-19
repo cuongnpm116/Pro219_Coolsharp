@@ -271,7 +271,7 @@ public class ProductRepository : IProductRepository
                         TotalStock = g.Sum(x => x.Stock),
                     };
 
-        if (!string.IsNullOrEmpty(request.SearchString))
+        if (!string.IsNullOrWhiteSpace(request.SearchString))
         {
             query = query.Where(x => x.Name.Contains(request.SearchString));
         }

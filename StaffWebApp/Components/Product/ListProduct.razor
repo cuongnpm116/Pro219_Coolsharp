@@ -12,12 +12,32 @@
             <MudText Typo="Typo.h6">Danh sách sản phẩm</MudText>
             <MudSpacer />
             <MudTextField @bind-Value="_request.SearchString"
-                          Placeholder="Search"
-                          Adornment="Adornment.Start"
-                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Label="Tìm kiếm"
+                          Variant="Variant.Outlined"
                           IconSize="Size.Medium"
-                          Class="mt-0">
+                          OnKeyDown="async () => await GetProducts()"
+                          Immediate
+                          Class="mr-5"
+                          Style="max-width:450px; width: 100%; max-height:56px; height:100%;">
             </MudTextField>
+            <MudSelect T="Guid"
+                       Label="Lọc theo danh mục"
+                       @bind-Value="_request.CategoryId"
+                       Variant="Variant.Filled"
+                       Placeholder="Chọn danh mục"
+                       Dense="true"
+                       Margin="Margin.Dense"
+                       SelectedValuesChanged="async () => await GetProducts()"
+                       Style="max-width:250px; width: 100%; max-height:56px; height:100%; margin-top:5px;">
+                <MudSelectItem T="Guid" Value="Guid.Empty">Tất cả danh mục</MudSelectItem>
+                @foreach (var category in _categories)
+                {
+                            <MudSelectItem T="Guid" Value="@category.CategoryId">@category.CategoryName</MudSelectItem>
+                }
+            </MudSelect>
+            <MudButton OnClick="() => ClearSearch()"
+            Color="Color.Error"
+            Variant="Variant.Outlined">Xóa bộ lọc</MudButton>
             <MudButton OnClick="() => OnOpenCreateProductClick()"
                        Color="Color.Primary"
                        Variant="Variant.Outlined"
@@ -52,7 +72,9 @@
         </RowTemplate>
         <PagerContent>
             <Pagination HasNext="_paginatedProduct.HasNext"
-                        PageNumber="_paginatedProduct.PageNumber" />
+                        PageNumber="_paginatedProduct.PageNumber"
+                        OnNextPageClicked="OnNextPageClick"
+                        OnPreviousPageClicked="OnPreviousPageClick"/>
         </PagerContent>
     </MudTable>
 </MudContainer>

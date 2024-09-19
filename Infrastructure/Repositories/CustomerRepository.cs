@@ -16,7 +16,6 @@ using Infrastructure.Context;
 using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Infrastructure.Repositories;
 internal sealed class CustomerRepository : ICustomerRepository
@@ -35,7 +34,8 @@ internal sealed class CustomerRepository : ICustomerRepository
     }
     public async Task<Result<bool>> AddUser(CreateUserCommand request)
     {
-        Customer customer =  new Customer{
+        Customer customer = new Customer
+        {
             Username = request.Username,
             FirstName = request.FirstName,
             LastName = request.LastName,
@@ -43,7 +43,7 @@ internal sealed class CustomerRepository : ICustomerRepository
             EmailAddress = request.EmailAddress,
             HashedPassword = HashUtility.Hash(request.Password)
         };
-       
+
         await _context.Customers.AddAsync(customer);
         await CreateCartForCustomerAsync(customer.Id);
 

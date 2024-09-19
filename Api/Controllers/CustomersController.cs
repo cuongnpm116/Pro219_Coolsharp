@@ -59,7 +59,7 @@ public class CustomersController : ControllerBase
         return Ok(result);
     }
 
-    
+
     [HttpGet("check-unique-email")]
     public async Task<IActionResult> CheckUniqueEmail([FromQuery] string email)
     {

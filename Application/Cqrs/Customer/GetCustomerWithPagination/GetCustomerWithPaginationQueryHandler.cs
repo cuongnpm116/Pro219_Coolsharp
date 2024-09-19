@@ -9,7 +9,7 @@ internal sealed class GetCustomerWithPaginationQueryHandler : IRequestHandler<Ge
     private readonly ICustomerRepository _customerRepository;
     public GetCustomerWithPaginationQueryHandler(ICustomerRepository customerRepository)
     {
-         _customerRepository = customerRepository; 
+        _customerRepository = customerRepository;
     }
     public async Task<Result> Handle(GetCustomerWithPaginationQuery request, CancellationToken cancellationToken)
     {

@@ -77,7 +77,8 @@ public partial class PurchaseOrder
         }
         else
         {
-            Snackbar.Add($"Hủy đơn hàng {orderCode} thất bại", Severity.Error);
+            Snackbar.Add($"Hủy đơn hàng {orderCode} thất bại.", Severity.Error);
+            await GetOrders();
         }
     }
 
