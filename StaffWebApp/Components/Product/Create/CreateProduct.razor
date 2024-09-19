@@ -1,5 +1,9 @@
 ﻿@page "/create-product"
 
+<MudText Class="my-4" Typo="Typo.h6">
+    Thêm sản phẩm
+</MudText>
+
 <CreateProductInfoForm @ref=_productInfoForm Categories="_availableCategories">
 </CreateProductInfoForm>
 
@@ -7,13 +11,13 @@
     <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddProductDetail">
         Thêm chi tiết
     </MudButton>
-    <MudButton OnClick="() => OpenAddCategoryDialogClick()">
+    <MudButton OnClick="() => OpenAddCategoryDialogClick()" Color="Color.Secondary" Variant="Variant.Outlined">
         Thêm danh mục
     </MudButton>
-    <MudButton OnClick="() => OpenAddColorDialogClick()">
+    <MudButton OnClick="() => OpenAddColorDialogClick()" Color="Color.Secondary" Variant="Variant.Outlined">
         Thêm màu
     </MudButton>
-    <MudButton OnClick="() => OpenAddSizeDialogClick()">
+    <MudButton OnClick="() => OpenAddSizeDialogClick()" Color="Color.Secondary" Variant="Variant.Outlined">
         Thêm kích cỡ
     </MudButton>
 </MudPaper>

@@ -17,7 +17,7 @@
         <MudTh>Thao tác</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd>@(_paginatedStaff.Data!.ToList().IndexOf(context)+1)</MudTd>
+        <MudTd>@(_paginatedStaff.Data!.ToList().IndexOf(context) + 1)</MudTd>
         <MudTd>@context.FullName</MudTd>
         <MudTd>@context.Dob.ToString("d")</MudTd>
         <MudTd>@context.Email</MudTd>
@@ -25,8 +25,12 @@
         <MudTd>@context.Status.ConvertUserStatus()</MudTd>
         <MudTd>@context.Roles</MudTd>
         <MudTd>
-            <MudButton OnClick="async () => await OpenUpdateStaffInfoDialog(context.Id)">Cập nhật thông tin</MudButton>
-            <MudButton OnClick="async () => await OpenUpdateRoleDialog(context.Id)">Cập nhật vai trò</MudButton>
+            <MudButton OnClick="async () => await OpenUpdateStaffInfoDialog(context.Id)"
+                       Color="Color.Secondary"
+                       Variant="Variant.Outlined">Cập nhật thông tin</MudButton>
+            <MudButton OnClick="async () => await OpenUpdateRoleDialog(context.Id)"
+                       Color="Color.Secondary"
+                       Variant="Variant.Outlined">Cập nhật vai trò</MudButton>
         </MudTd>
     </RowTemplate>
     <PagerContent>

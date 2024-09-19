@@ -62,6 +62,7 @@ public partial class ListProduct
         if (result is not null && !result.Canceled)
         {
             await GetProducts();
+            StateHasChanged();
         }
     }
 
@@ -79,6 +80,8 @@ public partial class ListProduct
             await GetProducts();
             StateHasChanged();
         }
+        await GetProducts();
+        StateHasChanged();
     }
 
     private void OnOpenCreateProductClick()

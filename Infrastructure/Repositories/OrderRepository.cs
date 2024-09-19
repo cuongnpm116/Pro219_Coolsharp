@@ -200,7 +200,7 @@ internal sealed class OrderRepository : IOrderRepository
                         CustomerId = a.CustomerId,
                         PhoneNumber = a.PhoneNumber,
                         ShipAddress = a.ShipAddress,
-                        Email=d.EmailAddress,
+                        Email = d.EmailAddress,
                         ShipAddressDetail = a.ShipAddressDetail,
                     };
 
@@ -433,7 +433,7 @@ internal sealed class OrderRepository : IOrderRepository
                             }
                         }
 
-                        await SendEmail(exist, orderDetails);
+                        //await SendEmail(exist, orderDetails);
                         orderstatus = $"Đơn hàng {exist.OrderCode} đã được xác nhận. Đang được đóng gói và chờ shipper nhận hàng.";
                     }
 
