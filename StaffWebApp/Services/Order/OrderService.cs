@@ -227,7 +227,7 @@ public class OrderService : IOrderService
 
             document.Close();
 
-            File.WriteAllBytes(filePath, memoryStream.ToArray());
+            //File.WriteAllBytes(filePath, memoryStream.ToArray());
             // Chuyển đổi mảng byte thành chuỗi Base64
             var pdfBytes = memoryStream.ToArray();
             return Convert.ToBase64String(pdfBytes);
@@ -243,46 +243,68 @@ public class OrderService : IOrderService
             {
                 return false;
             }
-            var confirmedOrders = orders.Value.Data.Where(o => o.OrderStatus == OrderStatus.Completed)
-                .ToList();
+
+            var confirmedOrders = orders.Value.Data.Where(o => o.OrderStatus == OrderStatus.Completed).ToList();
             var totalCost = confirmedOrders.Sum(o => o.TotalPrice);
             var invoiceCount = confirmedOrders.Count;
             var listDetail = new List<OrderDetailVm>();
+
             foreach (var order in confirmedOrders)
             {
                 var orderDetailResult = await GetOrderDetais(order.Id);
-
                 if (orderDetailResult?.Value != null && orderDetailResult.Value.Details != null)
                 {
                     listDetail.AddRange(orderDetailResult.Value.Details);
                 }
             }
 
+            var topProducts = listDetail.GroupBy(t => t.ProductName)
+                .OrderByDescending(o => o.Sum(q => q.Quantity))
+                .Select(p => new { ProductName = p.Key, Quantity = p.Sum(s => s.Quantity) })
+                .Take(5).ToList();
 
-            var topProducts = listDetail.GroupBy(t => t.ProductName).OrderByDescending(o => o.Sum(q => q.Quantity)).Select(p => new { ProductName = p.Key, Quantity = p.Sum(s => s.Quantity) }).Take(5).ToList();
-            var topColors = listDetail.GroupBy(t => t.ColorName).OrderByDescending(o => o.Sum(q => q.Quantity)).Select(p => new { ColorName = p.Key, Quantity = p.Sum(s => s.Quantity) }).Take(5).ToList();
-            var topSizes = listDetail.GroupBy(t => t.SizeNumber).OrderByDescending(o => o.Sum(q => q.Quantity)).Select(p => new { SizeNumber = p.Key, Quantity = p.Sum(s => s.Quantity) }).Take(5).ToList();
+            var topColors = listDetail.GroupBy(t => t.ColorName)
+                .OrderByDescending(o => o.Sum(q => q.Quantity))
+                .Select(p => new { ColorName = p.Key, Quantity = p.Sum(s => s.Quantity) })
+                .Take(5).ToList();
+
+            var topSizes = listDetail.GroupBy(t => t.SizeNumber)
+                .OrderByDescending(o => o.Sum(q => q.Quantity))
+                .Select(p => new { SizeNumber = p.Key, Quantity = p.Sum(s => s.Quantity) })
+                .Take(5).ToList();
+
             if (!confirmedOrders.Any())
             {
                 return false; // Không có đơn hàng nào để xuất
             }
-            var filePath = Path.Combine(_hostingEnvironment.WebRootPath, "export_invoice", "Orders.xlsx");
+
+            var exportPath = Path.Combine(_hostingEnvironment.WebRootPath, "export_invoice");
+
+            // Kiểm tra và tạo thư mục nếu không tồn tại
+            if (!Directory.Exists(exportPath))
+            {
+                Directory.CreateDirectory(exportPath);
+            }
+
+            // Tạo tên tệp với thời gian hiện tại
+            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            var filePath = Path.Combine(exportPath, $"Orders_{timestamp}.xlsx");
 
             using (var package = new ExcelPackage())
             {
                 var worksheet = package.Workbook.Worksheets.Add("Orders");
 
                 // Set column headers
-                worksheet.Cells[1, 1].Value = "CreatedOn";
+                worksheet.Cells[1, 1].Value = "Ngày tạo";
                 worksheet.Cells[1, 2].Value = "OrderCode";
-                worksheet.Cells[1, 3].Value = "ConfirmedDate";
-                worksheet.Cells[1, 4].Value = "ShippedDate";
-                worksheet.Cells[1, 5].Value = "CompletedDate";
+                worksheet.Cells[1, 2].Value = "SĐT";
+                worksheet.Cells[1, 3].Value = "Ngày xác nhận";
+                worksheet.Cells[1, 4].Value = "Ngày vận chuyển";
+                worksheet.Cells[1, 5].Value = "Ngày hoàn thành";
                 worksheet.Cells[1, 6].Value = "TotalCost";
-                worksheet.Cells[1, 7].Value = "PaymentMethods";
-                worksheet.Cells[1, 8].Value = "Customer";
-                //worksheet.Cells[1, 9].Value = "OrderType";
-                worksheet.Cells[1, 10].Value = "OrderStatus";
+                worksheet.Cells[1, 7].Value = "Phương thức thanh toán";
+                worksheet.Cells[1, 8].Value = "Khách hàng";
+                worksheet.Cells[1, 10].Value = "Trạng thái hóa đơn";
 
                 // Set data
                 for (int i = 0; i < confirmedOrders.Count; i++)
@@ -290,13 +312,13 @@ public class OrderService : IOrderService
                     var order = confirmedOrders[i];
                     worksheet.Cells[i + 2, 1].Value = order.CreatedOn;
                     worksheet.Cells[i + 2, 2].Value = order.OrderCode;
+                    worksheet.Cells[i + 2, 2].Value = order.PhoneNumber;
                     worksheet.Cells[i + 2, 3].Value = order.ConfirmedDate;
                     worksheet.Cells[i + 2, 4].Value = order.ShippedDate;
                     worksheet.Cells[i + 2, 5].Value = order.CompletedDate;
                     worksheet.Cells[i + 2, 6].Value = order.TotalPrice;
                     worksheet.Cells[i + 2, 7].Value = order.PaymentMethod;
                     worksheet.Cells[i + 2, 8].Value = order.Customer;
-                    //worksheet.Cells[i + 2, 9].Value = order.OrderType;
                     worksheet.Cells[i + 2, 10].Value = order.OrderStatus;
                 }
 
@@ -308,47 +330,44 @@ public class OrderService : IOrderService
 
                 // Dòng bắt đầu cho phần Top 5
                 int startRow = confirmedOrders.Count + 7;
-
-                // Biến để theo dõi dòng hiện tại
                 int currentRow = startRow;
 
                 // Thêm tiêu đề và dữ liệu cho Top 5 Products
                 worksheet.Cells[currentRow, 1].Value = "Top 5 Products";
-                currentRow++; // Tăng dòng để ghi dữ liệu bên dưới tiêu đề
+                currentRow++;
                 for (int i = 0; i < topProducts.Count; i++)
                 {
                     worksheet.Cells[currentRow, 1].Value = topProducts[i].ProductName;
                     worksheet.Cells[currentRow, 2].Value = topProducts[i].Quantity;
-                    currentRow++; // Tăng dòng sau khi ghi dữ liệu
+                    currentRow++;
                 }
 
-                // Đặt lại currentRow cho phần Top 5 Colors để in đúng dòng
+                // Đặt lại currentRow cho phần Top 5 Colors
                 currentRow = startRow;
                 worksheet.Cells[currentRow, 4].Value = "Top 5 Colors";
-                currentRow++; // Tăng dòng để ghi dữ liệu bên dưới tiêu đề
+                currentRow++;
                 for (int i = 0; i < topColors.Count; i++)
                 {
                     worksheet.Cells[currentRow, 4].Value = topColors[i].ColorName;
                     worksheet.Cells[currentRow, 5].Value = topColors[i].Quantity;
-                    currentRow++; // Tăng dòng sau khi ghi dữ liệu
+                    currentRow++;
                 }
 
-                // Đặt lại currentRow cho phần Top 5 Sizes để in đúng dòng
+                // Đặt lại currentRow cho phần Top 5 Sizes
                 currentRow = startRow;
                 worksheet.Cells[currentRow, 7].Value = "Top 5 Sizes";
-                currentRow++; // Tăng dòng để ghi dữ liệu bên dưới tiêu đề
+                currentRow++;
                 for (int i = 0; i < topSizes.Count; i++)
                 {
                     worksheet.Cells[currentRow, 7].Value = topSizes[i].SizeNumber;
                     worksheet.Cells[currentRow, 8].Value = topSizes[i].Quantity;
-                    currentRow++; // Tăng dòng sau khi ghi dữ liệu
+                    currentRow++;
                 }
 
                 // Define path to save the file
                 var file = new FileInfo(filePath);
                 package.SaveAs(file);
                 return true;
-
             }
         }
         catch
@@ -356,6 +375,7 @@ public class OrderService : IOrderService
             return false;
         }
     }
+
 
 
 }
