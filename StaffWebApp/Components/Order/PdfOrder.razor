@@ -1,0 +1,35 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5" Align="Align.Center" Class="mr-auto" Style="font-weight: 100;">PDF Hóa Đơn</MudText>
+    </TitleContent>
+
+    <DialogContent>
+        @if (!string.IsNullOrEmpty(PdfUrl))
+        {
+            <iframe src="@PdfUrl" style="width: 100%; height: 1000px; border: none;"></iframe>
+        }
+        else
+        {
+            <MudText>PDF lỗi.</MudText>
+        }
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="OnClickCloseBtn">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+
+@code {
+    [Parameter]
+    public string PdfUrl { get; set; }
+
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = null!;
+
+    private void OnClickCloseBtn()
+    {
+        MudDialog.Close(DialogResult.Ok(false));
+    }
+}

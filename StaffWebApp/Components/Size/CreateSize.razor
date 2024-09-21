@@ -1,0 +1,38 @@
+﻿@using WebAppIntegrated.Enum
+
+
+<MudDialog Style="max-width: 500px; width: 100%;max-height:800px; margin: 0 auto;">
+    <TitleContent>
+        <MudText Typo="Typo.h5" Class="mr-auto" Style="font-weight: 500;">Thêm mới Size</MudText>
+    </TitleContent>
+
+    <DialogContent>
+        <MudTextField Class="my-4"
+                      T="int"
+                      @bind-Value="_sizeVm.SizeNumber"
+                      Label="Size"
+                      Required="true">
+        </MudTextField>
+        @if (Id != Guid.Empty)
+        {
+            <MudSelect T="Status"
+                       Label="Trạng Thái"
+                       @bind-Value="_sizeVm.Status"
+                       Style="margin:25px 0px"
+                       Variant="Variant.Outlined"
+                       AnchorOrigin="Origin.BottomCenter"
+                       Required="true"
+                       RequiredError="Hãy chọn trạng thái">
+                @foreach (Status status in Enum.GetValues(typeof(Status)))
+                {
+                    <MudSelectItem Value="status">@EnumUtility.ConvertStatus(status)</MudSelectItem>
+                }
+            </MudSelect>
+        }
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="OnClickCloseBtn">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Lưu</MudButton>
+    </DialogActions>
+</MudDialog>

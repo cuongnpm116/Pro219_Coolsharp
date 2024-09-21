@@ -1,0 +1,21 @@
+﻿<div class="d-flex justify-center align-center">
+    <MudIconButton Size="@Size.Large" Icon="@Icons.Material.Filled.NavigateBefore" Disabled="PageNumber == 1" OnClick="@OnPreviousPageClicked"></MudIconButton>
+    <MudText>@PageNumber</MudText>
+    <MudIconButton Size="@Size.Large" Icon="@Icons.Material.Filled.NavigateNext" Disabled="!HasNext" OnClick="@OnNextPageClicked"></MudIconButton>
+</div>
+
+@code {
+    [Parameter]
+    public int PageNumber { get; set; }
+
+    [Parameter]
+    public bool HasNext { get; set; }
+
+    [Parameter]
+    public EventCallback OnNextPageClicked { get; set; }
+
+    [Parameter]
+    public EventCallback OnPreviousPageClicked { get; set; }
+}
+
+

@@ -1,0 +1,196 @@
+﻿@page "/checkout"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<div class="d-flex flex-row align-items-center"
+     style="width: 100%;height: 60px;border-bottom: solid 1px #ebebeb;margin-bottom: 20px;">
+    <ul>
+        <li style="display: inline-block;margin-right: 17px;">
+            <a style="text-decoration:none;color:#51545f" href="/">Trang chủ</a>/
+        </li>
+        <li style="display: inline-block;margin-right: 17px;">Thanh toán</li>
+    </ul>
+</div>
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudText Typo="Typo.h5">Giỏ hàng</MudText>
+            <MudPaper Class="d-flex flex-column" Style="height:100%;" Outlined="true">
+                <MudTable Items="@_selectedCartItems" Hover>
+                    <HeaderContent>
+                        <MudTh>Sản Phẩm</MudTh>
+                        <MudTh></MudTh>
+                        <MudTh>Đơn Giá</MudTh>
+                        <MudTh>Số Lượng</MudTh>
+                        <MudTh>Số Tiền</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+
+                        <MudTd DataLabel="Name" Style="max-width:300px!important">
+                            <div style="display:flex;max-width:280px">
+                                <MudImage Src="@($"{_imageUrl}{context.ImagePath}")" Width="60" Height="60" alt="Image" />
+                                <MudText Class="product-name" Style="font-weight: bold;color:black" title="@context.ProductName">
+                                    @context.ProductName
+                                </MudText>
+                            </div>
+                        </MudTd>
+
+                        <MudTd>
+                            @context.ColorName, @context.SizeNumber
+                        </MudTd>
+
+                        <MudTd DataLabel="Price" Style="font-weight:bold;">
+                            @string.Format("{0:#,##0}", context.UnitPrice) VND
+                        </MudTd>
+
+                        <MudTd DataLabel="Quantity">
+                            @context.Quantity
+                        </MudTd>
+
+                        <MudTd DataLabel="TotalPrice" Style="font-weight: bold;">
+                            @string.Format("{0:#,##0}", context.AmountOfMoney) VND
+                        </MudTd>
+
+                    </RowTemplate>
+                </MudTable>
+                <div class="mt-auto">
+                    <MudDivider />
+                    <div class="pa-4" style="display:flex;flex-direction:column;justify-content:flex-end;">
+                        <div class="ml-auto" style="align-items:end">
+                            <MudText Style="font-weight: bold;color:black">
+                                Mã khuyến mãi: @voucherCode
+                            </MudText>
+                            <MudButton Style="margin-left: 10px;" IconSize=Size.Large Color="Color.Primary" OnClick="@ToggleOpen">
+                                @(_isOpen ? "Đóng" : "Chọn Voucher")
+                            </MudButton>
+                            <MudPopover Open="@_isOpen" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterLeft" Style="max-height:432px;overflow-y:auto">
+                                @if (_lstVoucher.Count > 0)
+                                {
+                                    @foreach (var item in _lstVoucher)
+                                    {
+                                        var isActive = totalPriceProduct >= item.DiscountCondition & item.Stock >0;
+                                        var style = $"height:180px; opacity:{(isActive ? "1" : "0.5")};";
+                                        var isSelected = selectedVoucher != null && selectedVoucher.Id == item.Id;
+
+                                        <MudPaper Elevation="1" Class="my-6 pa-6 d-flex flex-row justify-space-between align-items-center"
+                                                  Style="@style">
+                                            <MudPaper Elevation="0" Class="align-content-center">
+                                                <MudText>@item.VoucherCode</MudText>
+                                                <MudText>
+                                                    Giảm @(item.DiscountPercent != 0 ? string.Format("{0:P0}", item.DiscountPercent/100m) : string.Format("{0:#,##0}", item.DiscountAmount))
+                                                    cho đơn hàng từ @string.Format("{0:#,##0}", @item.DiscountCondition) VND
+                                                </MudText>
+                                                <MudText>Có hiệu lực từ: @item.StartedDate.ToString("dd.MM.yyyy") - @item.FinishedDate.ToString("dd.MM.yyyy")</MudText>
+                                                <MudText>
+                                                    Số lượng:
+                                                    <b style="font-weight:bold;color:red">
+                                                        @item.Stock
+                                                    </b>
+                                                </MudText>
+                                            </MudPaper>
+                                            <MudPaper Elevation="0">
+                                                <MudButton Variant="Variant.Filled" Color="Color.Warning"
+                                                           Disabled="@(isActive == false)" OnClick="() => ToggleVoucherSelection(item)">
+                                                    @(isSelected ? "Bỏ chọn" : "Chọn")
+                                                </MudButton>
+                                            </MudPaper>
+                                        </MudPaper>
+
+                                    }
+                                }
+                                else
+                                {
+                                    <MudPaper Elevation="1" Class="my-6 pa-6 d-flex flex-row justify-space-between align-items-center">
+                                        <MudText Color="Color.Error">
+                                            Không có voucher.
+                                        </MudText>
+                                    </MudPaper>
+                                }
+                            </MudPopover>
+                        </div>
+                        <MudDivider />
+                        <MudText Class="ml-auto">
+                            Tổng tiền sản phẩm:
+                            <b style="font-weight:bold;">
+                                @string.Format("{0:#,##0}", totalPriceProduct) VND
+                            </b>
+                        </MudText>
+                        <MudText Class="ml-auto">
+                            Tiền giảm:
+                            <b style="font-weight:bold;">
+                                @string.Format("{0:#,##0}", reducedAmount) VND
+                            </b>
+                        </MudText>
+                        <MudText Class="ml-auto">
+                            Tổng tiền thanh toán:
+                            <b style="font-weight:bold;">
+                                @string.Format("{0:#,##0}", totalPayment) VND
+                            </b>
+                        </MudText>
+
+                    </div>
+                </div>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+    <MudRadioGroup Class="mt-11" @bind-Value="OrderType">
+        <MudRadio Value="0" Color="Color.Primary">Thanh toán khi nhận hàng</MudRadio>
+        <MudRadio Value="1" Color="Color.Secondary">VnPay</MudRadio>
+    </MudRadioGroup>
+    @if (_deliveryAddress is not null)
+    {
+        <MudPaper Elevation="0">
+            <MudText>
+                <MudIcon Icon="@Icons.Material.Filled.LocationOn"></MudIcon>
+                Địa chỉ nhận hàng
+            </MudText>
+            <MudText>@_deliveryAddress.PhoneNumber</MudText>
+            <MudText>@_deliveryAddress.Detail</MudText>
+            <MudText>
+                @(_deliveryAddress.Ward.Name + ", " + _deliveryAddress.District.Name + ", " + _deliveryAddress.Province.Name)
+            </MudText>
+            @if (_deliveryAddress.IsDefault)
+            {
+                <MudChip T="string" Variant="Variant.Outlined" Color="Color.Info">Mặc định</MudChip>
+            }
+            <MudButton OnClick="async () => await OpenChangeDeliveryAddressDialog()" Color="@Color.Error" Variant="Variant.Filled">
+                Thay đổi địa chỉ nhận hàng
+            </MudButton>
+        </MudPaper>
+    }
+    else
+    {
+        <MudText Typo="Typo.h5" Align="Align.Center"> Bạn chưa có địa chỉ nào </MudText>
+        <MudPaper Elevation="0" Class="d-flex justify-center">
+            <MudButton OnClick="async () => await OpenAddAddressDialog(CustomerId)"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="false">
+                Thêm địa chỉ mới
+            </MudButton>
+        </MudPaper>
+    }
+    @if (OrderType == 0)
+    {
+        <MudButton Variant="Variant.Filled"
+                   DisableElevation="true"
+                   Style="@($"color:{Colors.Red.Default};")"
+                   @onclick="MakePayment"
+                   Size="Size.Large"
+                   Class="mt-10">
+            Đặt hàng
+        </MudButton>
+    }
+    @if (OrderType == 1)
+    {
+        <MudButton Variant="Variant.Filled"
+                   DisableElevation="true"
+                   Style="@($"color:{Colors.Red.Default};")"
+                   @onclick="MakePaymentOnline"
+                   Size="Size.Large"
+                   Class="mt-10">
+            Đặt hàng
+        </MudButton>
+    }
+</MudContainer>
+

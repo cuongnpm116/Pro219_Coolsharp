@@ -1,0 +1,45 @@
+﻿@page "/list-customer"
+@using StaffWebApp.Services.Customer
+@using WebAppIntegrated.Pagination
+@using WebAppIntegrated.Enum
+
+<MudTable Items="_paginatedCusomters.Data">
+    <ToolBarContent>
+        <MudText>Danh sách khách hàng</MudText>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Stt</MudTh>
+        <MudTh>Họ và Tên</MudTh>
+        <MudTh>Email</MudTh>
+        <MudTh>Giới tính</MudTh>
+        <MudTh>Tổng số đơn hàng</MudTh>
+        <MudTh>Tổng số tiền</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd> @(_paginatedCusomters.Data.ToList().IndexOf(context) + 1) </MudTd>
+        <MudTd> @context.FullName </MudTd>
+        <MudTd> @context.EmailAddress </MudTd>
+        <MudTd> @EnumUtility.ConvertGender(context.Gender) </MudTd>
+        <MudTd> @context.TotalOrders </MudTd>
+        <MudTd> @string.Format("{0:N0} VND", context.TotalSpent) </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    [Inject]
+    private ICustomerService CustomerService { get; set; }
+
+    private GetCustomerWithPaginationRequest _request = new();
+    private PaginationResponse<CustomerVm> _paginatedCusomters = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCustomers();
+    }
+
+    private async Task GetCustomers()
+    {
+        var result = await CustomerService.GetCustomersWithPagination(_request);
+        _paginatedCusomters = result.Value;
+    }
+}

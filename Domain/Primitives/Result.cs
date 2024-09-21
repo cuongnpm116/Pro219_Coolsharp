@@ -7,6 +7,7 @@ public class Result
     public string Message { get; set; } = string.Empty;
     public IEnumerable<ValidationError> Errors { get; set; } = [];
     public bool IsSuccess => Status is ResultStatus.Ok or ResultStatus.NoContent or ResultStatus.Created;
+
     public static Result Success() => new()
     {
         Status = ResultStatus.Ok

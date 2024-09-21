@@ -1,0 +1,56 @@
+﻿
+<MudDialog Style="max-width: 700px; width: 100%;max-height:800px; height:80%; margin: 0 auto; ">
+    <TitleContent>
+        <MudText Typo="Typo.h5" Class="mr-auto" Style="font-weight: 500;">Thêm mới khuyến mãi</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField Class="margin" T="string" @bind-Value="_createRequest.Name" Label="Tên khuyến mãi" Required="true"></MudTextField>
+        <MudStack Class="margin" Row="true">
+            <MudTextField T="decimal" Label="Điều kiện khuyến mãi" @bind-Value="_createRequest.DiscountCondition" />
+            <MudTextField T="int" Label="Số lượng khuyến mãi" @bind-Value="_createRequest.Stock" />
+        </MudStack>
+        <MudStack Class="margin" Row="true">
+            <MudTextField T="DateTime" Format="s" @bind-Value="@_createRequest.StartedDate" Label="Ngày bắt đầu" InputType="InputType.DateTimeLocal" />
+            <MudTextField T="DateTime" Format="s" @bind-Value="@_createRequest.FinishedDate" Label="Ngày kết thúc" InputType="InputType.DateTimeLocal" />
+        </MudStack>
+        <MudGrid Style="display:flex;align-items:center">
+            <MudItem xs="2" sm="2" md="2">
+                <MudSelect Margin="Margin.Dense" @bind-Value="_typeDiscount" Variant="Variant.Outlined">
+                    <MudSelectItem Value="0">
+                        <MudIcon Icon="@Icons.Material.Filled.Percent" Color="Color.Success" Size="Size.Small"></MudIcon>
+                    </MudSelectItem>
+                    <MudSelectItem Value="1">
+                        <MudIcon Icon="@Icons.Material.Filled.Money" Color="Color.Primary" Size="Size.Small"></MudIcon>
+                    </MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="10" sm="10" md="10">
+                @if (_typeDiscount == 0)
+                {
+                    <MudTextField T="int?" Variant="Variant.Outlined" Class="margin" Label="Giảm theo phần trăm" @bind-Value="_createRequest.DiscountPercent" />
+                }
+                else if (_typeDiscount == 1)
+                {
+                    <MudTextField T="decimal?" Variant="Variant.Outlined" Class="margin" Label="Giảm giá tiền" @bind-Value="_createRequest.DiscountAmount" />
+                }
+            </MudItem>
+        </MudGrid>
+
+        <MudSelect Class="margin" @bind-Value="_createRequest.Status" T="int" Label="Trạng thái">
+            <MudSelectItem Value="1">Hoạt động</MudSelectItem>
+            <MudSelectItem Value="2">Không hoạt động</MudSelectItem>
+            <MudSelectItem Value="3">Khóa</MudSelectItem>
+            <MudSelectItem Value="5">Chờ </MudSelectItem>
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="OnClickCloseBtn">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Lưu</MudButton>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .margin {
+        margin: 8px 0 8px 0;
+    }
+</style>

@@ -1,0 +1,72 @@
+﻿@using StaffWebApp.Services.Role
+@using StaffWebApp.Services.Role.Requests
+
+<MudDialog>
+    <TitleContent>
+        Thêm vai trò
+    </TitleContent>
+
+    <DialogContent>
+        <MudForm @ref=_form Model="_request" Validation="_validator.ValidateValue">
+            <MudTextField @bind-Value="_request.Code"
+                          For="() => _request.Code"
+                          OnlyValidateIfDirty
+                          Required
+                          Label="Mã"
+                          Class="my-2">
+            </MudTextField>
+            <MudTextField @bind-Value="_request.Name"
+                          For="() => _request.Name"
+                          OnlyValidateIfDirty
+                          Required
+                          Label="Tên"
+                          Class="my-2">
+            </MudTextField>
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="() => Dialog.Close(DialogResult.Cancel)">Hủy</MudButton>
+        <MudButton OnClick="() => CreateRoleClick()">Thêm</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Inject]
+    private IRoleService RoleService { get; set; } = null!;
+
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+
+    [CascadingParameter]
+    public MudDialogInstance Dialog { get; set; } = null!;
+
+    private MudForm _form;
+    private CreateRoleRequest _request = new();
+    private CreateRoleRequestValidator _validator;
+
+    protected override void OnInitialized()
+    {
+        _validator = new(RoleService);
+    }
+
+    private async Task CreateRoleClick()
+    {
+        await _form.Validate();
+        if (!_form.IsValid)
+        {
+            return;
+        }
+        bool result = await RoleService.CreateRole(_request);
+        if (result)
+        {
+            Snackbar.Add("Thêm vai trò thành công", Severity.Success);
+            Dialog.Close(DialogResult.Ok(result));
+        }
+        else
+        {
+            Snackbar.Add("Thêm vai trò thất bại", Severity.Error);
+            Dialog.Close(DialogResult.Cancel);
+        }
+    }
+}

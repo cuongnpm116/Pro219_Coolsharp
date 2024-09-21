@@ -1,0 +1,74 @@
+﻿@using StaffWebApp.Services.Role
+@using StaffWebApp.Services.Role.Vms
+@using StaffWebApp.Services.Staff
+@using StaffWebApp.Services.Staff.Vms
+@using WebAppIntegrated.Constants
+
+<MudDialog>
+    <TitleContent>
+        <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3"></MudIcon>@Dialog.Title
+    </TitleContent>
+
+    <DialogContent>
+        <MudForm @ref="_addStaffForm" Model="_addStaffVm" Validation="_validator.ValidateValue" Class="mb-4">
+            <MudTextField @bind-Value="_addStaffVm.LastName"
+                          For="() => _addStaffVm.LastName"
+                          Immediate="true"
+                          MaxLength="70"
+                          Label="Họ" />
+
+            <MudTextField @bind-Value="_addStaffVm.FirstName"
+                          For="() => _addStaffVm.FirstName"
+                          Immediate="true"
+                          MaxLength="50"
+                          Label="Tên" />
+
+            <MudDatePicker @bind-Date="_addStaffVm.DateOfBirth"
+                           Mask="new DateMask(ShopConstants.DateFormat)"
+                           DateFormat="@ShopConstants.DateFormat"
+                           For="() => _addStaffVm.DateOfBirth"
+                           Label="Ngày sinh" />
+
+            <MudTextField @bind-Value="_addStaffVm.Username"
+                          For="() => _addStaffVm.Username"
+                          Immediate="true"
+                          MaxLength="30"
+                          Label="Tên tài khoản" />
+
+            <MudTextField @bind-Value="_addStaffVm.Email"
+                          For="() => _addStaffVm.Email"
+                          Immediate="true"
+                          Label="Email" />
+
+            <MudTextField @bind-Value="_addStaffVm.Password"
+                          For="() => _addStaffVm.Password"
+                          Immediate="true"
+                          InputType="@PasswordInput" 
+                          Adornment="Adornment.End"
+                          AdornmentIcon="@PasswordInputIcon"
+                          OnAdornmentClick="OnShowPasswordClick"
+                          MaxLength="40"
+                          Label="Mật khẩu" />
+
+            <MudSelect T="RoleVmForGetAll"
+                       @ref="_roleSelect"
+                       SelectedValues="_addStaffVm.Roles"
+                       SelectedValuesChanged="RoleSelectionChanged"
+                       MultiSelection="true"
+                       ToStringFunc="(RoleVmForGetAll vm) => vm is not null ? vm.Name : string.Empty"
+                       For="() => _addStaffVm._validateRoles"
+                       Immediate="true"
+                       Label="Vai trò">
+                @foreach (var role in _roles)
+                {
+                    <MudSelectItem Value="role">@role.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="() => Dialog.Cancel()">Hủy</MudButton>
+        <MudButton OnClick="async () => await OnAddButtonClick()">Thêm</MudButton>
+    </DialogActions>
+</MudDialog>

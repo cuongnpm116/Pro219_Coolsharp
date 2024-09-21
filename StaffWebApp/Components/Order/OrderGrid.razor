@@ -1,0 +1,115 @@
+﻿@page "/OrderGrid/{OrderStatus}"
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using WebAppIntegrated.Enum
+@attribute [Authorize(Roles = "admin,staff")] 
+
+<div class="row" style="margin-top:10px;display:flex;justify-content:space-between">
+    <div class="col-8" style="display:flex; align-items: center;">
+        <MudText>
+            Danh sách Order
+        </MudText>
+    </div>
+</div>
+
+<MudGrid>
+    <MudItem xs="12" md="3" lg="4">
+        <MudTextField @bind-Value="_paginationRequest.SearchString" Label="Search" Adornment="Adornment.Start" Variant="Variant.Outlined"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mr-5" @oninput="() => HandleSearchValueChanged()"
+                      @onkeydown="HandleKeyPress">
+
+        </MudTextField>
+        
+    </MudItem>
+    <MudItem xs="12" md="3" lg="4">
+        <MudSelect T="OrderStatus" Label="Chọn Trạng Thái" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Value="_paginationRequest.OrderStatus" ValueChanged="@StatusChanged">
+            @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
+            {
+                <MudSelectItem T="OrderStatus" Value="@status">
+                    @EnumUtility.ConvertOrderStatus(status)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="ExportOrders">
+            Xuất tệp Excel
+        </MudButton>
+    </MudItem>
+</MudGrid>
+@if (_lstOrder.Data != null)
+{
+    <div class="border_box-shadow">
+
+        <MudTable Items="_lstOrder.Data" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh class="nowrap">STT</MudTh>
+                <MudTh class="nowrap">Mã Đơn Hàng</MudTh>
+                <MudTh class="nowrap">SĐT</MudTh>
+                <MudTh class="nowrap">Email</MudTh>
+                <MudTh class="nowrap">Tổng Tiền</MudTh>
+                <MudTh class="nowrap">Ngày Đặt Hàng</MudTh>
+                <MudTh class="nowrap">Phương thức thanh toán</MudTh>
+                <MudTh Class="nowrap">Trạng thái thanh toán</MudTh>
+                <MudTh class="nowrap">Trạng thái</MudTh>
+                <MudTh class="nowrap">Chi Tiết</MudTh>
+                <MudTh class="nowrap">Chức năng</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd DataLabel="STT"> @(_lstOrder.Data.ToList().IndexOf(context) + 1)</MudTd>
+                <MudTd DataLabel="OrderCode">@context.OrderCode</MudTd>
+                <MudTd DataLabel="OrderCode">@context.PhoneNumber</MudTd>
+                <MudTd DataLabel="OrderCode">@context.Email</MudTd>
+                <MudTd DataLabel="TotalPrice">@string.Format("{0:#,##0}", context.TotalPrice)</MudTd>
+                <MudTd DataLabel="CreatedOn">@context.CreatedOn</MudTd>
+                <MudTd DataLabel="PaymentmMthods">@EnumUtility.ConvertPaymentMethod(context.PaymentMethod)</MudTd>
+                <MudTd>@EnumUtility.ConvertPaymentStatus(context.PaymentStatus)</MudTd>
+                <MudTd DataLabel="Status"> @EnumUtility.ConvertOrderStatus(context.OrderStatus)</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Search" @onclick="() => OrderDetail(context.Id)" Title="Chi tiết Order" Color="Color.Error" />
+                </MudTd>
+                <MudTd class="flex-container">
+                    @if (context.OrderStatus != OrderStatus.Completed && context.OrderStatus != OrderStatus.Cancelled)
+                    {
+                        <MudButton Color="Color.Primary" @onclick="() => UpdateOrder(context.Id, context.OrderStatus)">Xác Nhận</MudButton>
+                    }<MudText Style="margin-block:28px">&nbsp;</MudText> @* khi if khong thoa man *@
+
+                    @if (context.OrderStatus != OrderStatus.Completed && context.OrderStatus != OrderStatus.Cancelled)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" @onclick="() => CancelOrder(context.Id)" Title="Hủy Đơn" Color="Color.Error" />
+                    }<MudText Style="margin-block:28px">&nbsp;</MudText>
+
+
+                </MudTd>
+
+
+            </RowTemplate>
+
+            <PagerContent>
+
+                <div style="display:flex; justify-content:center; align-items: center; height:70px;">
+                    <MudIconButton Size="@Size.Large" Icon="@Icons.Material.Filled.NavigateBefore" Disabled="_lstOrder.PageNumber ==1" OnClick="OnPreviousPageClicked"></MudIconButton>
+                    <MudText>@_lstOrder.PageNumber</MudText>
+                    <MudIconButton Size="@Size.Large" Icon="@Icons.Material.Filled.NavigateNext" Disabled="!_lstOrder.HasNext" OnClick="OnNextPageClicked"></MudIconButton>
+                </div>
+            </PagerContent>
+
+        </MudTable>
+    </div>
+}
+
+
+ <style>
+
+    .nowrap {
+        white-space: nowrap;
+    }
+
+    .flex-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+</style>

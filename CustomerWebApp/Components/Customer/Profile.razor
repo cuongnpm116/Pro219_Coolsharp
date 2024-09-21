@@ -1,0 +1,37 @@
+﻿<MudGrid>
+    <MudItem xs="9">
+        <MudTextField @bind-Value="_customerProfileModel.Username" Label="Tên tài khoản" Disabled="true"></MudTextField>
+
+        <MudTextField @bind-Value="_customerProfileModel.LastName" Label="Họ"></MudTextField>
+
+        <MudTextField @bind-Value="_customerProfileModel.FirstName" Label="Tên"></MudTextField>
+
+        <MudTextField @bind-Value="_customerProfileModel.EmailAddress" Label="Email" Disabled="true"></MudTextField>
+
+        <MudRadioGroup @bind-Value="_customerProfileModel.Gender">
+            <MudRadio Value="1">Nam</MudRadio>
+            <MudRadio Value="2">Nữ</MudRadio>
+            <MudRadio Value="0">Không đề cập</MudRadio>
+        </MudRadioGroup>
+
+        <MudDatePicker @bind-Date="_dob" Label="Ngày sinh"></MudDatePicker>
+        <MudButton OnClick="UpdateProfile" Color="Color.Primary" Variant="Variant.Filled" Class="mt-3">Lưu</MudButton>
+    </MudItem>
+
+    <MudItem xs="3" Class="d-flex flex-column">
+        @* Phải để !important vì Fluid sẽ set Height=auto *@
+        <MudImage Src="@_imageUrl" Fluid="true" Class="rounded-circle" Style="height:250px!important"></MudImage>
+        <MudFileUpload T="IBrowserFile" FilesChanged="UpdateAvatar" Class="mt-5">
+            <ActivatorContent>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           FullWidth="true"
+                           StartIcon="@Icons.Material.Filled.CloudUpload">
+                    Chọn ảnh
+                </MudButton>
+            </ActivatorContent>
+        </MudFileUpload>
+    </MudItem>
+</MudGrid>
+
+

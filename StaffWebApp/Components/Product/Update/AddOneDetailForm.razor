@@ -1,0 +1,104 @@
+﻿@using StaffWebApp.Components.Product.Create
+@using StaffWebApp.Services.Color.Vms
+@using StaffWebApp.Services.Product
+@using StaffWebApp.Services.Product.Dtos
+@using StaffWebApp.Services.Product.Vms.Create
+@using StaffWebApp.Services.Size.Vms
+<MudDialog>
+    <TitleContent>
+        @DialogInstance.Title
+    </TitleContent>
+
+    <DialogContent>
+        <CreateProductDetailForm @ref=_createProductDetailForm ProductDetail="_detailVm" Colors="Colors" Sizes="Sizes" />
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="() => DialogInstance.Cancel()"
+                   Color="Color.Error"
+                   Variant="Variant.Outlined">
+            Hủy
+        </MudButton>
+        <MudButton OnClick="async () => await AddProductDetail()"
+                   Color="Color.Secondary"
+                   Variant="Variant.Outlined">
+            Thêm
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Inject]
+    private IProductService ProductService { get; set; } = null!;
+
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+
+    [Inject]
+    private IDialogService DialogService { get; set; } = null!;
+
+    [Parameter]
+    public IEnumerable<ColorForSelectVm> Colors { get; set; }
+
+    [Parameter]
+    public IEnumerable<SizeForSelectVm> Sizes { get; set; }
+
+    [Parameter]
+    public Guid ProductId { get; set; }
+
+    [CascadingParameter]
+    public MudDialogInstance DialogInstance { get; set; } = null!;
+
+    private ProductDetailVm _detailVm { get; set; } = new();
+    private CreateProductDetailForm _createProductDetailForm = new();
+
+    private async Task AddProductDetail()
+    {
+        bool isValid = await _createProductDetailForm.ValidateAsync();
+        if (!isValid)
+        {
+            Snackbar.Add("Vui lòng điền đầy đủ thông tin", Severity.Error);
+            return;
+        }
+        Guid isDetailExist = await ProductService.CheckUpdateExistDetail(ProductId, _detailVm.Color.Id, _detailVm.Size.Id);
+        if (isDetailExist != Guid.Empty)
+        {
+            Snackbar.Add($"Chi tiết sản phẩm có màu {_detailVm.Color.Name} và kích cỡ {_detailVm.Size.SizeNumber} đã tồn tại", Severity.Error);
+            return;
+        }
+        if (!await ProductService.CheckColorExistedInProduct(ProductId, _detailVm.Color.Id))
+        {
+            if (await HandleNewColor(_detailVm))
+            {
+                return;
+            }
+        }
+        bool result = await ProductService.AddDetailAsync(ProductId, _detailVm);
+        if (result)
+        {
+            Snackbar.Add("Thêm chi tiết thành công", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Thêm chi tiết thất bại", Severity.Error);
+        }
+    }
+
+    private async Task<bool> HandleNewColor(ProductDetailVm detailVm)
+    {
+        await DialogService.ShowMessageBox("Thông báo", "Hiện tại chưa có ảnh cho màu này. Vui lòng thêm ảnh mới", yesText: "Xác nhận");
+        var dialog = await DialogService.ShowAsync<UploadNewImageForNewColor>();
+        var dialogResult = await dialog.Result;
+
+        if (dialogResult.Data is List<ImageDto> newImages && await ProductService.AddDetailWithNewImages(ProductId, detailVm, newImages))
+        {
+            Snackbar.Add("Thêm chi tiết thành công", Severity.Success);
+            return true;
+        }
+        else
+        {
+            Snackbar.Add("Thêm chi tiết thất bại", Severity.Error);
+            return false;
+        }
+    }
+}

@@ -1,0 +1,87 @@
+﻿@page "/products"
+@page "/products/search={SearchString}"
+@using CustomerWebApp.Components
+@using CustomerWebApp.Components.Pages
+
+@if (_lstProduct.Data != null && _categories != null)
+{
+    <div class="d-flex flex-row align-items-center" style="width: 100%;height: 60px;border-bottom: solid 1px #ebebeb;margin-bottom: 20px;">
+        <ul>
+            <li style="display: inline-block;margin-right: 17px;"><a style="text-decoration:none;color:#51545f" href="/">Trang chủ</a>/</li>
+            <li style="display: inline-block;margin-right: 17px;">Sản phẩm</li>
+        </ul>
+    </div>
+
+    <MudContainer Class="mt-18">
+        <MudGrid Class="d-flex justify-space-between" Spacing="5">
+            <MudItem xs="12" md="2">
+                <MudCard>
+                    <MudText Align="Align.Center" Typo="Typo.h6">Danh mục</MudText>
+                    <MudList T="string" Dense>
+                        @foreach (var category in _categories)
+                        {
+                            <MudListItem Style="max-height:48px;">
+                                <MudCheckBox @bind-Value="_categoriesDictionary[category.CategoryId]"
+                                             @bind-Value:event=""
+                                             Label="@category.CategoryName"
+                                             ValueChanged="(bool value) => UpdateSelectedIds(value, category.CategoryId)" />
+                            </MudListItem>
+                        }
+                    </MudList>
+                </MudCard>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin: 20px 0 10px 0">
+                    <MudNumericField HideSpinButtons="true" @bind-Value="_pagingnationRequest.MinPrice" Label="đ TỪ" Margin="Margin.Dense" Variant="Variant.Outlined" />
+
+                    <MudText> - </MudText>
+
+                    <MudNumericField HideSpinButtons="true" @bind-Value="_pagingnationRequest.MaxPrice" Label="đ ĐẾN" Margin="Margin.Dense" Variant="Variant.Outlined" />
+                </div>
+                <MudButton OnClick="FilterByPrice" Style="align-content: center;width:100%" Variant="Variant.Filled" Size="Size.Small" Color="Color.Success">
+                    Áp dụng
+                </MudButton>
+            </MudItem>
+
+            <MudItem xs="12" md="10" Style="margin-top:-30px">
+                <MudGrid Class="mt-8">
+                    @foreach (var item in _lstProduct.Data)
+                    {
+                        <MudItem xs="12" sm="6" md="4" lg="3">
+                            <MudCard>
+                                <MudLink Href="@($"/productdetail/{item.ProductId}")" Underline="Underline.None">
+                                    <MudCardMedia Image="@($"{_imageUrl}{item.ImageUrl}")" Height="200" Style="position: relative;" />
+                                </MudLink>
+                                <MudLink Href="@($"/productdetail/{item.ProductId}")" Underline="Underline.None">
+                                    <MudCardContent>
+
+                                        <div class="text-center">
+                                            <MudText title="@item.ProductName" Color="Color.Success" Typo="Typo.h6" Style="display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-height: 4em; font-size: 1.2rem; line-height: 1.5rem;">
+                                                @item.ProductName
+                                            </MudText>
+                                            <MudText Color="Color.Success" Typo="Typo.h6">
+                                                @string.Format("{0:#,##0}", @item.Price) VND
+                                            </MudText>
+                                        </div>
+
+
+                                    </MudCardContent>
+                                </MudLink>
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+                <Pagination PageNumber="@_pagingnationRequest.PageNumber"
+                            HasNext="@_lstProduct.HasNext"
+                            OnNextPageClicked="@OnNextPageClicked"
+                            OnPreviousPageClicked="@OnPreviousPageClicked" />
+
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+}
+@* else
+{
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+        <MudProgressCircular Color="Color.Primary" Style="height:70px;width:70px;" Indeterminate="true" />
+    </div>
+} *@
+

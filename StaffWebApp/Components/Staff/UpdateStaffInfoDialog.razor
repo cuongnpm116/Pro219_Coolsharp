@@ -1,0 +1,77 @@
+﻿@using StaffWebApp.Services.Staff
+@using StaffWebApp.Services.Staff.Vms
+<MudDialog>
+    <TitleContent>
+        <MudIcon Icon="@Icons.Material.Filled.Edit"></MudIcon>
+        @DialogInstance.Title
+    </TitleContent>
+
+    <DialogContent>
+        <MudForm @ref="_form" Validation="_validator.ValidateValue">
+            <MudTextField @bind-Value="_updateStaffInfoVm.LastName"></MudTextField>
+            <MudTextField @bind-Value="_updateStaffInfoVm.FirstName"></MudTextField>
+            <MudDatePicker @bind-Date="_updateStaffInfoVm.DateOfBirth"></MudDatePicker>
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="() => DialogInstance.Close(DialogResult.Cancel())">Hủy</MudButton>
+        <MudButton OnClick="async () => await OnUpdateButtonClick()">Cập nhật</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    public MudDialogInstance DialogInstance { get; set; }
+
+    [Parameter]
+    public Guid StaffId { get; set; }
+
+    [Inject]
+    private IStaffService StaffService { get; set; } = null!;
+
+    [Inject]
+    private IDialogService DialogService { get; set; } = null!;
+
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+
+    private MudForm _form;
+
+    private UpdateStaffInfoVm _updateStaffInfoVm = new();
+    private UpdateStaffInfoVmValidator _validator = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetStaffInfo();
+    }
+
+    private async Task OnUpdateButtonClick()
+    {
+        bool? confirm = await DialogService.ShowMessageBox(
+            "Xác nhận",
+            "Bạn chắc chắn muốn cập nhật?",
+            yesText: "Cập nhật",
+            cancelText: "Hủy");
+
+        if(confirm is true)
+        {
+            var result = await StaffService.UpdateStaffInfo(_updateStaffInfoVm);
+            if(result.IsSuccess)
+            {
+                Snackbar.Add("Cập nhật thông tin thành công", Severity.Success);
+                DialogInstance.Close(DialogResult.Ok(true));
+            }
+            else
+            {
+                Snackbar.Add("Cập nhật thông tin thất bại", Severity.Error);
+            }
+        }
+    }
+
+    private async Task GetStaffInfo()
+    {
+        var result = await StaffService.GetStaffInfoToUpdate(StaffId);
+        _updateStaffInfoVm = result.Value;
+    }
+}

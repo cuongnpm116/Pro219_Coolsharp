@@ -1,0 +1,40 @@
+﻿@page "/create-product"
+
+<MudText Class="my-4" Typo="Typo.h6">
+    Thêm sản phẩm
+</MudText>
+
+<CreateProductInfoForm @ref=_productInfoForm Categories="_availableCategories">
+</CreateProductInfoForm>
+
+<MudPaper Elevation="0">
+    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddProductDetail">
+        Thêm chi tiết
+    </MudButton>
+    <MudButton OnClick="() => OpenAddCategoryDialogClick()" Color="Color.Secondary" Variant="Variant.Outlined">
+        Thêm danh mục
+    </MudButton>
+    <MudButton OnClick="() => OpenAddColorDialogClick()" Color="Color.Secondary" Variant="Variant.Outlined">
+        Thêm màu
+    </MudButton>
+    <MudButton OnClick="() => OpenAddSizeDialogClick()" Color="Color.Secondary" Variant="Variant.Outlined">
+        Thêm kích cỡ
+    </MudButton>
+</MudPaper>
+
+@foreach (var item in _productDetailForms.Keys)
+{
+    <CreateProductDetailForm @ref=_productDetailForms[item]
+                             ProductDetail="item"
+                             Colors="_availableColors"
+                             Sizes="_availableSizes"
+                             OnColorChanged="HandleColorSelectedEvent"
+                             OnDetailRemove="RemoveProductDetail" />
+}
+
+@foreach (var item in _imagesByColorForms.Keys)
+{
+    <CreateImagesByColorForm @ref=_imagesByColorForms[item] Color="item" />
+}
+
+<MudButton OnClick="AddProduct">Thêm sản phẩm</MudButton>

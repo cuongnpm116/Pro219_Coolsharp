@@ -1,10 +1,11 @@
-﻿@page "/liststaff"
-@using StaffWebApp.Components.Staff.Vms
-@using StaffWebApp.Services.Staff
-@using StaffWebApp.Services.Staff.Requests
-@using WebAppIntegrated.Pagination
+﻿@page "/list-staff"
+@using Microsoft.AspNetCore.Authorization
+@using StaffWebApp.Components.Reuse
+@using WebAppIntegrated.Enum
+@attribute [Authorize(Roles = "admin")]
 
-<MudTable Items="_staffVms.Data">
+<MudButton OnClick="OpenAddStaffDialog" Variant="Variant.Filled">Thêm nhân viên</MudButton>
+<MudTable Items="_paginatedStaff.Data">
     <HeaderContent>
         <MudTh>Stt</MudTh>
         <MudTh>Tên đầy đủ</MudTh>
@@ -13,33 +14,29 @@
         <MudTh>Tên tài khoản</MudTh>
         <MudTh>Trạng thái</MudTh>
         <MudTh>Vai trò</MudTh>
+        <MudTh>Thao tác</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd>@_staffVms.Data.ToList().IndexOf(context)</MudTd>
+        <MudTd>@(_paginatedStaff.Data!.ToList().IndexOf(context) + 1)</MudTd>
         <MudTd>@context.FullName</MudTd>
-        <MudTd>@context.Dob</MudTd>
+        <MudTd>@context.Dob.ToString("d")</MudTd>
         <MudTd>@context.Email</MudTd>
         <MudTd>@context.Username</MudTd>
-        <MudTd>@context.Status</MudTd>
+        <MudTd>@context.Status.ConvertUserStatus()</MudTd>
         <MudTd>@context.Roles</MudTd>
+        <MudTd>
+            <MudButton OnClick="async () => await OpenUpdateStaffInfoDialog(context.Id)"
+                       Color="Color.Secondary"
+                       Variant="Variant.Outlined">Cập nhật thông tin</MudButton>
+            <MudButton OnClick="async () => await OpenUpdateRoleDialog(context.Id)"
+                       Color="Color.Secondary"
+                       Variant="Variant.Outlined">Cập nhật vai trò</MudButton>
+        </MudTd>
     </RowTemplate>
+    <PagerContent>
+        <Pagination HasNext="_paginatedStaff.HasNext"
+                    PageNumber="_paginatedStaff.PageNumber"
+                    OnNextPageClicked="async () => await OnNextPageClicked()"
+                    OnPreviousPageClicked="async () => await OnPreviousPageClicked()" />
+    </PagerContent>
 </MudTable>
-
-@code {
-    [Inject]
-    private IStaffService StaffService { get; set; } = null!;
-
-    private PaginationResponse<StaffVm> _staffVms = new();
-    private GetListStaffRequest _request = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        await GetStaff();
-    }
-
-    private async Task GetStaff()
-    {
-        var apiRes = await StaffService.GetListStaffWithPagination(_request);
-        _staffVms = apiRes.Value;
-    }
-}

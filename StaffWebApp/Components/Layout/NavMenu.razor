@@ -1,8 +1,52 @@
-﻿
-<MudNavMenu>
-    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
-    <MudNavLink Href="counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink>
-    <MudNavLink Href="weather" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Weather</MudNavLink>
-</MudNavMenu>
+﻿<MudNavMenu Color="Color.Primary">
+    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
+        Trang chủ
+    </MudNavLink>
+    <MudNavLink Href="/ListOrder" Icon="@Icons.Material.Filled.Assignment">
+        Quản lý hoá đơn
+    </MudNavLink>
+    <MudNavGroup Title="Sản phẩm" Icon="@Icons.Custom.Uncategorized.BioHazard" Expanded="true">
+        <MudNavLink Href="/ListColor" Icon="@Icons.Material.Filled.ColorLens">
+            Quản lý màu
+        </MudNavLink>
+        <MudNavLink Href="/ListSize" Icon="@Icons.Material.Filled.FormatSize">
+            Quản lý kích cỡ
+        </MudNavLink>
+        <MudNavLink Href="/list-product" Icon="@Icons.Material.Filled.CrueltyFree">
+            Quản lý sản phẩm
+        </MudNavLink>
+    </MudNavGroup>
 
+    <MudNavLink Href="/vouchers" Icon="@Icons.Material.Filled.Discount">
+        Quản lý khuyến mãi
+    </MudNavLink>
+    <MudNavGroup Title="Người dùng" Icon="@Icons.Material.Filled.SupervisedUserCircle" Expanded="true">
+        <MudNavLink Href="/list-staff" Icon="@Icons.Material.Filled.Accessibility">
+            Quản lý nhân viên
+        </MudNavLink>
+        <MudNavLink Href="/list-role" Icon="@Icons.Material.Filled.AirlineSeatReclineExtra">
+            Danh sách vai trò
+        </MudNavLink>
+        <MudNavLink Href="/list-customer" Icon="@Icons.Material.Filled.AirlineSeatReclineExtra">
+            Danh sách người dùng
+        </MudNavLink>
+    </MudNavGroup>
+
+</MudNavMenu>
+@code {
+    private MudTheme _customTheme = new()
+        {
+            PaletteDark = new PaletteDark()
+            {
+                Black = "#1a73e8"
+            }
+        };
+
+    private async Task HandleNavLinkClick()
+    {
+        // Perform any necessary logic before navigation
+        // Prevent the default behavior
+        await Task.CompletedTask;
+    }
+}
 

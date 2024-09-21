@@ -1,0 +1,74 @@
+﻿@page "/list-role"
+@using Microsoft.AspNetCore.Authorization
+@using StaffWebApp.Components.Reuse
+@attribute [Authorize(Roles = "admin")]
+
+<MudTable Items=_paginatedRoles.Data
+          Hover=true
+          CanCancelEdit=true
+          @bind-SelectedItem=_selectedRole
+          CommitEditTooltip="Cập nhật"
+          OnCommitEditClick="@(() => Snackbar.Add("Cập nhật vai trò thành công"))"
+          RowEditPreview="BackupItem"
+          RowEditCancel="SetToOriginValue"
+          RowEditCommit="async (object role) => await UpdateRole(role)"
+          CommitEditIcon=@Icons.Material.Filled.Edit
+          IsEditRowSwitchingBlocked=false
+          EditTrigger="TableEditTrigger.RowClick">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Danh sách vai trò</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="_request.SearchString"
+                      Placeholder="Search"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      IconSize="Size.Medium"
+                      Class="mt-0">
+        </MudTextField>
+        <MudButton OnClick="async () => await OpenCreateRoleDialog()">Thêm vai trò</MudButton>
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh>Stt</MudTh>
+        <MudTh>Mã</MudTh>
+        <MudTh>Tên</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd>@(_paginatedRoles.Data!.ToList().IndexOf(context) + 1)</MudTd>
+        <MudTd>@context.Code</MudTd>
+        <MudTd>@context.Name</MudTd>
+    </RowTemplate>
+
+    <RowEditingTemplate>
+        <MudTd>@(_paginatedRoles.Data!.ToList().IndexOf(context) + 1)</MudTd>
+        <MudTd>
+            <MudTextField @bind-Value=context.Code
+                          Required
+                          RequiredError="Hãy nhập giá trị cho mã vai trò">
+            </MudTextField>
+        </MudTd>
+        <MudTd>
+            <MudTextField @bind-Value=context.Name
+                          Required
+                          RequiredError="Hãy nhập giá trị cho tên vai trò">
+            </MudTextField>
+        </MudTd>
+    </RowEditingTemplate>
+
+    <PagerContent>
+        <Pagination HasNext=_paginatedRoles.HasNext
+                    PageNumber=_paginatedRoles.PageNumber>
+        </Pagination>
+    </PagerContent>
+
+    <EditButtonContent Context="button">
+        <MudButton OnClick=button.ButtonAction
+                   Icon="@Icons.Material.Filled.Edit"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Small" />
+    </EditButtonContent>
+
+</MudTable>

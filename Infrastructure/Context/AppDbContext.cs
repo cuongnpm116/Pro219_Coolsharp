@@ -13,7 +13,6 @@ public class AppDbContext : DbContext, IUnitOfWork
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
-
     private const string ConnectionString = "Server=localhost\\SQLEXPRESS;Database=Pro219_eShop;Trusted_Connection=True;TrustServerCertificate=true;";
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -30,7 +29,7 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<Staff> Staffs { get; set; }
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Role> Roles { get; set; }
-    public DbSet<StaffRole> UserRoles { get; set; }
+    public DbSet<StaffRole> StaffRoles { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductCategory> ProductCategories { get; set; }
     public DbSet<Cart> Carts { get; set; }
@@ -44,6 +43,6 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<Size> Sizes { get; set; }
     public DbSet<Address> Addresses { get; set; }
     public DbSet<Payment> Payments { get; set; }
-    public DbSet<Notification> Notifications { get; set; }
     public DbSet<Image> Images { get; set; }
+    public DbSet<Voucher> Vouchers { get; set; }
 }

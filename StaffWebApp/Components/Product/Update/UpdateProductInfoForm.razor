@@ -1,0 +1,145 @@
+﻿@using StaffWebApp.Components.Category
+@using StaffWebApp.Services.Category
+@using StaffWebApp.Services.Category.ViewModel
+@using StaffWebApp.Services.Product
+@using StaffWebApp.Services.Product.Dtos
+@using StaffWebApp.Services.Product.Vms.Create
+
+<MudDialog>
+    <TitleContent>
+        <MudIcon Icon="@Icons.Material.Filled.Edit">
+        </MudIcon>
+        @Dialog.Title
+    </TitleContent>
+
+    <DialogContent>
+        <MudButton OnClick="() => OpenAddCategoryDialogClick()"
+                   Color="Color.Secondary"
+                   Variant="Variant.Outlined"
+        Class="mb-2">
+            Thêm danh mục
+        </MudButton>
+        <MudForm @ref=_form Model="_product" Validation="_validator.ValidateValue" ValidationDelay="0">
+            <MudTextField @bind-Value=_product.Name
+                          For="() => _product.Name"
+                          Required
+                          Label="Tên sản phẩm">
+            </MudTextField>
+
+            <MudSelect T="CategoryVm"
+                       @ref=_categorySelect
+                       SelectedValues="_product.Categories"
+                       SelectedValuesChanged="async (IEnumerable<CategoryVm> selected) => await CategorySelectionChanged(selected)"
+                       MultiSelection
+                       ToStringFunc="(CategoryVm vm) => vm.CategoryName"
+                       For="() => _product._validateCategories"
+                       Immediate
+                       Label="Danh mục">
+                @foreach (var category in _categories)
+                {
+                    <MudSelectItem Value="category">@category.CategoryName</MudSelectItem>
+                }
+            </MudSelect>
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="() => Dialog.Close(DialogResult.Cancel)">Hủy</MudButton>
+        <MudButton OnClick="async () => await OnUpdateProductInfoClick()">Cập nhật</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Inject]
+    private ICategoryService CategoryService { get; set; } = null!;
+
+    [Inject]
+    private IProductService ProductService { get; set; } = null!;
+
+    [Inject]
+    private IDialogService DialogService { get; set; } = null!;
+
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+
+    [CascadingParameter]
+    private MudDialogInstance Dialog { get; set; }
+
+    [Parameter]
+    public Guid ProductId { get; set; }
+
+    private IEnumerable<CategoryVm> _categories { get; set; } = [];
+    private ProductInfoVm _product { get; set; } = new();
+
+    private MudForm _form;
+    private MudSelect<CategoryVm> _categorySelect;
+    private readonly ProductInfoVmValidator _validator = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCategories();
+        await GetInfo();
+    }
+
+    private async Task OnUpdateProductInfoClick()
+    {
+        if (await ValidateAsync())
+        {
+            var confirm = await DialogService.ShowMessageBox(
+                "Bạn có chắc chắn muốn cập nhật thông tin sản phẩm này?",
+                "Xác nhận",
+                yesText: "Có",
+                cancelText: "Không");
+            if (confirm.Value == true)
+            {
+                bool result = await ProductService.UpdateProductInfoAsync(ProductId, _product);
+                if (result)
+                {
+                    Snackbar.Add("Cập nhật thông tin sản phẩm thành công", Severity.Success);
+                    Dialog.Close(DialogResult.Ok(result));
+                }
+                else
+                {
+                    Snackbar.Add("Cập nhật thông tin sản phẩm thất bại", Severity.Error);
+                    Dialog.Close(DialogResult.Cancel);
+                }
+            }
+        }
+    }
+
+    private async Task OpenAddCategoryDialogClick()
+    {
+        DialogOptions options = new() { MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<CreateCategoryDialog>("Thêm danh mục", options);
+        var dialogResult = await dialog.Result;
+        if (dialogResult is not null && !dialogResult.Canceled)
+        {
+            await GetCategories();
+        }
+    }
+
+    private async Task GetInfo()
+    {
+        ProductInfoDto info = await ProductService.GetProductInfo(ProductId);
+        _product.Name = info.Name;
+        _product.Categories = _categories.Where(c => info.CategoryIds.Contains(c.CategoryId));
+    }
+
+    private async Task GetCategories()
+    {
+        var result = await CategoryService.Categories();
+        _categories = result.Value;
+    }
+
+    public async Task<bool> ValidateAsync()
+    {
+        await _form.Validate();
+        return _form.IsValid;
+    }
+
+    private async Task CategorySelectionChanged(IEnumerable<CategoryVm> values)
+    {
+        _product.Categories = values;
+        await _categorySelect.Validate();
+    }
+}
