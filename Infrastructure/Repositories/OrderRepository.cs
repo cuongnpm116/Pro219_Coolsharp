@@ -474,7 +474,7 @@ internal sealed class OrderRepository : IOrderRepository
     {
         try
         {
-            var exist = await _context.Orders
+            var exist = await _context.Orders.Include(x=>x.OrderDetails)
                 .FirstOrDefaultAsync(x => x.Id == request.OrderId);
 
             if (exist == null)
@@ -482,16 +482,28 @@ internal sealed class OrderRepository : IOrderRepository
                 return Result<bool>.Error("Không tìm thấy đơn hàng");
             }
 
-            if (exist.OrderStatus != OrderStatus.Pending && exist.OrderStatus != OrderStatus.Cancelled)
+            if (exist.OrderStatus != OrderStatus.None && exist.OrderStatus != OrderStatus.Pending && exist.OrderStatus != OrderStatus.Completed )
             {
-                return Result<bool>.Error("Đơn hàng đã được xác nhận không thể hủy.");
-
+                if (exist.OrderDetails != null)
+                {
+                    foreach (var item in exist.OrderDetails)
+                    {
+                        ProductDetail? productDetail = await _context.ProductDetails.FirstOrDefaultAsync(x => x.Id == item.ProductDetailId);
+                        if (productDetail != null)
+                        {
+                            productDetail.Stock += item.Quantity;
+                            _context.ProductDetails.Update(productDetail);
+                        }
+                    }
+                }
             }
 
 
             exist.OrderStatus = OrderStatus.Cancelled;
             exist.ModifiedBy = request.ModifiedBy != Guid.Empty ? request.ModifiedBy : Guid.Empty;
             exist.ModifiedOn = DateTime.Now;
+
+            
             _context.Orders.Update(exist);
 
             return Result<bool>.Success(true/*, "Hủy Order thành công"*/);

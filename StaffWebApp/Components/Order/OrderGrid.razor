@@ -75,7 +75,7 @@
                         <MudButton Color="Color.Primary" @onclick="() => UpdateOrder(context.Id, context.OrderStatus)">Xác Nhận</MudButton>
                     }<MudText Style="margin-block:28px">&nbsp;</MudText> @* khi if khong thoa man *@
 
-                    @if (context.OrderStatus == OrderStatus.None || context.OrderStatus == OrderStatus.Pending)
+                    @if (context.OrderStatus != OrderStatus.Completed && context.OrderStatus != OrderStatus.Cancelled)
                     {
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" @onclick="() => CancelOrder(context.Id)" Title="Hủy Đơn" Color="Color.Error" />
                     }<MudText Style="margin-block:28px">&nbsp;</MudText>
