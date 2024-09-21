@@ -18,7 +18,8 @@
 ### Bước 1: Clone repository
 git clone https://github.com/cuongnpm116/Pro219_Coolsharp.git
 ### Bước 2: cập nhật database
-dotnet ef database update
+- dotnet ef database update
+- Mở folder File: khởi tạo database VietNam_Address_Database và insertdata từ 2 file
 ### Bước 3: Set up project run
 Api > customerapp > staffapp
 ### Bước 4: Sử dụng
