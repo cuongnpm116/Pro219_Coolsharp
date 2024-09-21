@@ -12,7 +12,7 @@
 - Thống kê.
 ## Yêu cầu hệ thống
 - .NET SDK 8.0 trở lên
-- SQL Server (hoặc bất kỳ cơ sở dữ liệu nào bạn đang sử dụng)
+- SQL Server
 - Visual Studio 2022 (hoặc IDE hỗ trợ .NET)
 ## Cài đặt và triển khai
 ### Bước 1: Clone repository
