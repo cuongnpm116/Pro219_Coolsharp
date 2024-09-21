@@ -1,4 +1,6 @@
-﻿namespace Domain.Entities;
+﻿using Domain.Enums;
+
+namespace Domain.Entities;
 public class Customer
 {
     public Guid Id { get; set; }
@@ -10,11 +12,11 @@ public class Customer
     public string EmailAddress { get; set; } = string.Empty;
     public string Username { get; set; } = string.Empty;
     public string HashedPassword { get; set; } = string.Empty;
-    public string ImageUrl { get; set; } = "default.png";
+    public string ImageUrl { get; set; } = "default-profile.png";
+    public Status Status { get; set; } = Status.Active;
 
     public virtual ICollection<Order>? Orders { get; set; }
     public virtual ICollection<Address>? Addresses { get; set; }
     public virtual ICollection<Payment>? Payments { get; set; }
-    public virtual ICollection<Notification>? Notifications { get; set; }
     public virtual Cart? Cart { get; set; }
 }

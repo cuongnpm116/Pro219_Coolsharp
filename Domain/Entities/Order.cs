@@ -11,6 +11,7 @@ public class Order
 
     public Guid? CustomerId { get; set; }
     public Guid? StaffId { get; set; }
+    public Guid? VoucherId { get; set; }
     public string OrderCode { get; set; } = string.Empty;
     public DateTime? ConfirmedDate { get; set; }
     public DateTime? ShippedDate { get; set; }
@@ -24,6 +25,7 @@ public class Order
 
     public virtual Staff? Staff { get; set; }
     public virtual Customer? Customer { get; set; }
-    public virtual ICollection<Payment>? Payments { get; set; }
+    public virtual Voucher? Voucher { get; set; }
+    public virtual Payment? Payment { get; set; }
     public virtual ICollection<OrderDetail>? OrderDetails { get; set; }
 }

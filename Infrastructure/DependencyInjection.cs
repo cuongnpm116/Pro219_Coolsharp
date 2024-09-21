@@ -4,15 +4,19 @@ using Application.IServices;
 using Infrastructure.Context;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VietNamAddress.Models;
 using VietNamAddress.Repos;
-
 namespace Infrastructure;
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
     {
+
+        services.AddDbContext<AppDbContext>(
+            opts => opts.UseSqlServer(config.GetConnectionString("Default")));
         services.AddDbContext<AppDbContext>();
         services.AddDbContext<VietNamAddressContext>();
 
@@ -23,7 +27,19 @@ public static class DependencyInjection
         services.AddScoped<IEmailService, EmailService>();
 
         services.AddScoped<IVietNamAddressRepository, VietNamAddressRepository>();
+
         services.AddTransient<IAddressRepository, AddressRepository>();
+        services.AddTransient<ICustomerRepository, CustomerRepository>();
+        services.AddTransient<IStaffRepository, StaffRepository>();
+        services.AddTransient<IRoleRepository, RoleRepository>();
+        services.AddTransient<IProductRepository, ProductRepository>();
+        services.AddTransient<ICartRepository, CartRepository>();
+        services.AddTransient<ICategoryRepository, CategoryRepository>();
+        services.AddTransient<IOrderRepository, OrderRepository>();
+        services.AddTransient<IPaymentRepository, PaymentRepository>();
+        services.AddTransient<ISizeRepository, SizeRepository>();
+        services.AddTransient<IColorRepository, ColorRepository>();
+        services.AddTransient<IVoucherRepository, VoucherRepository>();
 
         return services;
     }

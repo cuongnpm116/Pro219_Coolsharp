@@ -17,15 +17,15 @@ internal sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .HasColumnType("nvarchar")
             .HasMaxLength(256);
 
-        builder.Property(x => x.Gender).IsRequired();
-
         builder.Property(x => x.EmailAddress).IsRequired()
             .HasColumnType("varchar")
-            .HasMaxLength(512);
+            .HasMaxLength(324);
+        builder.HasIndex(x => x.EmailAddress).IsUnique();
 
         builder.Property(x => x.Username).IsRequired()
             .HasColumnType("varchar")
-            .HasMaxLength(50);
+            .HasMaxLength(30);
+        builder.HasIndex(x => x.Username).IsUnique();
 
         builder.Property(x => x.ImageUrl)
             .HasColumnType("varchar")
@@ -33,8 +33,5 @@ internal sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder.Property(x => x.HashedPassword).IsRequired()
             .HasColumnType("varchar(max)");
-
-        builder.HasIndex(x => new { x.EmailAddress, x.Username })
-            .IsUnique();
     }
 }

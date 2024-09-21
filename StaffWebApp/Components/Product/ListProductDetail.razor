@@ -1,0 +1,119 @@
+﻿@using StaffWebApp.Services.Color
+@using StaffWebApp.Services.Color.Vms
+@using StaffWebApp.Services.Product
+@using StaffWebApp.Services.Size
+@using StaffWebApp.Services.Size.Vms
+
+<MudDialog>
+    <TitleContent>
+        @DialogInstance.Title
+    </TitleContent>
+
+    <DialogContent>
+        <MudTable Items="_details"
+                  Hover
+                  CanCancelEdit
+                  @bind-SelectedItem="_selectedDetail"
+                  CommitEditTooltip="Cập nhật"
+                  RowEditPreview="EditDetail"
+                  RowEditCancel="SetToOriginalValue"
+                  RowEditCommit="async (object detail) => await UpdateDetail(detail)"
+                  CommitEditIcon="@Icons.Material.Filled.Edit"
+                  IsEditRowSwitchingBlocked="false"
+                  EditTrigger="TableEditTrigger.RowClick">
+            <ToolBarContent>
+                <MudButton OnClick="async () => await OpenAddDetailDiaLog()">
+                    Thêm chi tiết
+                </MudButton>
+                <MudButton OnClick="async () => await OpenAddColorDialogClick()">
+                    Thêm màu
+                </MudButton>
+                <MudButton OnClick="async () => await OpenAddSizeDialogClick()">
+                    Thêm kích cỡ
+                </MudButton>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Stt</MudTh>
+                <MudTh>Phân loại</MudTh>
+                <MudTh>Giá nhập</MudTh>
+                <MudTh>Giá bán</MudTh>
+                <MudTh>Số lượng</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@(_details.ToList().IndexOf(context) + 1)</MudTd>
+                <MudTd>@GetClassification(context.Color.Name, context.Size.SizeNumber)</MudTd>
+                <MudTd>@string.Format("{0:N0} VND", context.OriginalPrice)</MudTd>
+                <MudTd>@string.Format("{0:N0} VND", context.Price)</MudTd>
+                <MudTd>@context.Stock</MudTd>
+            </RowTemplate>
+            <RowEditingTemplate>
+                <MudTd>
+                    <MudAutocomplete T="ColorForSelectVm"
+                                     Value="context.Color"
+                                     ValueChanged=" (ColorForSelectVm vm) => ChangeColor(vm)"
+                                     SearchFunc="SearchColors"
+                                     MaxItems="_colors.Count()"
+                                     ToStringFunc="(ColorForSelectVm vm) => vm is null ? string.Empty : vm.Name"
+                                     For="() => context.Color"
+                                     Validation="@(async () => await _validator.ValidateValueAsync(context, "Color"))"
+                                     Immediate
+                                     OnlyValidateIfDirty
+                                     Required
+                                     Label="Màu" />
+                </MudTd>
+                <MudTd>
+                    <MudAutocomplete T="SizeForSelectVm"
+                                     @bind-Value=context.Size
+                                     SearchFunc="SearchSizes"
+                                     MaxItems="_sizes.Count()"
+                                     ToStringFunc="(SizeForSelectVm vm) => vm is null ? string.Empty : vm.SizeNumber.ToString()"
+                                     For="() => context.Size"
+                                     Validation="@(async () => await _validator.ValidateValueAsync(context, "Size"))"
+                                     Immediate
+                                     OnlyValidateIfDirty
+                                     Required
+                                     Label="Kích cỡ" />
+                </MudTd>
+                <MudTd>
+                    <MudTextField @bind-Value=context.OriginalPrice
+                                  For="() => context.OriginalPrice"
+                                  Validation="@(async (decimal x) => await _validator.ValidateValueAsync(context, "OriginalPrice"))"
+                                  Immediate
+                                  Required
+                                  RequiredError="Hãy nhập giá trị cho giá nhập">
+                    </MudTextField>
+                </MudTd>
+                <MudTd>
+                    <MudTextField @bind-Value=context.Price
+                                  For="() => context.Price"
+                                  Validation="@(async (decimal y) => await _validator.ValidateValueAsync(context, "Price"))"
+                                  Immediate
+                                  Required
+                                  RequiredError="Hãy nhập giá trị cho giá nhập">
+                    </MudTextField>
+                </MudTd>
+                <MudTd>
+                    <MudTextField @bind-Value=context.Stock
+                                  OnBlur="OnStockLoseFocus"
+                                  For="() => context.Stock"
+                                  Validation="@(async (int z) => await _validator.ValidateValueAsync(context, "Stock"))"
+                                  Required
+                                  RequiredError="Hãy nhập giá trị cho giá nhập">
+                    </MudTextField>
+                </MudTd>
+            </RowEditingTemplate>
+            <EditButtonContent Context="button">
+                <MudButton OnClick="button.ButtonAction"
+                           Icon="@Icons.Material.Filled.Edit"
+                           Color="Color.Primary"
+                           Size="Size.Small">
+                </MudButton>
+            </EditButtonContent>
+        </MudTable>
+    </DialogContent>
+
+    <DialogActions>
+    </DialogActions>
+</MudDialog>
+
+

@@ -1,0 +1,80 @@
+﻿@page "/vouchers"
+
+<div class="row" style="margin-top:10px;display:flex;justify-content:space-between">
+    <div class="col-8" style="display:flex; align-items: center;">
+        <MudText Typo="Typo.h5">
+            Danh sách khuyến mãi
+        </MudText>
+    </div>
+    <MudFab Class="px-3" Style="margin-right:10px; margin-top:10px"
+            OnClick="OpenAddVoucherDialog"
+            Color="Color.Primary" Label="Thêm mới" StartIcon="@Icons.Material.Filled.Add">
+    </MudFab>
+</div>
+
+<MudGrid Style="margin-bottom:10px">
+    <MudItem xs="12" md="3" lg="4">
+        <MudTextField @bind-Value="paginationRequest.SearchString" Label="Search" Adornment="Adornment.Start" Variant="Variant.Outlined" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mr-5" @oninput="() => HandleSearchValueChanged()"
+                      @onkeydown="HandleKeyPress">
+        </MudTextField>
+    </MudItem>
+</MudGrid>
+@if (_lstVoucher.Data != null)
+{
+
+    <div class="border_box-shadow">
+
+        <MudTable Items="_lstVoucher.Data" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>STT</MudTh>
+                <MudTh>Tên</MudTh>
+                <MudTh>Số lượng</MudTh>
+                <MudTh>Ngày bắt đầu</MudTh>
+                <MudTh>Ngày kết thúc</MudTh>
+                <MudTh>Trạng thái</MudTh>
+                <MudTh Class="custom-center">Chức năng</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="STT"> @(_lstVoucher.Data.ToList().IndexOf(context) + 1)</MudTd>
+                <MudTd DataLabel="Name" title="@context.Name">@(context.Name.Length > 15 ? $"{context.Name.Substring(0, 15)}..." : context.Name)</MudTd>
+                <MudTd>@context.Stock</MudTd>
+                <MudTd DataLabel="StartDate"> <span>@(((DateTimeOffset)@context.StartedDate).ToString("dd/MM/yyyy "))</span></MudTd>
+                <MudTd DataLabel="FinishedDate"> <span>@(((DateTimeOffset)@context.FinishedDate).ToString("dd/MM/yyyy "))</span></MudTd>
+                <MudTd DataLabel="Status">
+                    <MudChip T="string" Variant="Variant.Outlined" Color="Color.Warning">
+                        @(context.Status switch
+                        {
+                            1 => "Hoạt động",
+                            2 => "Không hoạt động",
+                            3 => "Đã khóa",
+                            5 => "Chờ",
+                            _ => "N/A"
+                        })
+                    </MudChip>
+                </MudTd>
+                <MudTd Class="custom-center">
+                    <MudIconButton Icon="@Icons.Material.Filled.Info" OnClick="() => NavigateToDetail(context.Id)" title="Chi tiết giảm giá" Color="Color.Primary" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <div style="display:flex; justify-content:center; align-items: center; height:70px;">
+                    <MudIconButton Size="@Size.Large" Icon="@Icons.Material.Filled.NavigateBefore" Disabled="_lstVoucher.PageNumber ==1" OnClick="OnPreviousPageClicked"></MudIconButton>
+                    <MudText>@_lstVoucher.PageNumber</MudText>
+                    <MudIconButton Size="@Size.Large" Icon="@Icons.Material.Filled.NavigateNext" Disabled="!_lstVoucher.HasNext" OnClick="OnNextPageClicked"></MudIconButton>
+                </div>
+            </PagerContent>
+        </MudTable>
+    </div>
+}
+
+
+<style>
+    .custom-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        padding-right: 10px;
+    }
+</style>
+

@@ -1,0 +1,25 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudIcon Icon="@Icons.Material.Filled.Edit"></MudIcon>
+        @Dialog.Title
+    </TitleContent>
+
+    <DialogContent>
+        @foreach (var item in _availableRoles)
+        {
+            <MudCheckBox Value="_checkedRoles[item.Id]"
+                         ValueChanged="(bool value) => CheckedChange(value, item.Id)"
+                         Label="@item.Name">
+            </MudCheckBox>
+        }
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="() => Dialog.Close(DialogResult.Cancel())" Color="Color.Primary">
+            Hủy
+        </MudButton>
+        <MudButton OnClick="UpdateStaffRole" Color="Color.Primary">
+            Cập nhật
+        </MudButton>
+    </DialogActions>
+</MudDialog>

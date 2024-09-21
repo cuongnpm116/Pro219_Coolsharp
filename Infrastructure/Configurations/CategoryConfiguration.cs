@@ -14,9 +14,6 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
             .HasColumnType("nvarchar")
             .HasMaxLength(256);
 
-        builder.Property(c => c.Description).IsRequired()
-            .HasColumnType("nvarchar(max)");
-
         builder.Property(c => c.Status).IsRequired()
             .HasConversion(v => (byte)v, v => (Status)v);
     }

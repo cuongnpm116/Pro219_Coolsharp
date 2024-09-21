@@ -16,7 +16,7 @@ internal sealed class GetAddressesQueryHandler : IRequestHandler<GetAddressesQue
     {
         try
         {
-            var result = await _addressRepository.GetAddresses(request.UserId, cancellationToken);
+            var result = await _addressRepository.GetAddresses(request.CustomerId, cancellationToken);
             return Result<IReadOnlyList<AddressVm>>.Success(result);
         }
         catch (Exception ex)

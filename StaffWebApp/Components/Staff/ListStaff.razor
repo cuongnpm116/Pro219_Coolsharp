@@ -1,0 +1,42 @@
+﻿@page "/list-staff"
+@using Microsoft.AspNetCore.Authorization
+@using StaffWebApp.Components.Reuse
+@using WebAppIntegrated.Enum
+@attribute [Authorize(Roles = "admin")]
+
+<MudButton OnClick="OpenAddStaffDialog" Variant="Variant.Filled">Thêm nhân viên</MudButton>
+<MudTable Items="_paginatedStaff.Data">
+    <HeaderContent>
+        <MudTh>Stt</MudTh>
+        <MudTh>Tên đầy đủ</MudTh>
+        <MudTh>Ngày sinh</MudTh>
+        <MudTh>Email</MudTh>
+        <MudTh>Tên tài khoản</MudTh>
+        <MudTh>Trạng thái</MudTh>
+        <MudTh>Vai trò</MudTh>
+        <MudTh>Thao tác</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@(_paginatedStaff.Data!.ToList().IndexOf(context) + 1)</MudTd>
+        <MudTd>@context.FullName</MudTd>
+        <MudTd>@context.Dob.ToString("d")</MudTd>
+        <MudTd>@context.Email</MudTd>
+        <MudTd>@context.Username</MudTd>
+        <MudTd>@context.Status.ConvertUserStatus()</MudTd>
+        <MudTd>@context.Roles</MudTd>
+        <MudTd>
+            <MudButton OnClick="async () => await OpenUpdateStaffInfoDialog(context.Id)"
+                       Color="Color.Secondary"
+                       Variant="Variant.Outlined">Cập nhật thông tin</MudButton>
+            <MudButton OnClick="async () => await OpenUpdateRoleDialog(context.Id)"
+                       Color="Color.Secondary"
+                       Variant="Variant.Outlined">Cập nhật vai trò</MudButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <Pagination HasNext="_paginatedStaff.HasNext"
+                    PageNumber="_paginatedStaff.PageNumber"
+                    OnNextPageClicked="async () => await OnNextPageClicked()"
+                    OnPreviousPageClicked="async () => await OnPreviousPageClicked()" />
+    </PagerContent>
+</MudTable>

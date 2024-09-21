@@ -11,7 +11,6 @@ public class Payment
     public string StatusCode { get; set; } = string.Empty;
     public PaymentMethod PaymentMethod { get; set; }
     public PaymentStatus Status { get; set; }
-    public DateTime PaidDate { get; set; }
     public Guid CustomerId { get; set; }
     public Guid OrderId { get; set; }
 

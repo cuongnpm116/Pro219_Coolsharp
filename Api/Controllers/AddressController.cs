@@ -1,4 +1,11 @@
-﻿using Application.Cqrs.Address.GetAddresses;
+﻿using Application.Cqrs.Address.AddAddress;
+using Application.Cqrs.Address.DeleteAddress;
+using Application.Cqrs.Address.GetAddressById;
+using Application.Cqrs.Address.GetAddresses;
+using Application.Cqrs.Address.GetDefaultAddress;
+using Application.Cqrs.Address.MakeDefaultAddress;
+using Application.Cqrs.Address.UpdateAddress;
+using Domain.Primitives;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,9 +22,53 @@ public class AddressController : ControllerBase
     }
 
     [HttpGet("get-addresses")]
-    public async Task<IActionResult> GetAddresses([FromQuery] Guid userId)
+    public async Task<IActionResult> GetAddresses([FromQuery] Guid customerId)
     {
-        var result = await _mediator.Send(new GetAddressesQuery(userId));
+        var result = await _mediator.Send(new GetAddressesQuery(customerId));
+        return Ok(result);
+    }
+
+    [HttpPost("add-address")]
+    public async Task<IActionResult> AddUserAddress([FromBody] AddCustomerAddressCommand request)
+    {
+        Result result = await _mediator.Send(request);
+        return Ok(result);
+    }
+
+    [HttpPut("update-address")]
+    public async Task<IActionResult> UpdateUserAddress([FromBody] UpdateCustomerAddressCommand request)
+    {
+        Result result = await _mediator.Send(request);
+        return Ok(result);
+    }
+
+    [HttpGet("get-address-by-id")]
+    public async Task<IActionResult> GetAddressById([FromQuery] Guid addressId)
+    {
+        GetCustomerAddressByIdQuery command = new(addressId);
+        Result result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    [HttpPut("make-default-address")]
+    public async Task<IActionResult> MakeDefaultAddress([FromBody] MakeDefaultAddressCommand request)
+    {
+        Result result = await _mediator.Send(request);
+        return Ok(result);
+    }
+
+    [HttpPut("delete-address")]
+    public async Task<IActionResult> DeleteAddress([FromBody] DeleteAddressCommand request)
+    {
+        Result result = await _mediator.Send(request);
+        return Ok(result);
+    }
+
+    [HttpGet("default-address")]
+    public async Task<IActionResult> GetDefaultAddress([FromQuery] Guid CustomerId)
+    {
+        GetDefaultAddressQuery query = new(CustomerId);
+        Result result = await _mediator.Send(query);
         return Ok(result);
     }
 }

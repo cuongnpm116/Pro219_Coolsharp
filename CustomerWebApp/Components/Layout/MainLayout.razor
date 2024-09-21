@@ -1,104 +1,91 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
 
-<MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
-<MudPopoverProvider />
+<MudThemeProvider />
+<MyMudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
-<MudLayout>
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
-        <MudSpacer />
-        <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+<MudPopoverProvider />
+<MudLayout Style="display: flex; flex-direction: column; min-height: 100vh;">
+    <MudAppBar Elevation="1" Fixed="true" Class="px-8">
+
+        <MudLink Href="/" Underline="Underline.None">
+            <MudText Typo="Typo.h5" Class="ml-3" Style="@($"color:{Colors.Gray.Lighten5};")">CoolSharp</MudText>
+        </MudLink>
+
+        <MudSpacer></MudSpacer>
+
+        <NavMenu></NavMenu>
+
+        <MudSpacer></MudSpacer>
+
+        <MudTextField @bind-Value="Search" Style="@($"color:{Colors.Gray.Lighten5};")" Placeholder="Nhập tên sản phẩm..." Margin="Margin.Dense"></MudTextField>
+        <MudIconButton Icon="@Icons.Material.Filled.Search" Style="@($"color:{Colors.Gray.Lighten5};")" OnClick="NavigateToSearchPage"></MudIconButton>
+        <AuthorizeView>
+            <Authorized>
+                <MudLink Href="/cart">
+                    <MudBadge Content="@CartState.Quantity" Overlap="true" Origin="Origin.TopRight" Class="mx-6 my-4">
+                        <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Style="@($"color:{Colors.Gray.Lighten5};")" />
+                    </MudBadge>
+                </MudLink>
+
+                <MudMenu AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+                    <ActivatorContent>
+                        <MudAvatar>
+                            <MudImage Src="@_imageUrl"></MudImage>
+                        </MudAvatar>
+                        <MudText Class="ml-2 mt-2" Style="@($"color:{Colors.Gray.Lighten5};")">@_username</MudText>
+                    </ActivatorContent>
+                    <ChildContent>
+                        <MudMenuItem>
+                            <MudLink Href="/account" Underline="Underline.None">
+                                <MudButton>
+                                    Hồ sơ
+                                </MudButton>
+                            </MudLink>
+                        </MudMenuItem>
+                        <MudMenuItem>
+                            <MudLink Href="/auth/logout" Underline="Underline.None">
+                                <MudButton>
+                                    Đăng xuất
+                                </MudButton>
+                            </MudLink>
+                        </MudMenuItem>
+                    </ChildContent>
+                </MudMenu>
+            </Authorized>
+            <NotAuthorized>
+                <MudLink Href="/login">
+                    <MudButton Style="@($"color:{Colors.Gray.Lighten5};")">
+                        Đăng nhập
+                    </MudButton>
+                </MudLink>
+                <MudLink Href="/register">
+                    <MudButton Style="@($"color:{Colors.Gray.Lighten5};")">
+                        Đăng ký
+                    </MudButton>
+                </MudLink>
+
+            </NotAuthorized>
+        </AuthorizeView>
+       
+
+
+
     </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-        <NavMenu />
-    </MudDrawer>
-    <MudMainContent Class="mt-16 pa-4">
+
+    <MudMainContent Class="mb-16" Style="flex-grow: 1;">
         @Body
     </MudMainContent>
+
+    <MudScrollToTop>
+        <MudFab Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.ArrowCircleUp" />
+    </MudScrollToTop>
+
+    <Footer />
 </MudLayout>
 
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
 
-@code {
-    private bool _drawerOpen = true;
-    private bool _isDarkMode = true;
-    private MudTheme? _theme = null;
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-
-        _theme = new()
-        {
-            PaletteLight = _lightPalette,
-            PaletteDark = _darkPalette,
-            LayoutProperties = new LayoutProperties()
-        };
-    }
-
-
-    private void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
-
-    private void DarkModeToggle()
-    {
-        _isDarkMode = !_isDarkMode;
-    }
-
-    private readonly PaletteLight _lightPalette = new()
-    {
-        Black = "#110e2d",
-        AppbarText = "#424242",
-        AppbarBackground = "rgba(255,255,255,0.8)",
-        DrawerBackground = "#ffffff",
-        GrayLight = "#e8e8e8",
-        GrayLighter = "#f9f9f9",
-    };
-
-    private readonly PaletteDark _darkPalette = new()
-    {
-        Primary = "#7e6fff",
-        Surface = "#1e1e2d",
-        Background = "#1a1a27",
-        BackgroundGray = "#151521",
-        AppbarText = "#92929f",
-        AppbarBackground = "rgba(26,26,39,0.8)",
-        DrawerBackground = "#1a1a27",
-        ActionDefault = "#74718e",
-        ActionDisabled = "#9999994d",
-        ActionDisabledBackground = "#605f6d4d",
-        TextPrimary = "#b2b0bf",
-        TextSecondary = "#92929f",
-        TextDisabled = "#ffffff33",
-        DrawerIcon = "#92929f",
-        DrawerText = "#92929f",
-        GrayLight = "#2a2833",
-        GrayLighter = "#1e1e2d",
-        Info = "#4a86ff",
-        Success = "#3dcb6c",
-        Warning = "#ffb545",
-        Error = "#ff3f5f",
-        LinesDefault = "#33323e",
-        TableLines = "#33323e",
-        Divider = "#292838",
-        OverlayLight = "#1e1e2d80",
-    };
-
-    public string DarkLightModeButtonIcon => _isDarkMode switch
-    {
-        true => Icons.Material.Rounded.AutoMode,
-        false => Icons.Material.Outlined.DarkMode,
-    };
-}
 
 

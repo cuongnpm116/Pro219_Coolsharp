@@ -1,6 +1,28 @@
 ﻿namespace Domain.Entities;
 public class ProductDetail
 {
+    public ProductDetail()
+    {
+    }
+
+    public ProductDetail(
+        Guid id,
+        Guid productId,
+        Guid sizeId,
+        Guid colorId,
+        int stock,
+        decimal price,
+        decimal originalPrice)
+    {
+        Id = id;
+        ProductId = productId;
+        SizeId = sizeId;
+        ColorId = colorId;
+        Stock = stock;
+        SalePrice = price;
+        OriginalPrice = originalPrice;
+    }
+
     public Guid Id { get; set; }
     public int Stock { get; set; }
     public decimal SalePrice { get; set; }

@@ -1,18 +1,40 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using StaffWebApp.Services.Staff
+@using System.Security.Claims
+@using WebAppIntegrated.Constants
+@inherits LayoutComponentBase
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
 <MudPopoverProvider />
-<MudDialogProvider />
+<MudDialogProvider FullWidth="true" CloseButton="true" CloseOnEscapeKey="true"/>
 <MudSnackbarProvider />
 <MudLayout>
     <MudAppBar Elevation="1">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
         <MudSpacer />
+        <MudMenu AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+            <ActivatorContent>
+                <MudAvatar>
+                    <MudImage Src="@_imageUrl"></MudImage>
+                </MudAvatar>
+                <MudText Class="ml-2 mt-2" Color="Color.Dark">@_username</MudText>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem>
+                    <MudLink Href="/auth/logout" Underline="Underline.None">
+                        <MudButton>
+                            Đăng xuất
+                        </MudButton>
+                    </MudLink>
+                </MudMenuItem>
+            </ChildContent>
+        </MudMenu>
         <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h5" Class="mt-1">CoolSharp</MudText>
+        </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
     <MudMainContent Class="mt-16 pa-4">
@@ -28,13 +50,36 @@
 </div>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
+
+    [Inject]
+    private IStaffService UserService { get; set; } = null!;
+
+    private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
+    private string _username = string.Empty;
+
+    private Guid _userId;
     private bool _drawerOpen = true;
-    private bool _isDarkMode = true;
+    private bool _isDarkMode = false;
     private MudTheme? _theme = null;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
+        AuthenticationState authState = await AuthStateTask;
+        List<Claim> claims = authState.User.Claims.ToList();
+
+        if (!authState.User.Identity.IsAuthenticated)
+        {
+            return;
+        }
+
+        string stringUserId = authState.User?.Claims.FirstOrDefault(x => x.Type == "UserId")!.Value;
+        _userId = new(stringUserId);
+
+        var result = await UserService.GetStaffInfoToUpdate(_userId);
+        _imageUrl += result.Value.ImageUrl;
+        _username = result.Value.Username;
 
         _theme = new()
         {
@@ -43,7 +88,6 @@
             LayoutProperties = new LayoutProperties()
         };
     }
-
 
     private void DrawerToggle()
     {

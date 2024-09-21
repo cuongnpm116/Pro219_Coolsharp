@@ -1,8 +1,8 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Application.IServices;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Application.IServices;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Services;
 internal sealed class JwtTokenService : ITokenService

@@ -1,6 +1,6 @@
-﻿using System.Transactions;
-using Application.Abstractions;
+﻿using Application.Abstractions;
 using MediatR;
+using System.Transactions;
 
 namespace Application.Behaviors;
 internal sealed class UnitOfWorkBehavior<TRequest, TResponse>

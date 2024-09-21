@@ -6,9 +6,36 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Components\Categorys\**" />
+    <Compile Remove="Components\Orders\**" />
+    <Compile Remove="Components\Voucher\**" />
+    <Content Remove="Components\Categorys\**" />
+    <Content Remove="Components\Orders\**" />
+    <Content Remove="Components\Voucher\**" />
+    <EmbeddedResource Remove="Components\Categorys\**" />
+    <EmbeddedResource Remove="Components\Orders\**" />
+    <EmbeddedResource Remove="Components\Voucher\**" />
+    <None Remove="Components\Categorys\**" />
+    <None Remove="Components\Orders\**" />
+    <None Remove="Components\Voucher\**" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="fluentvalidation" Version="11.9.2" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.8" />
     <PackageReference Include="MudBlazor" Version="7.*" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\WebAppIntegrated\WebAppIntegrated.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
   </ItemGroup>
 </Project>

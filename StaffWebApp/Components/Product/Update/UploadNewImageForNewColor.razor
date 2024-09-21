@@ -1,0 +1,194 @@
+﻿@using StaffWebApp.Services.Product.Dtos
+@using StaffWebApp.Services.Product.Vms.Create
+@using WebAppIntegrated.Constants
+@using WebAppIntegrated.Grpc
+
+<MudDialog>
+    <TitleContent>
+        @_msg
+    </TitleContent>
+    <DialogContent>
+        <MudFileUpload @ref=_fileUpload
+                       T="IReadOnlyList<IBrowserFile>"
+                       OnFilesChanged="OnInputFileChanged"
+                       AppendMultipleFiles=true
+                       Accept=".jpg, .jpeg, .png, .jfif"
+                       MaximumFileCount=99
+                       tabindex=-1>
+        </MudFileUpload>
+
+        <MudPaper Outlined="true" Class="relative rounded-lg border-2 border-dashed pa-4 mud-width-full mud-height-full mt-4">
+            @foreach (var item in Images)
+            {
+                <div style="position: relative; display: inline-block;">
+                    <MudImage Src="@item.Binary" Width="150" Height="150" Elevation="25" Class="rounded-lg ma-4" />
+
+                    <MudFab OnClick="() => RemoveImage(item)"
+                            Color="MudBlazor.Color.Primary"
+                            StartIcon="@Icons.Material.Filled.Close"
+                            Style="position: absolute; top: 5px; right: 5px;"
+                            Size="Size.Small" />
+                </div>
+            }
+
+            @if (Images.Count < 5)
+            {
+                <MudButton OnClick="OpenFilePickerAsync"
+                           Style="width: 150px; height: 150px;"
+                           Variant="Variant.Filled"
+                           Color="MudBlazor.Color.Transparent">
+                    <MudIcon Icon="@Icons.Material.Filled.Add" />
+                </MudButton>
+            }
+            else
+            {
+                <MudButton OnClick="ClearImages"
+                           Style="height:150px; width:150px"
+                           Variant="Variant.Filled"
+                           Color="MudBlazor.Color.Error">
+                    <MudIcon Icon="@Icons.Material.Filled.Remove" />
+                </MudButton>
+            }
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="() => CloseDialog()"
+                   Color="Color.Primary"
+                   Variant="Variant.Outlined">
+            Xác nhận
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+
+    [Inject]
+    private IGrpcService GrpcService { get; set; } = null!;
+
+    [CascadingParameter]
+    private MudDialogInstance DialogInstance { get; set; } = null!;
+
+    public List<ImageVm> Images { get; set; } = [];
+
+    private MudFileUpload<IReadOnlyList<IBrowserFile>> _fileUpload;
+    private string ErrMsg = "Hãy tải lên ít nhất 1 ảnh";
+    private string _msg = string.Empty;
+
+    private async Task CloseDialog()
+    {
+        bool validResult = Validate();
+        if (!validResult)
+        {
+            return;
+        }
+        List<ImageDto> images = new();
+        foreach (var item in Images)
+        {
+            string newFileName = await GrpcService.UploadToServer(item.File, DirectoryConstants.ProductContent);
+            images.Add(new ImageDto(Guid.NewGuid(), newFileName));
+        }
+        DialogInstance.Close(DialogResult.Ok(images));
+    }
+
+    private Task OpenFilePickerAsync() => _fileUpload.OpenFilePickerAsync() ?? Task.CompletedTask;
+
+    private async Task OnInputFileChanged(InputFileChangeEventArgs e)
+    {
+        _msg = string.Empty;
+        var files = e.GetMultipleFiles(99);
+
+        if (!ValidateFileCount(files) || !ValidateFiles(files))
+        {
+            return;
+        }
+
+        await AddValidFiles(files);
+    }
+
+    private async Task AddValidFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        foreach (var file in files)
+        {
+            Images.Add(new ImageVm
+                {
+                    File = file,
+                    Binary = await GetImageBinary(file)
+                });
+        }
+    }
+
+    private static async Task<string> GetImageBinary(IBrowserFile file)
+    {
+        using var stream = file.OpenReadStream(10 * 1024 * 1024);
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        string base64 = Convert.ToBase64String(memoryStream.ToArray());
+        string imageBinary = $"data:{file.ContentType};base64,{base64}";
+        return imageBinary;
+    }
+
+    private bool ValidateFileCount(IReadOnlyList<IBrowserFile> files)
+    {
+        if (files.Count > 5)
+        {
+            Snackbar.Add("Số lượng ảnh tối đa là 5", Severity.Error);
+            return false;
+        }
+        return true;
+    }
+
+    private bool ValidateFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".jfif" };
+        string overSizeFiles = string.Empty;
+        string invalidFiles = string.Empty;
+
+        foreach (var item in files)
+        {
+            if (item.Size > 10 * 1024 * 1024)
+            {
+                overSizeFiles += $" {item.Name},";
+            }
+            if (!allowedExtensions.Contains(Path.GetExtension(item.Name).ToLower()))
+            {
+                invalidFiles += $" {item.Name},";
+            }
+        }
+
+        bool valid = true;
+
+        if (!string.IsNullOrEmpty(overSizeFiles))
+        {
+            Snackbar.Add($"Các file {overSizeFiles} vượt quá kích thước cho phép. Vui lòng kiểm tra lại tệp trước khi tải lên", Severity.Error);
+            valid = false;
+        }
+
+        if (!string.IsNullOrEmpty(invalidFiles))
+        {
+            Snackbar.Add($"Các file {invalidFiles} không đúng định dạng. Vui lòng kiểm tra lại tệp trước khi tải lên", Severity.Error);
+            valid = false;
+        }
+
+        return valid;
+    }
+
+    public bool Validate()
+    {
+        if (Images.Count == 0)
+        {
+            _msg = ErrMsg;
+            return false;
+        }
+        return true;
+    }
+
+    private async Task ClearImages()
+    {
+        await (_fileUpload.ClearAsync() ?? Task.CompletedTask);
+        Images.Clear();
+    }
+
+    private void RemoveImage(ImageVm img) => Images.Remove(img);
+}
