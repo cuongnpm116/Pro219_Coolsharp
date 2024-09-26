@@ -1,17 +1,21 @@
 ﻿using Application.Abstractions;
 using Domain.Entities;
 using Infrastructure.Seed;
+using Infrastructure.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Context;
 public class AppDbContext : DbContext, IUnitOfWork
 {
+    private readonly IHubContext<ShopHub> _hubContext;
     public AppDbContext()
     {
-    }
 
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    }
+    public AppDbContext(DbContextOptions<AppDbContext> options, IHubContext<ShopHub> hubContext) : base(options)
     {
+        _hubContext = hubContext;
     }
     private const string ConnectionString = "Server=localhost\\SQLEXPRESS;Database=Pro219_eShop;Trusted_Connection=True;TrustServerCertificate=true;";
 
@@ -45,4 +49,20 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Image> Images { get; set; }
     public DbSet<Voucher> Vouchers { get; set; }
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        // Lấy tất cả các thực thể đang bị thay đổi
+        var changedEntries = ChangeTracker.Entries()
+            .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
+            .ToList();
+
+        // Gọi SaveChangesAsync của base để lưu thay đổi vào cơ sở dữ liệu
+        int result = await base.SaveChangesAsync(cancellationToken);
+
+        // Sau khi thay đổi được lưu, gửi thông báo SignalR cho các client
+        await _hubContext.Clients.All.SendAsync("UpdateDatabase", "Changed");
+        
+
+        return result;
+    }
 }

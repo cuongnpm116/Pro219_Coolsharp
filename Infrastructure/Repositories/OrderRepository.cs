@@ -122,10 +122,10 @@ internal sealed class OrderRepository : IOrderRepository
                            join p in _context.Products on pd.ProductId equals p.Id
                            join c in _context.Colors on pd.ColorId equals c.Id
                            join s in _context.Sizes on pd.SizeId equals s.Id
-                           join pi in _context.ProductImages on pd.Id equals pi.ProductDetailId into ppi
-                           from pi in ppi.DefaultIfEmpty()
-                           join i in _context.Images on pi.ImageId equals i.Id into ii
-                           from i in ii.DefaultIfEmpty()
+                           let image = (from pi in _context.ProductImages
+                                        join img in _context.Images on pi.ImageId equals img.Id
+                                        where pi.ProductDetailId == c.Id
+                                        select img.ImagePath).FirstOrDefault()
                            where od.OrderId == orderId
                            select new OrderDetailVm
                            {
@@ -138,7 +138,7 @@ internal sealed class OrderRepository : IOrderRepository
                                Quantity = od.Quantity,
                                ColorName = c.Name,
                                SizeNumber = s.SizeNumber,
-                               ImagePath = i.ImagePath
+                               ImagePath = image
                            }).ToListAsync();
 
         return Result<List<OrderDetailVm>>.Success(query);
@@ -301,7 +301,6 @@ internal sealed class OrderRepository : IOrderRepository
         }
     }
 
-
     private async Task<Result> SendEmail(Order order, List<OrderDetail> orderDetails)
     {
         var customer = _context.Customers.FirstOrDefault(x => x.Id == order.CustomerId);
@@ -401,6 +400,7 @@ internal sealed class OrderRepository : IOrderRepository
         {
             Order? exist = await _context.Orders
                             .Include(x => x.Voucher)
+                            .Include(x=>x.Customer)
                             .AsNoTracking()
                             .FirstOrDefaultAsync(x => x.Id == request.Id);
             string orderstatus = "";
@@ -460,7 +460,8 @@ internal sealed class OrderRepository : IOrderRepository
             }
 
             _context.Orders.Update(exist);
-            await _hubContext.Clients.All.SendAsync("ReceiveOrderUpdate", orderstatus);
+            await _hubContext.Clients.User(exist?.Customer.Username).SendAsync("ReceiveMessage", orderstatus);
+            //await _hubContext.Clients.All.SendAsync("ReceiveOrderUpdate", orderstatus);
 
             return Result<bool>.Success(true);
         }

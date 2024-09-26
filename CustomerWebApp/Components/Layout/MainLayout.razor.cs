@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
 using System.Security.Claims;
 using WebAppIntegrated.Constants;
+using WebAppIntegrated.SignalR;
 
 namespace CustomerWebApp.Components.Layout;
 public partial class MainLayout
@@ -25,12 +26,11 @@ public partial class MainLayout
 
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
-
     [Inject]
     private CartState CartState { get; set; }
+    [Inject]
+    private SignalRService SignalRService { get; set; } = null!;
 
-
-    private HubConnection? _hubConnection;
     private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
     private string _username = string.Empty;
     private CartVm cartVm = new();
@@ -38,7 +38,6 @@ public partial class MainLayout
     public Guid UserId;
     private string Search { get; set; } = "";
     public int Quantity;
-    public int top = 5;
 
     protected override async Task OnInitializedAsync()
     {
@@ -56,28 +55,24 @@ public partial class MainLayout
         _imageUrl += result.Value.ImageUrl;
         _username = result.Value.Username;
 
-        await GetQuantityCart();
+        await SignalRService.InitializeSignalRConnection(claims);
+        if (SignalRService == null || SignalRService._hubConnection == null)
+        {
+            throw new ArgumentNullException(nameof(SignalRService), "SignalRService is null or HubConnection is not initialized.");
+        }
 
-        _hubConnection = new HubConnectionBuilder()
-        .WithUrl(Navigation.ToAbsoluteUri("https://localhost:1000/shophub"))
-        .Build();
-
-        _hubConnection.On<string>("ReceiveOrderUpdate", (message) =>
+        SignalRService._hubConnection.On<string>("ReceiveMessage", (message) =>
         {
             Snackbar.Add($"{message}", Severity.Success);
-            InvokeAsync(StateHasChanged);
         });
 
-        await _hubConnection.StartAsync();
+        await GetQuantityCart();
         CartState.OnChange += StateHasChanged;
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (_hubConnection is not null)
-        {
-            await _hubConnection.DisposeAsync();
-        }
+        await SignalRService.DisposeAsync();
     }
 
     private async Task GetQuantityCart()
@@ -88,18 +83,6 @@ public partial class MainLayout
             cartVm = response.Value;
             CartState.Quantity = cartVm.ListCart.Count;
         }
-    }
-
-
-    private bool _isNotificationsVisible;
-
-    private void ToggleNotifications()
-    {
-        _isNotificationsVisible = !_isNotificationsVisible;
-    }
-    private void OnPopoverClosed()
-    {
-        _isNotificationsVisible = false;
     }
 
     public void Dispose()

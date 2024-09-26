@@ -2,10 +2,12 @@
 using CustomerWebApp.Service.Order.Dtos;
 using CustomerWebApp.Service.Order.ViewModel;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
 using WebAppIntegrated.Constants;
 using WebAppIntegrated.Enum;
 using WebAppIntegrated.Pagination;
+using WebAppIntegrated.SignalR;
 
 namespace CustomerWebApp.Components.Customer;
 
@@ -13,6 +15,10 @@ public partial class PurchaseOrder
 {
     [Parameter]
     public Guid CustomerId { get; set; }
+    //[CascadingParameter]
+    //public HubConnection HubConnection { get; set; }
+    [CascadingParameter] 
+    public SignalRService SignalRService { get; set; }
     [Inject]
     private IOrderService OrderService { get; set; } = null!;
 
@@ -32,6 +38,18 @@ public partial class PurchaseOrder
     {
         _request.CustomerId = CustomerId;
         await GetOrders();
+        if (SignalRService == null || SignalRService._hubConnection == null )
+        {
+            throw new ArgumentNullException(nameof(SignalRService), "SignalRService is null or HubConnection is not initialized.");
+        }
+
+        // Đăng ký sự kiện
+        SignalRService._hubConnection.On<string>("UpdateDatabase", async (message) =>
+        {
+            // Khi nhận thông báo, cập nhật đơn hàng
+            await GetOrders();
+            InvokeAsync(StateHasChanged);
+        });
     }
     private Guid? _expandedOrderId;
     private async Task OnOrderRowClick(TableRowClickEventArgs<OrderVm> args)

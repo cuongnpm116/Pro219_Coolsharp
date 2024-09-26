@@ -41,7 +41,10 @@ public partial class ListProduct
     private async Task GetListCategories()
     {
         var result = await CategoryService.Categories();
-        _categories = result.Value;
+        if (result.Value != null)
+        {
+            _categories = result.Value;
+        }
     }
 
     public async Task OnListDetailDialogSuccess()

@@ -3,6 +3,8 @@ using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Context;
 using Infrastructure.Repositories;
+using Infrastructure.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace UnitTest;
@@ -10,17 +12,19 @@ namespace UnitTest;
 public class SearchTest
 {
     private readonly DbContextOptions<AppDbContext> _dbContextOptions;
-    public SearchTest()
+    private IHubContext<ShopHub> _hubContext;
+    public SearchTest(IHubContext<ShopHub> hubContext)
     {
         _dbContextOptions = new DbContextOptionsBuilder<AppDbContext>()
                             .UseInMemoryDatabase(databaseName: "InMemoryProductDb")
                             .Options;
+        _hubContext = hubContext;
 
         SeedDatabase();
     }
     private void SeedDatabase()
     {
-        using var context = new AppDbContext(_dbContextOptions);
+        using var context = new AppDbContext(_dbContextOptions, _hubContext);
 
         // Tạo dữ liệu mẫu cho Product, ProductDetail, ProductImage, Image, ProductCategory
         var product = new Product
@@ -82,7 +86,7 @@ public class SearchTest
     [Fact]
     public async Task GetProductForShowOnCustomerApp_ShouldReturnFilteredProductsBySearchString()
     {
-        using var context = new AppDbContext(_dbContextOptions);
+        using var context = new AppDbContext(_dbContextOptions, _hubContext);
         var repository = new ProductRepository(context);
         var request = new GetProductCustomerAppPagingQuery
         {
@@ -104,7 +108,7 @@ public class SearchTest
     public async Task GetProductForShowOnCustomerApp_ShouldReturnEmptyIfNoMatch()
     {
         // Arrange
-        using var context = new AppDbContext(_dbContextOptions);
+        using var context = new AppDbContext(_dbContextOptions, _hubContext);
         var repository = new ProductRepository(context);
 
         var request = new GetProductCustomerAppPagingQuery
