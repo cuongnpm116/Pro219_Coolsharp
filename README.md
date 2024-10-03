@@ -40,3 +40,5 @@ Api > customerapp > staffapp
 - Entity Framework Core
 - MudBlazor (cho UI)
 - SQL Server
+
+đây là commit từ wsl ubuntu
