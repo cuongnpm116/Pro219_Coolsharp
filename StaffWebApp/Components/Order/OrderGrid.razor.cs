@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
 using StaffWebApp.Services.Order;
 using StaffWebApp.Services.Order.Requests;
 using StaffWebApp.Services.Order.Vms;
 using WebAppIntegrated.Enum;
 using WebAppIntegrated.Pagination;
+using WebAppIntegrated.SignalR;
 
 namespace StaffWebApp.Components.Order;
 
@@ -16,6 +18,8 @@ public partial class OrderGrid
     public string SearchString { get; set; } = "";
     [CascadingParameter]
     private Task<AuthenticationState> AuthStateTask { get; set; } = null;
+    [CascadingParameter]
+    private SignalRService SignalRService { get; set; }
     [Inject]
     private IOrderService OrderService { get; set; }
     [Inject]
@@ -37,9 +41,19 @@ public partial class OrderGrid
     {
         AuthenticationState? authState = await AuthStateTask;
         _staffId = new(authState.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value);
-
+        
         _paginationRequest.OrderStatus = OrderStatus;
         await LoadOrder();
+        if (SignalRService == null || SignalRService._hubConnection == null)
+        {
+            throw new ArgumentNullException(nameof(SignalRService), "SignalRService is null or HubConnection is not initialized.");
+        }
+
+        SignalRService._hubConnection.On<string>("UpdateDatabase", async (message) =>
+        {
+            await LoadOrder();
+            InvokeAsync(StateHasChanged);
+        });
         StateHasChanged();
     }
     private async Task LoadOrder()

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using MudBlazor;
 using StaffWebApp.Services.Order;
@@ -6,6 +7,7 @@ using StaffWebApp.Services.Order.Requests;
 using StaffWebApp.Services.Order.Vms;
 using WebAppIntegrated.Constants;
 using WebAppIntegrated.Enum;
+using WebAppIntegrated.SignalR;
 
 namespace StaffWebApp.Components.Pages
 {
@@ -13,7 +15,8 @@ namespace StaffWebApp.Components.Pages
     {
         [Inject]
         private IOrderService OrderService { get; set; }
-
+        [CascadingParameter]
+        private SignalRService SignalRService { get; set; }
         [Inject]
         private ISnackbar Snackbar { get; set; }
 
@@ -30,10 +33,23 @@ namespace StaffWebApp.Components.Pages
 
         protected override async Task OnInitializedAsync()
         {
+
             await Statistical();
             await TopProducts();
             await LowStockProducts();
             await PieChart();
+            if (SignalRService == null || SignalRService._hubConnection == null)
+            {
+                throw new ArgumentNullException(nameof(SignalRService), "SignalRService is null or HubConnection is not initialized.");
+            }
+            SignalRService._hubConnection.On<string>("UpdateDatabase", async (message) =>
+            {
+                await Statistical();
+                await TopProducts();
+                await LowStockProducts();
+                await PieChart();
+                InvokeAsync(StateHasChanged);
+            });
             StateHasChanged();
         }
 

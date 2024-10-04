@@ -8,6 +8,7 @@ using StaffWebApp.Services.Size;
 using StaffWebApp.Services.Staff;
 using StaffWebApp.Services.Voucher;
 using WebAppIntegrated.Grpc;
+using WebAppIntegrated.SignalR;
 
 namespace StaffWebApp.Extensions;
 internal static class ServiceCollectionExtension
@@ -27,6 +28,8 @@ internal static class ServiceCollectionExtension
         services.AddTransient<IProductService, ProductService>();
         services.AddTransient<ICategoryService, CategoryService>();
         services.AddTransient<IVoucherSevice, VoucherService>();
+
+        services.AddSingleton<SignalRService>();
 
         return services;
     }

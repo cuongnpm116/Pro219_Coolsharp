@@ -1,7 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.SignalR.Client
 @using StaffWebApp.Services.Staff
 @using System.Security.Claims
 @using WebAppIntegrated.Constants
+@using WebAppIntegrated.SignalR
 @inherits LayoutComponentBase
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
@@ -38,7 +40,9 @@
         <NavMenu />
     </MudDrawer>
     <MudMainContent Class="mt-16 pa-4">
-        @Body
+        <CascadingValue Value="SignalRService">
+            @Body
+        </CascadingValue>
     </MudMainContent>
 </MudLayout>
 
@@ -55,6 +59,9 @@
 
     [Inject]
     private IStaffService UserService { get; set; } = null!;
+    [Inject]
+    private SignalRService SignalRService { get; set; }
+
 
     private string _imageUrl = ShopConstants.EShopApiHost + "/user-content/";
     private string _username = string.Empty;
@@ -80,7 +87,16 @@
         var result = await UserService.GetStaffInfoToUpdate(_userId);
         _imageUrl += result.Value.ImageUrl;
         _username = result.Value.Username;
+        await SignalRService.InitializeSignalRConnection(claims);
+        if (SignalRService == null || SignalRService._hubConnection == null)
+        {
+            throw new ArgumentNullException(nameof(SignalRService), "SignalRService is null or HubConnection is not initialized.");
+        }
 
+        SignalRService._hubConnection.On<string>("UpdateDatabase", (message) =>
+        {
+            InvokeAsync(StateHasChanged);
+        });
         _theme = new()
         {
             PaletteLight = _lightPalette,

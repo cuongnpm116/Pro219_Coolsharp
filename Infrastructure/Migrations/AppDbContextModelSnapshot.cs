@@ -593,12 +593,12 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d"),
-                            CreatedOn = new DateTime(2024, 9, 12, 21, 13, 2, 334, DateTimeKind.Local).AddTicks(6323),
+                            CreatedOn = new DateTime(2024, 9, 25, 20, 43, 50, 385, DateTimeKind.Local).AddTicks(2393),
                             DateOfBirth = new DateTime(2003, 11, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DeletedOn = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "sohardz01@gmail.com",
                             FirstName = "Nguyễn",
-                            HashedPassword = "C4DF37679108365A1C5F314E3C386C042A76F92A10325D2B168672F96CA07C58:E7836B87F902BEF7FFDB8BDAB40DE54D:50000:SHA256",
+                            HashedPassword = "8EB5FCCE783BD03A51C31E46C8DC5C14AF3B88368E3A90C7CEF94FDF2754F84E:195F202C46A617CCA98EBEDF5FCB021C:50000:SHA256",
                             ImageUrl = "default-profile.png",
                             IsDeleted = false,
                             LastName = "Cương",
@@ -630,7 +630,7 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("6a7b0ccc-24d5-486b-8c7d-47d7af623fdf"),
+                            Id = new Guid("2f544640-04c1-47b2-a5e5-fb45eb1b46bb"),
                             RoleId = new Guid("0fc1d27c-f6c4-4011-8d3c-4d33b2703369"),
                             StaffId = new Guid("b48703e5-2bc4-4996-88dd-4369d76fd61d")
                         });

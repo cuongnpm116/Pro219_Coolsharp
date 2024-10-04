@@ -6,15 +6,25 @@ namespace Infrastructure.SignalR;
 
 public class ShopHub : Hub
 {
-    public async Task SendOrderUpdate(string message)
+    public async Task UpdateDatabase(string message)
     {
-        // Gửi thông báo cập nhật đơn hàng tới tất cả các client đang kết nối
-        await Clients.All.SendAsync("ReceiveOrderUpdate", message);
+        await Clients.All.SendAsync("UpdateDatabase", message);
+    }
+
+    public async Task SendMessageToAll(string message)
+    {
+        await Clients.All.SendAsync("ReceiveMessage", message);
+    }
+
+    public async Task SendMessageToUser(string userId, string message)
+    {
+        await Clients.User(userId).SendAsync("ReceiveMessage", message);
+
     }
 
     public override async Task OnConnectedAsync()
     {
-        var userId = Context.UserIdentifier; // Đảm bảo UserIdentifier được gán giá trị userId
+        var userId = Context.User.Identity.Name; // Đảm bảo UserIdentifier được gán giá trị userId
         if (!string.IsNullOrEmpty(userId))
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, userId);
@@ -33,11 +43,4 @@ public class ShopHub : Hub
         await base.OnDisconnectedAsync(exception);
     }
 }
-public class CustomUserIdProvider : IUserIdProvider
-{
-    public string? GetUserId(HubConnectionContext connection)
-    {
-        // Lấy userId từ Claims hoặc nơi bạn lưu trữ userId
-        return connection.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    }
-}
+

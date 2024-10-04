@@ -68,14 +68,16 @@
 
             </NotAuthorized>
         </AuthorizeView>
-       
+
 
 
 
     </MudAppBar>
 
     <MudMainContent Class="mb-16" Style="flex-grow: 1;">
-        @Body
+        <CascadingValue Value="SignalRService">
+            @Body
+        </CascadingValue>
     </MudMainContent>
 
     <MudScrollToTop>

@@ -8,6 +8,7 @@ using CustomerWebApp.Service.Payment;
 using CustomerWebApp.Service.Product;
 using CustomerWebApp.Service.Voucher;
 using WebAppIntegrated.AddressService;
+using WebAppIntegrated.SignalR;
 
 namespace CustomerWebApp.Extensions;
 
@@ -27,6 +28,7 @@ internal static class ServiceCollectionExtension
         services.AddTransient<IVoucherService, VoucherService>();
 
         services.AddScoped<CartState>();
+        services.AddSingleton<SignalRService>();
         services.AddScoped<SelectedProductState>();
 
 

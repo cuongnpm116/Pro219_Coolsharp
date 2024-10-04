@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using MudBlazor;
 using StaffWebApp.Components.Color;
@@ -7,6 +8,7 @@ using StaffWebApp.Services.Order;
 using StaffWebApp.Services.Order.Vms;
 using WebAppIntegrated.Constants;
 using WebAppIntegrated.Pagination;
+using WebAppIntegrated.SignalR;
 
 namespace StaffWebApp.Components.Order;
 
@@ -14,6 +16,8 @@ public partial class OrderDetail
 {
     [CascadingParameter]
     private Task<AuthenticationState> AuthStateTask { get; set; } = null;
+    [CascadingParameter]
+    private SignalRService SignalRService { get; set; }
     [Inject]
     private IDialogService DialogService { get; set; }
     [Inject]
@@ -36,8 +40,18 @@ public partial class OrderDetail
     {
         AuthenticationState? authState = await AuthStateTask;
         _userId = new(authState.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value);
-
+       
         await LoadOrder();
+        if (SignalRService == null || SignalRService._hubConnection == null)
+        {
+            throw new ArgumentNullException(nameof(SignalRService), "SignalRService is null or HubConnection is not initialized.");
+        }
+
+        SignalRService._hubConnection.On<string>("UpdateDatabase", async (message) =>
+        {
+            await LoadOrder();
+            InvokeAsync(StateHasChanged);
+        });
         if (orderVm.VoucherCode != "N/A")
         {
             _reduceAmount = _totalAmount - orderVm.TotalPrice;
